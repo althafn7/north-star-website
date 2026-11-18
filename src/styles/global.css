@@ -23,18 +23,19 @@ body { @apply bg-steel text-ink font-sans antialiased; }
 .marquee { animation: scroll 45s linear infinite; width: max-content; }
 @keyframes scroll { to { transform: translateX(-50%); } }
 
-.logo-sway {
-  animation: logo-sway 3.2s ease-in-out -1.6s infinite alternate;
+.gear-rock {
+  transform-origin: 49.08% 32.86%;
+  animation: gear-rock 2.8s ease-in-out -1.4s infinite alternate;
   will-change: transform;
 }
-@keyframes logo-sway {
-  from { transform: perspective(900px) rotateY(-25deg); }
-  to { transform: perspective(900px) rotateY(25deg); }
+@keyframes gear-rock {
+  from { transform: rotate(-22deg); }
+  to { transform: rotate(22deg); }
 }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .pipe { animation: none; stroke-dashoffset: 0; }
   .marquee { animation: none; }
-  .logo-sway { animation: none; }
+  .gear-rock { animation: none; }
 }
