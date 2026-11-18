@@ -23,8 +23,18 @@ body { @apply bg-steel text-ink font-sans antialiased; }
 .marquee { animation: scroll 45s linear infinite; width: max-content; }
 @keyframes scroll { to { transform: translateX(-50%); } }
 
+.logo-sway {
+  animation: logo-sway 3.2s ease-in-out -1.6s infinite alternate;
+  will-change: transform;
+}
+@keyframes logo-sway {
+  from { transform: perspective(900px) rotateY(-25deg); }
+  to { transform: perspective(900px) rotateY(25deg); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .pipe { animation: none; stroke-dashoffset: 0; }
   .marquee { animation: none; }
+  .logo-sway { animation: none; }
 }
