@@ -13,8 +13,8 @@
   --font-sans: "Public Sans", system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
 }
 
-html { scroll-behavior: smooth; scroll-padding-top: 5rem; }
-body { @apply bg-steel text-ink font-sans antialiased; }
+html { scroll-behavior: smooth; scroll-padding-top: 4.5rem; }
+body { @apply overflow-x-clip bg-steel text-ink font-sans antialiased; }
 :focus-visible { outline: 3px solid var(--color-flare); outline-offset: 3px; }
 
 .bg-grid-light {
