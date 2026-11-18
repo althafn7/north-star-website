@@ -2,10 +2,13 @@
 
 @theme {
   --color-ink: #22210c;
+  --color-ink-soft: #2e2d14;
   --color-flare: #cc1020;
-  --color-steel: #eeeeea;
-  --color-plate: #d6d6cf;
-  --color-mid: #555548;
+  --color-flare-deep: #9c0c18;
+  --color-steel: #e6e4da;
+  --color-cream: #f2f0e8;
+  --color-plate: #ceccc0;
+  --color-mid: #4e4e3f;
   --font-display: "Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
   --font-sans: "Public Sans", system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
 }
@@ -13,6 +16,20 @@
 html { scroll-behavior: smooth; scroll-padding-top: 5rem; }
 body { @apply bg-steel text-ink font-sans antialiased; }
 :focus-visible { outline: 3px solid var(--color-flare); outline-offset: 3px; }
+
+.bg-grid-light {
+  background-image:
+    linear-gradient(to right, rgba(34, 33, 12, 0.055) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(34, 33, 12, 0.055) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.bg-grid-dark {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
 
 /* Elements animated by motion start hidden only when JS is running */
 .js [data-hero], .js [data-reveal] { opacity: 0; }

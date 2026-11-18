@@ -106,31 +106,46 @@ const clients = [
       </div>
       <svg class="relative block h-24 w-full" viewBox="0 0 1200 120" preserveAspectRatio="none" aria-hidden="true" focusable="false">
         <path class="pipe" d="M0 92H300V48H620V92H880V36H1200" fill="none" stroke="#fff" stroke-width="8" opacity=".9" />
-        <rect x="0" y="108" width="1200" height="12" fill="#eeeeea" />
+        <rect x="0" y="108" width="1200" height="12" fill="#e6e4da" />
       </svg>
     </section>
 
-    <section id="about" class="py-20" data-group>
-      <div class="mx-auto grid max-w-6xl gap-12 px-6 md:grid-cols-2">
-        <div data-reveal>
-          <h2 class="font-display text-5xl font-extrabold leading-none">Engineering and technical contracting in Sohar</h2>
+    <section id="about" class="relative overflow-hidden bg-steel bg-grid-light py-24" data-group>
+      <div class="pointer-events-none absolute -right-28 top-0 h-full w-1/3 -skew-x-12 bg-ink/[0.06]" aria-hidden="true"></div>
+      <div class="pointer-events-none absolute -right-8 top-0 h-full w-16 -skew-x-12 bg-flare/15" aria-hidden="true"></div>
+      <div class="relative mx-auto grid max-w-6xl gap-12 px-6 md:grid-cols-2">
+        <div data-reveal class="self-center">
+          <div class="mb-4 inline-flex items-center gap-2.5 text-xs font-semibold uppercase tracking-[0.2em] text-flare">
+            <span class="h-0.5 w-8 bg-flare" aria-hidden="true"></span>
+            01 / About NSTS
+          </div>
+          <h2 class="font-display text-5xl font-extrabold leading-none sm:text-6xl">Engineering and technical contracting in Sohar</h2>
           <p class="mt-6 max-w-prose text-lg leading-relaxed text-mid">North Star Technical Services (NSTS) is a specialized engineering and technical contracting company based in Sohar, Oman. We deliver end-to-end mechanical construction, structural fabrication, piping, storage tank rehabilitation and plant maintenance.</p>
+          <div class="mt-7 inline-flex items-center gap-3 border-l-4 border-flare bg-ink px-4 py-2.5 text-xs font-semibold uppercase tracking-widest text-white shadow-sm">
+            <span>Liwa Industrial Area</span>
+            <span class="text-flare" aria-hidden="true">&bull;</span>
+            <span>Sohar, Oman</span>
+          </div>
         </div>
         <div class="grid gap-6 self-center">
-          <div data-reveal class="border-l-4 border-flare bg-white p-6">
-            <h3 class="font-display text-3xl font-extrabold">Vision</h3>
-            <p class="mt-2 text-mid">To be the preferred industrial engineering and mechanical contracting partner in Oman.</p>
+          <div data-reveal class="border-l-4 border-flare bg-ink p-7 text-white shadow-lg">
+            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-red-400">Our direction</p>
+            <h3 class="mt-1 font-display text-3xl font-extrabold">Vision</h3>
+            <p class="mt-2 text-white/80">To be the preferred industrial engineering and mechanical contracting partner in Oman.</p>
           </div>
-          <div data-reveal class="border-l-4 border-ink bg-white p-6">
-            <h3 class="font-display text-3xl font-extrabold">Mission</h3>
+          <div data-reveal class="border border-plate border-l-4 border-l-ink bg-white p-7 shadow-md">
+            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-flare">Our commitment</p>
+            <h3 class="mt-1 font-display text-3xl font-extrabold">Mission</h3>
             <p class="mt-2 text-mid">To support critical infrastructure through precision fabrication, strict QA/QC and plant maintenance.</p>
           </div>
         </div>
       </div>
     </section>
 
-    <section aria-label="Company track record" class="border-b-4 border-flare bg-ink text-white" data-group>
-      <div class="mx-auto max-w-6xl px-6">
+    <section aria-label="Company track record" class="relative overflow-hidden border-y-4 border-flare bg-ink bg-grid-dark text-white" data-group>
+      <div class="pointer-events-none absolute -right-24 top-0 h-full w-1/3 -skew-x-12 bg-flare/20" aria-hidden="true"></div>
+      <div class="pointer-events-none absolute -right-4 top-0 h-full w-20 -skew-x-12 bg-black/40" aria-hidden="true"></div>
+      <div class="relative mx-auto max-w-6xl px-6">
         <dl class="grid divide-y divide-white/15 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
           {stats.map((s) => (
             <div data-reveal class="flex flex-col-reverse py-9 sm:px-10 sm:py-12 sm:first:pl-0 sm:last:pr-0">
@@ -144,55 +159,91 @@ const clients = [
       </div>
     </section>
 
-    <section id="services" class="bg-white py-20" data-group>
-      <div class="mx-auto max-w-6xl px-6">
-        <h2 data-reveal class="font-display text-5xl font-extrabold leading-none">Core services</h2>
-        <p data-reveal class="mt-4 max-w-prose text-mid">Shop and site work for refineries, tank farms, power, mining and process plants.</p>
-        <div class="mt-10 grid gap-px border-t-4 border-ink bg-plate sm:grid-cols-2 lg:grid-cols-3">
-          {services.map((s) => (
-            <article data-reveal class="bg-white py-7 pr-6 sm:px-6 sm:first:pl-0">
-              <h3 class="font-display text-3xl font-extrabold leading-tight">{s.t}</h3>
+    <section id="services" class="relative overflow-hidden bg-cream py-24" data-group>
+      <div class="pointer-events-none absolute -left-24 top-0 h-full w-1/4 -skew-x-12 bg-ink/[0.035]" aria-hidden="true"></div>
+      <div class="pointer-events-none absolute -right-28 top-0 h-full w-1/3 -skew-x-12 bg-flare/[0.045]" aria-hidden="true"></div>
+      <div class="relative mx-auto max-w-6xl px-6">
+        <div data-reveal class="mb-4 inline-flex items-center gap-2.5 text-xs font-semibold uppercase tracking-[0.2em] text-flare">
+          <span class="h-0.5 w-8 bg-flare" aria-hidden="true"></span>
+          02 / Capabilities
+        </div>
+        <h2 data-reveal class="font-display text-5xl font-extrabold leading-none sm:text-6xl">Core services</h2>
+        <p data-reveal class="mt-4 max-w-prose text-lg text-mid">Shop and site work for refineries, tank farms, power, mining and process plants.</p>
+        <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {services.map((s, i) => (
+            <article data-reveal class="group flex flex-col border border-plate border-t-4 border-t-ink bg-white p-7 shadow-sm transition-[translate,border-color,box-shadow] duration-300 hover:-translate-y-1 hover:border-t-flare hover:shadow-lg">
+              <span class="font-display text-2xl font-black tracking-wider text-flare">{String(i + 1).padStart(2, "0")}</span>
+              <h3 class="mt-2 font-display text-3xl font-extrabold leading-tight text-ink">{s.t}</h3>
               <p class="mt-3 text-mid">{s.d}</p>
             </article>
           ))}
-          <article data-reveal class="bg-ink p-7 text-white">
-            <h3 class="font-display text-3xl font-extrabold leading-tight">Have a different scope?</h3>
-            <p class="mt-3 text-white/75">Send us the drawings or a site visit request and we will tell you plainly what we can deliver.</p>
-            <a href="#contact" class="mt-5 inline-block bg-flare px-5 py-2.5 font-semibold">Talk to us</a>
+          <article data-reveal class="relative flex flex-col justify-between overflow-hidden bg-gradient-to-br from-flare to-flare-deep p-7 text-white shadow-lg">
+            <div class="pointer-events-none absolute -right-10 top-0 h-full w-24 -skew-x-12 bg-ink/20" aria-hidden="true"></div>
+            <div class="relative">
+              <span class="text-xs font-semibold uppercase tracking-[0.2em] text-white/80">Custom scope</span>
+              <h3 class="mt-2 font-display text-3xl font-extrabold leading-tight">Have a different scope?</h3>
+              <p class="mt-3 text-white/90">Send us the drawings or a site visit request and we will tell you plainly what we can deliver.</p>
+            </div>
+            <div class="relative mt-6">
+              <a href="#contact" class="inline-block bg-ink px-6 py-3 font-semibold text-white transition-colors hover:bg-black">Talk to us</a>
+            </div>
           </article>
         </div>
       </div>
     </section>
 
-    <section id="quality" class="py-20" data-group>
-      <div class="mx-auto max-w-6xl px-6">
-        <h2 data-reveal class="font-display text-5xl font-extrabold leading-none">Quality and safety</h2>
+    <section id="quality" class="relative overflow-hidden border-y-4 border-flare bg-ink bg-grid-dark py-24 text-white" data-group>
+      <div class="pointer-events-none absolute -right-28 top-0 h-full w-2/5 -skew-x-12 bg-flare/20" aria-hidden="true"></div>
+      <div class="pointer-events-none absolute -right-8 top-0 h-full w-24 -skew-x-12 bg-flare/75" aria-hidden="true"></div>
+      <div class="relative mx-auto max-w-6xl px-6">
+        <div data-reveal class="mb-4 inline-flex items-center gap-2.5 text-xs font-semibold uppercase tracking-[0.2em] text-red-400">
+          <span class="h-0.5 w-8 bg-flare" aria-hidden="true"></span>
+          03 / Standards &amp; HSE
+        </div>
+        <h2 data-reveal class="font-display text-5xl font-extrabold leading-none sm:text-6xl">Quality and safety</h2>
         <div data-reveal class="mt-6 flex flex-wrap gap-2.5">
-          {standards.map((s) => <span class="border-2 border-ink px-3.5 py-1.5 text-sm font-semibold">{s}</span>)}
+          {standards.map((s) => (
+            <span class="inline-flex items-center gap-2 border border-white/25 bg-ink-soft/90 px-3.5 py-1.5 text-sm font-semibold text-white backdrop-blur-sm">
+              <span class="h-1.5 w-1.5 bg-flare" aria-hidden="true"></span>
+              {s}
+            </span>
+          ))}
         </div>
         <div class="mt-10 grid gap-6 lg:grid-cols-[1.4fr_1fr]">
-          <div class="grid gap-6">
+          <div class="grid gap-5">
             {qa.map((q) => (
-              <div data-reveal class="border-l-4 border-flare bg-white p-6">
-                <h3 class="text-xl font-semibold">{q.t}</h3>
-                <p class="mt-1.5 text-mid">{q.d}</p>
+              <div data-reveal class="border border-white/10 border-l-4 border-l-flare bg-ink-soft/95 p-6 shadow-md backdrop-blur-sm">
+                <h3 class="text-xl font-semibold text-white">{q.t}</h3>
+                <p class="mt-1.5 text-white/75">{q.d}</p>
               </div>
             ))}
           </div>
-          <div data-reveal class="bg-ink p-8 text-white">
-            <h3 class="font-display text-4xl font-extrabold">Health, safety and environment</h3>
-            <p class="mt-4 text-white/80">A zero-harm philosophy backed by job safety analyses, method statements and strict permit-to-work compliance on every job.</p>
+          <div data-reveal class="flex flex-col justify-between border border-white/15 bg-gradient-to-br from-flare to-flare-deep p-8 text-white shadow-xl">
+            <div>
+              <span class="inline-block bg-ink/85 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-white">Zero-harm policy</span>
+              <h3 class="mt-5 font-display text-4xl font-extrabold leading-none">Health, safety and environment</h3>
+              <p class="mt-4 text-white/90">A zero-harm philosophy backed by job safety analyses, method statements and strict permit-to-work compliance on every job.</p>
+            </div>
+            <div class="mt-8 border-t border-white/25 pt-4 text-xs font-semibold uppercase tracking-[0.16em] text-white/85">
+              JSA &bull; Method Statements &bull; Permit-to-Work
+            </div>
           </div>
         </div>
       </div>
     </section>
 
-    <section id="clients" class="bg-white py-16" data-group>
-      <div class="mx-auto max-w-6xl px-6">
-        <h2 data-reveal class="font-display text-5xl font-extrabold leading-none">Clients we have worked with</h2>
+    <section id="clients" class="relative overflow-hidden bg-steel bg-grid-light py-24" data-group>
+      <div class="pointer-events-none absolute -right-24 top-0 h-full w-1/3 -skew-x-12 bg-ink/[0.05]" aria-hidden="true"></div>
+      <div class="pointer-events-none absolute -left-24 top-0 h-full w-24 -skew-x-12 bg-flare/10" aria-hidden="true"></div>
+      <div class="relative mx-auto max-w-6xl px-6">
+        <div data-reveal class="mb-4 inline-flex items-center gap-2.5 text-xs font-semibold uppercase tracking-[0.2em] text-flare">
+          <span class="h-0.5 w-8 bg-flare" aria-hidden="true"></span>
+          04 / Trusted Partners
+        </div>
+        <h2 data-reveal class="font-display text-5xl font-extrabold leading-none sm:text-6xl">Clients we have worked with</h2>
       </div>
-      <div class="mx-auto mt-10 max-w-6xl px-6">
-        <div class="grid grid-cols-2 gap-px border border-plate bg-plate sm:grid-cols-3 lg:grid-cols-5">
+      <div class="relative mx-auto mt-10 max-w-6xl px-6">
+        <div class="grid grid-cols-2 gap-px border border-plate border-t-4 border-t-flare bg-plate shadow-lg sm:grid-cols-3 lg:grid-cols-5">
           {clients.map((c, i) => (
             <div data-reveal class="group relative flex h-28 items-center justify-center overflow-hidden bg-white p-5 transition-colors duration-300 hover:bg-steel/40">
               <div
@@ -213,34 +264,45 @@ const clients = [
       </div>
     </section>
 
-    <section id="contact" class="bg-ink py-20 text-white" data-group>
-      <div class="mx-auto max-w-6xl px-6">
-        <h2 data-reveal class="font-display text-5xl font-extrabold leading-none">Tell us about your job</h2>
-        <p data-reveal class="mt-4 max-w-prose text-white/75">Send your scope, drawings or a site visit request. We reply with a clear plan and quote.</p>
-        <div class="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-          <div data-reveal>
-            <h3 class="font-display text-2xl font-bold text-red-400">Phone</h3>
-            {phones.map((p) => <a class="block text-lg hover:underline" href={p.href}>{p.label}</a>)}
+    <section id="contact" class="relative overflow-hidden border-t-4 border-flare bg-ink bg-grid-dark py-24 text-white" data-group>
+      <div class="pointer-events-none absolute -right-28 top-0 h-full w-2/5 -skew-x-12 bg-flare/85" aria-hidden="true"></div>
+      <div class="pointer-events-none absolute -right-6 top-0 h-full w-24 -skew-x-12 bg-black/55" aria-hidden="true"></div>
+      <div class="relative mx-auto max-w-6xl px-6">
+        <div data-reveal class="mb-4 inline-flex items-center gap-2.5 text-xs font-semibold uppercase tracking-[0.2em] text-red-400">
+          <span class="h-0.5 w-8 bg-flare" aria-hidden="true"></span>
+          05 / Contact
+        </div>
+        <h2 data-reveal class="font-display text-5xl font-extrabold leading-none sm:text-6xl">Tell us about your job</h2>
+        <p data-reveal class="mt-4 max-w-prose text-lg text-white/80">Send your scope, drawings or a site visit request. We reply with a clear plan and quote.</p>
+        <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div data-reveal class="border border-white/15 border-t-4 border-t-flare bg-ink/90 p-6 shadow-lg backdrop-blur-sm">
+            <h3 class="font-display text-2xl font-bold tracking-wide text-red-400">Phone</h3>
+            <div class="mt-2 space-y-1">
+              {phones.map((p) => <a class="block text-lg hover:underline" href={p.href}>{p.label}</a>)}
+            </div>
           </div>
-          <div data-reveal>
-            <h3 class="font-display text-2xl font-bold text-red-400">Email</h3>
-            <a class="break-all text-lg hover:underline" href={`mailto:${email}`}>{email}</a>
+          <div data-reveal class="border border-white/15 border-t-4 border-t-flare bg-ink/90 p-6 shadow-lg backdrop-blur-sm">
+            <h3 class="font-display text-2xl font-bold tracking-wide text-red-400">Email</h3>
+            <a class="mt-2 block break-all text-lg hover:underline" href={`mailto:${email}`}>{email}</a>
           </div>
-          <div data-reveal>
-            <h3 class="font-display text-2xl font-bold text-red-400">Address</h3>
-            <p class="text-lg">Liwa Industrial Area, Sohar, Sultanate of Oman</p>
+          <div data-reveal class="border border-white/15 border-t-4 border-t-flare bg-ink/90 p-6 shadow-lg backdrop-blur-sm">
+            <h3 class="font-display text-2xl font-bold tracking-wide text-red-400">Address</h3>
+            <p class="mt-2 text-lg text-white/90">Liwa Industrial Area, Sohar, Sultanate of Oman</p>
           </div>
-          <div data-reveal>
-            <h3 class="font-display text-2xl font-bold text-red-400">Map</h3>
-            <a class="text-lg hover:underline" href={map} target="_blank" rel="noopener">Open in Google Maps</a>
+          <div data-reveal class="border border-white/15 border-t-4 border-t-flare bg-ink/90 p-6 shadow-lg backdrop-blur-sm">
+            <h3 class="font-display text-2xl font-bold tracking-wide text-red-400">Map</h3>
+            <a class="mt-2 inline-flex items-center gap-1.5 text-lg font-medium hover:underline" href={map} target="_blank" rel="noopener">Open in Google Maps &rarr;</a>
           </div>
         </div>
       </div>
     </section>
   </main>
 
-  <footer class="bg-[#14130a] py-6 text-sm text-[#a3a38f]">
-    <div class="mx-auto max-w-6xl px-6">&copy; {new Date().getFullYear()} North Star Technical Services LLC. Sohar, Sultanate of Oman.</div>
+  <footer class="border-t border-white/10 bg-[#14130a] py-7 text-sm text-[#a3a38f]">
+    <div class="mx-auto flex max-w-6xl flex-col items-start justify-between gap-2 px-6 sm:flex-row sm:items-center">
+      <span>&copy; {new Date().getFullYear()} North Star Technical Services LLC. Sohar, Sultanate of Oman.</span>
+      <a href="#top" class="text-xs font-semibold uppercase tracking-widest text-white/70 transition-colors hover:text-flare">Back to top &uarr;</a>
+    </div>
   </footer>
 
   <script>
