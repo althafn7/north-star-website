@@ -84,20 +84,27 @@ const clients = [
   </header>
 
   <main id="top">
-    <section class="relative overflow-hidden bg-ink text-white">
-      <div class="absolute -right-24 top-0 h-full w-1/2 -skew-x-12 bg-flare/90" aria-hidden="true"></div>
-      <div class="absolute -right-4 top-0 h-full w-24 -skew-x-12 bg-black/60" aria-hidden="true"></div>
+    <section class="relative overflow-hidden bg-[#111318] text-white">
+      <img
+        src="/hero-bg.jpg"
+        alt=""
+        aria-hidden="true"
+        fetchpriority="high"
+        class="pointer-events-none absolute inset-0 h-full w-full object-cover object-center"
+      />
+      <div class="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#111318]/90 via-[#111318]/65 to-[#111318]/25" aria-hidden="true"></div>
+      <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#111318]/80 via-transparent to-[#111318]/35" aria-hidden="true"></div>
       <div class="relative mx-auto grid max-w-6xl items-center gap-12 px-6 pb-16 pt-16 md:grid-cols-[1.25fr_1fr] md:pt-24">
         <div>
-          <h1 data-hero class="font-display text-6xl font-black leading-[.92] sm:text-7xl lg:text-8xl">Fabrication, piping and plant maintenance for Oman's industry.</h1>
-          <p data-hero class="mt-7 max-w-xl text-lg text-white/80">Industrial engineering, mechanical fabrication and plant maintenance and contracting, delivered from Sohar with strict QA/QC and a zero-harm approach.</p>
+          <h1 data-hero class="font-display text-6xl font-black leading-[.92] drop-shadow-[0_2px_12px_rgba(0,0,0,0.45)] sm:text-7xl lg:text-8xl">Fabrication, piping and plant maintenance for Oman's industry.</h1>
+          <p data-hero class="mt-7 max-w-xl text-lg text-white/90 drop-shadow-[0_1px_6px_rgba(0,0,0,0.5)]">Industrial engineering, mechanical fabrication and plant maintenance and contracting, delivered from Sohar with strict QA/QC and a zero-harm approach.</p>
           <div data-hero class="mt-9 flex flex-wrap gap-4">
-            <a href="#contact" class="bg-flare px-7 py-3.5 font-semibold text-white hover:bg-red-700">Request a quote</a>
-            <a href="#services" class="border-2 border-white/40 px-7 py-3.5 font-semibold hover:bg-white/10">See our services</a>
+            <a href="#contact" class="bg-flare px-7 py-3.5 font-semibold text-white shadow-lg transition-colors hover:bg-red-700">Request a quote</a>
+            <a href="#services" class="border-2 border-white/60 bg-black/25 px-7 py-3.5 font-semibold backdrop-blur-sm transition-colors hover:bg-white/15">See our services</a>
           </div>
         </div>
         <div data-hero class="mx-auto w-full max-w-sm">
-          <div class="flex aspect-square items-center justify-center overflow-hidden rounded-full bg-white p-[13%] shadow-2xl">
+          <div class="flex aspect-square items-center justify-center overflow-hidden rounded-full bg-white p-[13%] shadow-2xl ring-4 ring-white/25">
             <div class="relative aspect-[436/420] w-full -translate-y-1">
               <img src="/logo-gear.png" alt="" aria-hidden="true" class="gear-rock absolute inset-0 h-full w-full" />
               <img src="/logo-core.png" alt="North Star Technical Services logo" class="relative h-full w-full" />
