@@ -22,7 +22,28 @@ const qa = [
   { t: "NDT/NDE testing", d: "RT, UT, MPI/MPT, dye penetrant (DPT/LPT) and PMI checks, including for SS 304 components." },
   { t: "Traceability and sign-offs", d: "Material verification, initial and final dimensions, fit-up inspection and pad plate pneumatic testing before test pack handover." },
 ];
-const clients = ["OQ","Oman Methanol Company","Wadi Al Jizzi Power Company","Sohar Aluminium","Vale","Oman Formaldehyde Chemical Company","Gulf International Pipe Industry","Mawarid Mining","Oman Mining Company","Air Liquide","Sohar Sulphur Fertilizers","SIUCI","Panorama","Oman Aluminium Rolling Company","Drake & Scull","S&T","STS","Shell Oman","BEC"];
+const clients = [
+  { name: "OQ", src: "oq" },
+  { name: "Oman Methanol Company", src: "oman-methanol" },
+  { name: "Wadi Al Jizzi Power Company", src: "wadi-al-jizzi-power" },
+  { name: "Sohar Aluminium", src: "sohar-aluminium" },
+  { name: "Vale", src: "vale" },
+  { name: "Oman Formaldehyde Chemical Company", src: "oman-formaldehyde" },
+  { name: "Gulf International Pipe Industry", src: "gipi" },
+  { name: "Mawarid Mining", src: "mawarid-mining" },
+  { name: "Oman Mining Company", src: "oman-mining" },
+  { name: "Air Liquide", src: "air-liquide" },
+  { name: "Sohar Sulphur Fertilizers", src: "sohar-sulphur-fertilizers" },
+  { name: "SIUCI", src: "siuci" },
+  { name: "Client", src: "client-water" },
+  { name: "Panorama", src: "panorama" },
+  { name: "Oman Aluminium Rolling Company", src: "oarc" },
+  { name: "Drake & Scull", src: "drake-and-scull" },
+  { name: "S&T", src: "s-and-t" },
+  { name: "STS", src: "sts" },
+  { name: "Shell Oman", src: "shell-oman" },
+  { name: "BEC", src: "bec" },
+];
 ---
 <!doctype html>
 <html lang="en">
@@ -142,13 +163,17 @@ const clients = ["OQ","Oman Methanol Company","Wadi Al Jizzi Power Company","Soh
       </div>
     </section>
 
-    <section id="clients" class="overflow-hidden bg-white py-16" data-group>
+    <section id="clients" class="bg-white py-16" data-group>
       <div class="mx-auto max-w-6xl px-6">
         <h2 data-reveal class="font-display text-5xl font-extrabold leading-none">Clients we have worked with</h2>
       </div>
-      <div class="mt-10 border-y border-plate py-6" aria-label="Client list">
-        <div class="marquee flex gap-12 text-xl font-semibold text-mid">
-          {[...clients, ...clients].map((c) => <span class="whitespace-nowrap">{c}</span>)}
+      <div class="mx-auto mt-10 max-w-6xl px-6">
+        <div class="grid grid-cols-2 gap-px border border-plate bg-plate sm:grid-cols-3 lg:grid-cols-5">
+          {clients.map((c) => (
+            <div data-reveal class="flex h-28 items-center justify-center bg-white p-5">
+              <img src={`/clients/${c.src}.png`} alt={c.name} loading="lazy" class="max-h-full max-w-full object-contain" />
+            </div>
+          ))}
         </div>
       </div>
     </section>
