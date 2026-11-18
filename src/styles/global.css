@@ -1,0 +1,30 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #22210c;
+  --color-flare: #cc1020;
+  --color-steel: #eeeeea;
+  --color-plate: #d6d6cf;
+  --color-mid: #555548;
+  --font-display: "Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
+  --font-sans: "Public Sans", system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+}
+
+html { scroll-behavior: smooth; scroll-padding-top: 5rem; }
+body { @apply bg-steel text-ink font-sans antialiased; }
+:focus-visible { outline: 3px solid var(--color-flare); outline-offset: 3px; }
+
+/* Elements animated by motion start hidden only when JS is running */
+.js [data-hero], .js [data-reveal] { opacity: 0; }
+
+.pipe { stroke-dasharray: 1800; stroke-dashoffset: 1800; animation: draw 2.6s .4s ease-out forwards; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+
+.marquee { animation: scroll 45s linear infinite; width: max-content; }
+@keyframes scroll { to { transform: translateX(-50%); } }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .pipe { animation: none; stroke-dashoffset: 0; }
+  .marquee { animation: none; }
+}

@@ -1,0 +1,200 @@
+---
+import "../styles/global.css";
+
+const phones = [
+  { label: "+968 9724 8330", href: "tel:+96897248330" },
+  { label: "+968 9777 1508", href: "tel:+96897771508" },
+];
+const email = "nstsoman@gmail.com";
+const map = "https://maps.app.goo.gl/pwzAuGg2UD7wKney9";
+
+const services = [
+  { t: "Storage tank construction and rehabilitation", d: "API 650/653 repairs, shell and floor plate replacement, and nozzle and manway rehabilitation." },
+  { t: "Structural steel and piping fabrication", d: "Custom shop and site fabrication, process piping to ASME B31.3, and certified welding (SMAW, GTAW)." },
+  { t: "Plant maintenance and shutdowns", d: "Preventive and shutdown maintenance, turnarounds, precision grinding, weld build-ups and cold patch plate removal to API 653 guidelines." },
+  { t: "Heavy rigging and lifting", d: "Certified heavy rigging and crane lifting operations that support turnarounds and plant maintenance." },
+  { t: "Technical material supply", d: "Supply of technical materials for fabrication and maintenance work, with incoming material checks." },
+];
+
+const standards = ["ASME Sec II, V, IX", "ASME B31.3", "API 650", "API 653", "AWS", "ASTM"];
+const qa = [
+  { t: "Inspection and test plans", d: "ITPs, document review, incoming material checks (MIRR) and shop fabrication control." },
+  { t: "NDT/NDE testing", d: "RT, UT, MPI/MPT, dye penetrant (DPT/LPT) and PMI checks, including for SS 304 components." },
+  { t: "Traceability and sign-offs", d: "Material verification, initial and final dimensions, fit-up inspection and pad plate pneumatic testing before test pack handover." },
+];
+const clients = ["OQ","Oman Methanol Company","Wadi Al Jizzi Power Company","Sohar Aluminium","Vale","Oman Formaldehyde Chemical Company","Gulf International Pipe Industry","Mawarid Mining","Oman Mining Company","Air Liquide","Sohar Sulphur Fertilizers","SIUCI","Panorama","Oman Aluminium Rolling Company","Drake & Scull","S&T","STS","Shell Oman","BEC"];
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>North Star Technical Services LLC | Mechanical Fabrication and Plant Maintenance, Sohar, Oman</title>
+  <meta name="description" content="North Star Technical Services LLC is an engineering and technical contracting company in Sohar, Oman: structural fabrication, piping, storage tank rehabilitation and plant maintenance for oil, gas and industry." />
+  <link rel="icon" type="image/png" href="/logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script is:inline>document.documentElement.classList.add("js")</script>
+</head>
+<body>
+  <header class="sticky top-0 z-20 border-b-4 border-flare bg-white">
+    <div class="mx-auto flex h-20 max-w-6xl items-center justify-between gap-4 px-6">
+      <a href="#top" class="flex items-center gap-3.5" aria-label="North Star Technical Services, home">
+        <img src="/logo.png" alt="North Star logo" class="h-14 w-auto" />
+        <span class="hidden border-l-2 border-plate pl-3.5 text-sm font-semibold leading-tight text-mid sm:block">Technical Services LLC</span>
+      </a>
+      <nav class="hidden gap-7 text-[15px] font-medium md:flex" aria-label="Main">
+        <a class="border-b-2 border-transparent py-1 hover:border-flare" href="#about">About</a>
+        <a class="border-b-2 border-transparent py-1 hover:border-flare" href="#services">Services</a>
+        <a class="border-b-2 border-transparent py-1 hover:border-flare" href="#quality">Quality and safety</a>
+        <a class="border-b-2 border-transparent py-1 hover:border-flare" href="#clients">Clients</a>
+        <a class="border-b-2 border-transparent py-1 hover:border-flare" href="#contact">Contact</a>
+      </nav>
+      <a href={phones[0].href} class="bg-flare px-4 py-2 text-sm font-semibold text-white md:hidden">Call us</a>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="relative overflow-hidden bg-ink text-white">
+      <div class="absolute -right-24 top-0 h-full w-1/2 -skew-x-12 bg-flare/90" aria-hidden="true"></div>
+      <div class="absolute -right-4 top-0 h-full w-24 -skew-x-12 bg-black/60" aria-hidden="true"></div>
+      <div class="relative mx-auto grid max-w-6xl items-center gap-12 px-6 pb-16 pt-16 md:grid-cols-[1.25fr_1fr] md:pt-24">
+        <div>
+          <h1 data-hero class="font-display text-6xl font-black leading-[.92] sm:text-7xl lg:text-8xl">Fabrication, piping and plant maintenance for Oman's industry.</h1>
+          <p data-hero class="mt-7 max-w-xl text-lg text-white/80">Industrial engineering, mechanical fabrication and plant maintenance and contracting, delivered from Sohar with strict QA/QC and a zero-harm approach.</p>
+          <div data-hero class="mt-9 flex flex-wrap gap-4">
+            <a href="#contact" class="bg-flare px-7 py-3.5 font-semibold text-white hover:bg-red-700">Request a quote</a>
+            <a href="#services" class="border-2 border-white/40 px-7 py-3.5 font-semibold hover:bg-white/10">See our services</a>
+          </div>
+        </div>
+        <div data-hero class="mx-auto w-full max-w-sm">
+          <div class="aspect-square rounded-full bg-white p-8 shadow-2xl">
+            <img src="/logo.png" alt="North Star Technical Services logo" class="h-full w-full object-contain" />
+          </div>
+        </div>
+      </div>
+      <svg class="relative block h-24 w-full" viewBox="0 0 1200 120" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+        <path class="pipe" d="M0 92H300V48H620V92H880V36H1200" fill="none" stroke="#fff" stroke-width="8" opacity=".9" />
+        <rect x="0" y="108" width="1200" height="12" fill="#eeeeea" />
+      </svg>
+    </section>
+
+    <section id="about" class="py-20" data-group>
+      <div class="mx-auto grid max-w-6xl gap-12 px-6 md:grid-cols-2">
+        <div data-reveal>
+          <h2 class="font-display text-5xl font-extrabold leading-none">Engineering and technical contracting in Sohar</h2>
+          <p class="mt-6 max-w-prose text-lg leading-relaxed text-mid">North Star Technical Services (NSTS) is a specialized engineering and technical contracting company based in Sohar, Oman. We deliver end-to-end mechanical construction, structural fabrication, piping, storage tank rehabilitation and plant maintenance.</p>
+        </div>
+        <div class="grid gap-6 self-center">
+          <div data-reveal class="border-l-4 border-flare bg-white p-6">
+            <h3 class="font-display text-3xl font-extrabold">Vision</h3>
+            <p class="mt-2 text-mid">To be the preferred industrial engineering and mechanical contracting partner in Oman.</p>
+          </div>
+          <div data-reveal class="border-l-4 border-ink bg-white p-6">
+            <h3 class="font-display text-3xl font-extrabold">Mission</h3>
+            <p class="mt-2 text-mid">To support critical infrastructure through precision fabrication, strict QA/QC and plant maintenance.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="services" class="bg-white py-20" data-group>
+      <div class="mx-auto max-w-6xl px-6">
+        <h2 data-reveal class="font-display text-5xl font-extrabold leading-none">Core services</h2>
+        <p data-reveal class="mt-4 max-w-prose text-mid">Shop and site work for refineries, tank farms, power, mining and process plants.</p>
+        <div class="mt-10 grid gap-px border-t-4 border-ink bg-plate sm:grid-cols-2 lg:grid-cols-3">
+          {services.map((s) => (
+            <article data-reveal class="bg-white py-7 pr-6 sm:px-6 sm:first:pl-0">
+              <h3 class="font-display text-3xl font-extrabold leading-tight">{s.t}</h3>
+              <p class="mt-3 text-mid">{s.d}</p>
+            </article>
+          ))}
+          <article data-reveal class="bg-ink p-7 text-white">
+            <h3 class="font-display text-3xl font-extrabold leading-tight">Have a different scope?</h3>
+            <p class="mt-3 text-white/75">Send us the drawings or a site visit request and we will tell you plainly what we can deliver.</p>
+            <a href="#contact" class="mt-5 inline-block bg-flare px-5 py-2.5 font-semibold">Talk to us</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="quality" class="py-20" data-group>
+      <div class="mx-auto max-w-6xl px-6">
+        <h2 data-reveal class="font-display text-5xl font-extrabold leading-none">Quality and safety</h2>
+        <div data-reveal class="mt-6 flex flex-wrap gap-2.5">
+          {standards.map((s) => <span class="border-2 border-ink px-3.5 py-1.5 text-sm font-semibold">{s}</span>)}
+        </div>
+        <div class="mt-10 grid gap-6 lg:grid-cols-[1.4fr_1fr]">
+          <div class="grid gap-6">
+            {qa.map((q) => (
+              <div data-reveal class="border-l-4 border-flare bg-white p-6">
+                <h3 class="text-xl font-semibold">{q.t}</h3>
+                <p class="mt-1.5 text-mid">{q.d}</p>
+              </div>
+            ))}
+          </div>
+          <div data-reveal class="bg-ink p-8 text-white">
+            <h3 class="font-display text-4xl font-extrabold">Health, safety and environment</h3>
+            <p class="mt-4 text-white/80">A zero-harm philosophy backed by job safety analyses, method statements and strict permit-to-work compliance on every job.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="clients" class="overflow-hidden bg-white py-16" data-group>
+      <div class="mx-auto max-w-6xl px-6">
+        <h2 data-reveal class="font-display text-5xl font-extrabold leading-none">Clients we have worked with</h2>
+      </div>
+      <div class="mt-10 border-y border-plate py-6" aria-label="Client list">
+        <div class="marquee flex gap-12 text-xl font-semibold text-mid">
+          {[...clients, ...clients].map((c) => <span class="whitespace-nowrap">{c}</span>)}
+        </div>
+      </div>
+    </section>
+
+    <section id="contact" class="bg-ink py-20 text-white" data-group>
+      <div class="mx-auto max-w-6xl px-6">
+        <h2 data-reveal class="font-display text-5xl font-extrabold leading-none">Tell us about your job</h2>
+        <p data-reveal class="mt-4 max-w-prose text-white/75">Send your scope, drawings or a site visit request. We reply with a clear plan and quote.</p>
+        <div class="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+          <div data-reveal>
+            <h3 class="font-display text-2xl font-bold text-red-400">Phone</h3>
+            {phones.map((p) => <a class="block text-lg hover:underline" href={p.href}>{p.label}</a>)}
+          </div>
+          <div data-reveal>
+            <h3 class="font-display text-2xl font-bold text-red-400">Email</h3>
+            <a class="break-all text-lg hover:underline" href={`mailto:${email}`}>{email}</a>
+          </div>
+          <div data-reveal>
+            <h3 class="font-display text-2xl font-bold text-red-400">Address</h3>
+            <p class="text-lg">Liwa Industrial Area, Sohar, Sultanate of Oman</p>
+          </div>
+          <div data-reveal>
+            <h3 class="font-display text-2xl font-bold text-red-400">Map</h3>
+            <a class="text-lg hover:underline" href={map} target="_blank" rel="noopener">Open in Google Maps</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bg-[#14130a] py-6 text-sm text-[#a3a38f]">
+    <div class="mx-auto max-w-6xl px-6">&copy; {new Date().getFullYear()} North Star Technical Services LLC. Sohar, Sultanate of Oman.</div>
+  </footer>
+
+  <script>
+    import { animate, inView, stagger } from "motion";
+
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) {
+      document.documentElement.classList.remove("js");
+    } else {
+      animate("[data-hero]", { opacity: [0, 1], y: [28, 0] }, { duration: 0.8, delay: stagger(0.12), ease: "easeOut" });
+      inView("[data-group]", (group) => {
+        animate(group.querySelectorAll("[data-reveal]"), { opacity: [0, 1], y: [32, 0] }, { duration: 0.7, delay: stagger(0.1), ease: "easeOut" });
+      }, { amount: 0.15 });
+    }
+  </script>
+</body>
+</html>
