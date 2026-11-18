@@ -193,9 +193,20 @@ const clients = [
       </div>
       <div class="mx-auto mt-10 max-w-6xl px-6">
         <div class="grid grid-cols-2 gap-px border border-plate bg-plate sm:grid-cols-3 lg:grid-cols-5">
-          {clients.map((c) => (
-            <div data-reveal class="flex h-28 items-center justify-center bg-white p-5">
-              <img src={`/clients/${c.src}.png`} alt={c.name} loading="lazy" class="max-h-full max-w-full object-contain" />
+          {clients.map((c, i) => (
+            <div data-reveal class="group relative flex h-28 items-center justify-center overflow-hidden bg-white p-5 transition-colors duration-300 hover:bg-steel/40">
+              <div
+                class="client-wave flex h-full w-full items-center justify-center"
+                style={`animation-delay: ${((i % 5) + Math.floor(i / 5)) * 0.35}s`}
+              >
+                <img
+                  src={`/clients/${c.src}.png`}
+                  alt={c.name}
+                  loading="lazy"
+                  class="max-h-full max-w-full object-contain transition-transform duration-300 ease-out group-hover:scale-110"
+                />
+              </div>
+              <span aria-hidden="true" class="absolute inset-x-0 bottom-0 h-[3px] origin-left scale-x-0 bg-flare transition-transform duration-300 ease-out group-hover:scale-x-100"></span>
             </div>
           ))}
         </div>

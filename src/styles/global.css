@@ -33,9 +33,22 @@ body { @apply bg-steel text-ink font-sans antialiased; }
   to { transform: rotate(22deg); }
 }
 
+.client-wave {
+  animation: client-wave 5s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+.group:hover .client-wave {
+  animation-play-state: paused;
+}
+@keyframes client-wave {
+  0%, 55%, 100% { transform: translateY(0) scale(1); opacity: 0.86; }
+  25% { transform: translateY(-4px) scale(1.04); opacity: 1; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .pipe { animation: none; stroke-dashoffset: 0; }
   .marquee { animation: none; }
   .gear-rock { animation: none; }
+  .client-wave { animation: none; opacity: 1; }
 }
