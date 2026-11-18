@@ -7,6 +7,7 @@ const phones = [
 ];
 const email = "nstsoman@gmail.com";
 const map = "https://maps.app.goo.gl/pwzAuGg2UD7wKney9";
+const whatsapp = "https://wa.me/96897248330?text=Hello%20North%20Star%20Technical%20Services%2C%20I%20would%20like%20to%20inquire%20about%20your%20services.";
 
 const stats = [
   { value: "350", suffix: "+", label: "Projects delivered" },
@@ -306,11 +307,29 @@ const clients = [
   </main>
 
   <footer class="border-t border-white/10 bg-[#14130a] py-7 text-sm text-[#a3a38f]">
-    <div class="mx-auto flex max-w-6xl flex-col items-start justify-between gap-2 px-6 sm:flex-row sm:items-center">
+    <div class="mx-auto flex max-w-6xl flex-col items-start justify-between gap-2 px-6 pr-24 sm:flex-row sm:items-center">
       <span>&copy; {new Date().getFullYear()} North Star Technical Services LLC. Sohar, Sultanate of Oman.</span>
       <a href="#top" class="text-xs font-semibold uppercase tracking-widest text-white/70 transition-colors hover:text-flare">Back to top &uarr;</a>
     </div>
   </footer>
+
+  <a
+    href={whatsapp}
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="Chat with North Star Technical Services on WhatsApp"
+    class="group fixed bottom-5 right-5 z-50 flex items-center sm:bottom-7 sm:right-7"
+  >
+    <span class="pointer-events-none mr-3 hidden whitespace-nowrap rounded-full bg-ink px-3.5 py-2 text-xs font-semibold tracking-wide text-white opacity-0 shadow-lg transition-all duration-200 group-hover:translate-x-0 group-hover:opacity-100 sm:inline-block sm:translate-x-2">
+      Chat on WhatsApp
+    </span>
+    <span class="relative flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-xl ring-2 ring-white/90 transition-transform duration-200 group-hover:scale-110 group-hover:bg-[#1ebe5d] sm:h-15 sm:w-15">
+      <span aria-hidden="true" class="wa-pulse pointer-events-none absolute inset-0 rounded-full bg-[#25D366]"></span>
+      <svg class="relative h-7 w-7 fill-current sm:h-8 sm:w-8" viewBox="0 0 32 32" aria-hidden="true">
+        <path d="M16.004 2.667C8.64 2.667 2.67 8.636 2.67 16c0 2.352.616 4.648 1.787 6.672L2.56 29.44l6.943-1.82A13.28 13.28 0 0 0 16.004 29.333c7.364 0 13.333-5.97 13.333-13.333S23.368 2.667 16.004 2.667zm0 24.427a11.06 11.06 0 0 1-5.643-1.547l-.404-.24-4.12 1.08 1.1-4.017-.264-.42a11.05 11.05 0 0 1-1.7-5.949c0-6.112 4.974-11.086 11.031-11.086 2.948 0 5.719 1.149 7.803 3.235a10.97 10.97 0 0 1 3.23 7.85c0 6.113-4.974 11.094-11.033 11.094zm6.053-8.288c-.332-.166-1.964-.97-2.268-1.08-.305-.111-.526-.166-.748.166-.221.332-.858 1.08-1.052 1.302-.194.222-.388.25-.72.083-.332-.166-1.402-.517-2.67-1.648-.987-.88-1.653-1.967-1.847-2.299-.194-.332-.02-.512.146-.677.15-.149.332-.388.498-.582.166-.194.222-.332.332-.554.111-.222.056-.416-.027-.582-.083-.166-.748-1.801-1.025-2.466-.27-.648-.544-.56-.748-.571l-.637-.011c-.221 0-.581.083-.886.416-.304.332-1.162 1.136-1.162 2.77s1.19 3.214 1.356 3.436c.166.222 2.342 3.576 5.673 5.015.792.342 1.411.547 1.893.7.795.253 1.519.217 2.091.132.638-.095 1.964-.803 2.241-1.579.277-.776.277-1.441.194-1.58-.083-.138-.305-.221-.637-.388z" />
+      </svg>
+    </span>
+  </a>
 
   <script>
     import { animate, inView, stagger } from "motion";
