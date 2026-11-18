@@ -8,6 +8,8 @@ const phones = [
 const email = "nstsoman@gmail.com";
 const map = "https://maps.app.goo.gl/pwzAuGg2UD7wKney9";
 const whatsapp = "https://wa.me/96897248330?text=Hello%20North%20Star%20Technical%20Services%2C%20I%20would%20like%20to%20inquire%20about%20your%20services.";
+const brochureUrl = ""; // Set to "/brochure.pdf" when uploaded
+const galleryUrl = "";  // Set to "/gallery" when photos are added
 
 const stats = [
   { value: "350", suffix: "+", label: "Projects delivered" },
@@ -301,13 +303,69 @@ const clients = [
       </div>
     </section>
 
-    <section id="contact" class="relative overflow-hidden border-t-4 border-flare bg-ink bg-grid-dark py-14 text-white sm:py-24" data-group>
+    <section id="library" class="relative overflow-hidden border-t-4 border-flare bg-ink-soft bg-grid-dark py-14 text-white sm:py-20" data-group>
+      <div class="pointer-events-none absolute -right-24 top-0 h-full w-1/3 -skew-x-12 bg-black/25" aria-hidden="true"></div>
+      <div class="pointer-events-none absolute -left-24 top-0 h-full w-24 -skew-x-12 bg-flare/15" aria-hidden="true"></div>
+      <div class="relative mx-auto grid max-w-6xl items-center gap-8 px-5 sm:px-6 md:grid-cols-[1.05fr_1fr] md:gap-12">
+        <div data-reveal>
+          <div class="mb-3 inline-flex items-center gap-2.5 text-xs font-semibold uppercase tracking-[0.2em] text-red-400 sm:mb-4">
+            <span class="h-0.5 w-8 bg-flare" aria-hidden="true"></span>
+            05 / Resources
+          </div>
+          <h2 class="font-display text-4xl font-extrabold leading-none sm:text-5xl lg:text-6xl">Information Library</h2>
+          <p class="mt-3 max-w-md text-base text-white/80 sm:mt-4 sm:text-lg">Download our company profile or browse highlights of our mechanical fabrication, piping and plant maintenance work across Oman.</p>
+        </div>
+
+        <div class="grid w-full max-w-md gap-4 sm:gap-5 md:ml-auto">
+          <a
+            href={brochureUrl || "#library"}
+            download={brochureUrl ? "" : undefined}
+            data-reveal
+            data-library-placeholder={!brochureUrl ? "brochure" : undefined}
+            class="group flex items-center justify-between gap-4 rounded-full border border-white/20 bg-white/12 py-1.5 pl-6 pr-1.5 shadow-lg backdrop-blur-sm transition-colors duration-200 hover:border-white/40 hover:bg-white/20 sm:pl-7"
+          >
+            <div class="min-w-0">
+              <span class="block text-base font-semibold tracking-wide text-white sm:text-lg">Download Brochure</span>
+              <span class="block text-xs text-white/65">Company Profile (PDF)</span>
+            </div>
+            <span class="flex h-13 w-13 shrink-0 items-center justify-center rounded-full bg-flare text-white shadow-lg ring-2 ring-white/25 transition-transform duration-200 group-hover:scale-105 group-hover:bg-flare-deep sm:h-15 sm:w-15">
+              <svg class="h-6 w-6 sm:h-7 sm:w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 4v11" />
+                <path d="m7.5 11.5 4.5 4.5 4.5-4.5" />
+                <path d="M4 17v1.5A1.5 1.5 0 0 0 5.5 20h13a1.5 1.5 0 0 0 1.5-1.5V17" />
+              </svg>
+            </span>
+          </a>
+
+          <a
+            href={galleryUrl || "#library"}
+            data-reveal
+            data-library-placeholder={!galleryUrl ? "gallery" : undefined}
+            class="group flex items-center justify-between gap-4 rounded-full border border-white/20 bg-white/12 py-1.5 pl-6 pr-1.5 shadow-lg backdrop-blur-sm transition-colors duration-200 hover:border-white/40 hover:bg-white/20 sm:pl-7"
+          >
+            <div class="min-w-0">
+              <span class="block text-base font-semibold tracking-wide text-white sm:text-lg">Project Gallery</span>
+              <span class="block text-xs text-white/65">Completed Works &amp; Site Photos</span>
+            </div>
+            <span class="flex h-13 w-13 shrink-0 items-center justify-center rounded-full bg-flare text-white shadow-lg ring-2 ring-white/25 transition-transform duration-200 group-hover:scale-105 group-hover:bg-flare-deep sm:h-15 sm:w-15">
+              <svg class="h-6 w-6 sm:h-7 sm:w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="3" y="5" width="18" height="14" rx="2" />
+                <circle cx="8.5" cy="10" r="1.5" />
+                <path d="m21 16-5-5-4 4-2.5-2.5L3 19" />
+              </svg>
+            </span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact" class="relative overflow-hidden border-t border-white/15 bg-ink bg-grid-dark py-14 text-white sm:py-24" data-group>
       <div class="pointer-events-none absolute -right-28 top-0 h-full w-2/5 -skew-x-12 bg-flare/85 opacity-35 md:opacity-100" aria-hidden="true"></div>
       <div class="pointer-events-none absolute -right-6 top-0 h-full w-24 -skew-x-12 bg-black/55 opacity-40 md:opacity-100" aria-hidden="true"></div>
       <div class="relative mx-auto max-w-6xl px-5 sm:px-6">
         <div data-reveal class="mb-3 inline-flex items-center gap-2.5 text-xs font-semibold uppercase tracking-[0.2em] text-red-400 sm:mb-4">
           <span class="h-0.5 w-8 bg-flare" aria-hidden="true"></span>
-          05 / Contact
+          06 / Contact
         </div>
         <h2 data-reveal class="font-display text-4xl font-extrabold leading-none sm:text-5xl lg:text-6xl">Tell us about your job</h2>
         <p data-reveal class="mt-3 max-w-prose text-base text-white/80 sm:mt-4 sm:text-lg">Send your scope, drawings or a site visit request. We reply with a clear plan and quote.</p>
@@ -377,6 +435,47 @@ const clients = [
     </a>
   </div>
 
+  <div
+    id="library-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="library-modal-title"
+    class="fixed inset-0 z-50 hidden items-center justify-center bg-black/70 p-4 backdrop-blur-xs"
+  >
+    <div class="relative w-full max-w-md border border-white/15 border-t-4 border-t-flare bg-ink p-6 text-white shadow-2xl sm:p-7">
+      <button
+        id="library-modal-close"
+        type="button"
+        aria-label="Close dialog"
+        class="absolute right-4 top-4 inline-flex h-8 w-8 items-center justify-center text-white/60 transition-colors hover:text-white"
+      >
+        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+          <path d="M6 6l12 12M18 6 6 18" />
+        </svg>
+      </button>
+      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-red-400">Information Library</p>
+      <h3 id="library-modal-title" class="mt-2 font-display text-4xl font-extrabold leading-none">Coming Soon</h3>
+      <p id="library-modal-desc" class="mt-3 text-sm leading-relaxed text-white/80 sm:text-base"></p>
+      <div class="mt-6 flex flex-wrap gap-3">
+        <a
+          id="library-modal-wa"
+          href={whatsapp}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="bg-[#25D366] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#1ebe5d]"
+        >
+          Request on WhatsApp
+        </a>
+        <a
+          href={`mailto:${email}`}
+          class="border border-white/30 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/10"
+        >
+          Email Us
+        </a>
+      </div>
+    </div>
+  </div>
+
   <script>
     import { animate, inView, stagger } from "motion";
 
@@ -394,6 +493,45 @@ const clients = [
         });
       });
     }
+
+    const modal = document.getElementById("library-modal");
+    const modalTitle = document.getElementById("library-modal-title");
+    const modalDesc = document.getElementById("library-modal-desc");
+    const modalClose = document.getElementById("library-modal-close");
+    const libraryCopy = {
+      brochure: {
+        title: "Company Brochure",
+        desc: "Our updated downloadable PDF brochure is being uploaded shortly. Need our company profile right away? Message us on WhatsApp or email and we will send it immediately.",
+      },
+      gallery: {
+        title: "Project Gallery",
+        desc: "Photos of our completed storage tank, structural steel, piping, and shutdown projects are being uploaded shortly. Reach out on WhatsApp or email if you would like recent project references.",
+      },
+    };
+    const closeModal = () => {
+      if (!modal) return;
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    };
+    document.querySelectorAll("[data-library-placeholder]").forEach((el) => {
+      el.addEventListener("click", (e) => {
+        e.preventDefault();
+        const key = el.getAttribute("data-library-placeholder");
+        const item = key === "brochure" ? libraryCopy.brochure : key === "gallery" ? libraryCopy.gallery : null;
+        if (!modal || !item) return;
+        if (modalTitle) modalTitle.textContent = item.title;
+        if (modalDesc) modalDesc.textContent = item.desc;
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+      });
+    });
+    modalClose?.addEventListener("click", closeModal);
+    modal?.addEventListener("click", (e) => {
+      if (e.target === modal) closeModal();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeModal();
+    });
 
     const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduce) {
