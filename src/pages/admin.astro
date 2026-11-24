@@ -209,6 +209,15 @@ import "../styles/global.css";
             <option value="In Progress">In Progress</option>
             <option value="Completed">Completed</option>
           </select>
+
+          <select
+            id="sort-date"
+            class="border border-white/15 bg-[#161920] px-3 py-2 text-xs text-white/80 focus:border-flare focus:outline-none"
+            title="Sort quotes by date"
+          >
+            <option value="NEWEST">Date: Newest to Oldest</option>
+            <option value="OLDEST">Date: Oldest to Newest</option>
+          </select>
         </div>
 
         <div class="text-right text-xs text-white/50">
@@ -222,7 +231,12 @@ import "../styles/global.css";
           <table class="w-full min-w-[1050px] text-left text-xs">
             <thead class="border-b border-white/15 bg-[#1a1e27] text-[11px] font-bold uppercase tracking-wider text-white/70">
               <tr>
-                <th class="py-3.5 pl-4 pr-3">Ref &amp; Date</th>
+                <th id="th-sort-date" class="cursor-pointer select-none py-3.5 pl-4 pr-3 transition-colors hover:text-flare" title="Click to sort by date">
+                  <span class="inline-flex items-center gap-1">
+                    <span>Ref &amp; Date</span>
+                    <span id="sort-indicator" class="text-xs text-flare font-bold">▼</span>
+                  </span>
+                </th>
                 <th class="px-3 py-3.5">Client</th>
                 <th class="px-3 py-3.5">Job / Scope Description</th>
                 <th class="px-3 py-3.5">Quote Total (OMR)</th>
@@ -1887,6 +1901,9 @@ import "../styles/global.css";
     const searchInput = document.getElementById("search-input");
     const filterStatus = document.getElementById("filter-status");
     const filterWork = document.getElementById("filter-work");
+    const sortDate = document.getElementById("sort-date");
+    const thSortDate = document.getElementById("th-sort-date");
+    const sortIndicator = document.getElementById("sort-indicator");
     const recordCountEl = document.getElementById("record-count");
 
     const metricQuotedTotal = document.getElementById("metric-quoted-total");
@@ -2080,8 +2097,9 @@ import "../styles/global.css";
       const q = searchInput.value.trim().toLowerCase();
       const statusF = filterStatus.value;
       const workF = filterWork.value;
+      const sortD = sortDate ? sortDate.value : "NEWEST";
 
-      const filtered = records.filter((r) => {
+      let filtered = records.filter((r) => {
         const matchesStatus = statusF === "ALL" || r.status === statusF;
         const matchesWork = workF === "ALL" || r.workStatus === workF;
         const matchesQuery =
@@ -2094,6 +2112,22 @@ import "../styles/global.css";
 
         return matchesStatus && matchesWork && matchesQuery;
       });
+
+      // Sort by Quote Date (Newest to Oldest vs Oldest to Newest)
+      filtered.sort((a, b) => {
+        const dateA = a.quoteDate || "";
+        const dateB = b.quoteDate || "";
+        if (dateA !== dateB) {
+          return sortD === "OLDEST" ? dateA.localeCompare(dateB) : dateB.localeCompare(dateA);
+        }
+        const refA = a.ref || "";
+        const refB = b.ref || "";
+        return sortD === "OLDEST" ? refA.localeCompare(refB) : refB.localeCompare(refA);
+      });
+
+      if (sortIndicator) {
+        sortIndicator.textContent = sortD === "OLDEST" ? "▲" : "▼";
+      }
 
       recordCountEl.textContent = filtered.length;
 
@@ -2505,10 +2539,21 @@ import "../styles/global.css";
       }
     };
 
-    // Filter Listeners
+    // Filter & Sort Listeners
     searchInput.addEventListener("input", render);
     filterStatus.addEventListener("change", render);
     filterWork.addEventListener("change", render);
+
+    if (sortDate) {
+      sortDate.addEventListener("change", render);
+    }
+
+    if (thSortDate && sortDate) {
+      thSortDate.addEventListener("click", () => {
+        sortDate.value = sortDate.value === "NEWEST" ? "OLDEST" : "NEWEST";
+        render();
+      });
+    }
 
     // Export to Excel / CSV
     exportCsvBtn.addEventListener("click", () => {
