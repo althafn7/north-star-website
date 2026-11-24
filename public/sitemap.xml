@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url>
+    <loc>https://www.northstaroman.com/</loc>
+    <lastmod>2026-11-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://www.northstaroman.com/og-image.jpg</image:loc>
+      <image:title>North Star Technical Services LLC - Sohar, Oman</image:title>
+      <image:caption>Mechanical Fabrication, ASME B31.3 Process Piping, API 650/653 Storage Tank Rehabilitation, and Plant Maintenance in Sohar, Sultanate of Oman</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://www.northstaroman.com/logo.png</image:loc>
+      <image:title>North Star Technical Services Logo</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://www.northstaroman.com/hero-bg.jpg</image:loc>
+      <image:title>Industrial Mechanical Engineering and Fabrication Facility in Sohar, Oman</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://www.northstaroman.com/services-bg.jpg</image:loc>
+      <image:title>Process Piping and Plant Maintenance Facilities</image:title>
+    </image:image>
+  </url>
+</urlset>
