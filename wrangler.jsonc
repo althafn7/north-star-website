@@ -1,7 +1,9 @@
 {
   "name": "north-star-website",
+  "main": "src/worker.js",
   "compatibility_date": "2026-11-01",
   "assets": {
-    "directory": "./dist"
+    "directory": "./dist",
+    "binding": "ASSETS"
   }
 }
