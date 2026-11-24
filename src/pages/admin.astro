@@ -225,7 +225,7 @@ import "../styles/global.css";
                 <th class="py-3.5 pl-4 pr-3">Ref &amp; Date</th>
                 <th class="px-3 py-3.5">Client</th>
                 <th class="px-3 py-3.5">Job / Scope Description</th>
-                <th class="px-3 py-3.5">Quote (OMR)</th>
+                <th class="px-3 py-3.5">Quote Total (OMR)</th>
                 <th class="px-3 py-3.5">Approval Status</th>
                 <th class="px-3 py-3.5">PO Details</th>
                 <th class="px-3 py-3.5">Work Progress</th>
@@ -295,9 +295,19 @@ import "../styles/global.css";
               <input type="text" id="form-client" required placeholder="e.g. OQ, Sohar Aluminium, Vale..." class="mt-1 w-full border border-white/15 bg-[#0f1115] px-3 py-2 text-xs text-white placeholder-white/30 focus:border-flare focus:outline-none" />
             </div>
 
-            <div>
-              <label for="form-quote-amt" class="block text-[11px] font-semibold uppercase tracking-wider text-white/70">Quoted Amount (OMR)</label>
-              <input type="number" step="0.001" id="form-quote-amt" required placeholder="0.000" class="mt-1 w-full border border-white/15 bg-[#0f1115] px-3 py-2 text-xs text-white placeholder-white/30 focus:border-flare focus:outline-none" />
+            <div class="sm:col-span-2 grid grid-cols-1 gap-3 sm:grid-cols-3 rounded border border-white/10 bg-[#0b0d11]/60 p-2.5">
+              <div>
+                <label for="form-basic-amt" class="block text-[11px] font-semibold uppercase tracking-wider text-white/70">Basic Amount (OMR)</label>
+                <input type="number" step="0.001" id="form-basic-amt" required placeholder="0.000" class="mt-1 w-full border border-white/15 bg-[#0f1115] px-3 py-2 text-xs font-mono text-white placeholder-white/30 focus:border-flare focus:outline-none" />
+              </div>
+              <div>
+                <label for="form-vat-amt" class="block text-[11px] font-semibold uppercase tracking-wider text-amber-300">VAT 5% (OMR)</label>
+                <input type="number" step="0.001" id="form-vat-amt" placeholder="0.000" class="mt-1 w-full border border-white/15 bg-[#0f1115] px-3 py-2 text-xs font-mono text-amber-300 placeholder-white/30 focus:border-flare focus:outline-none" />
+              </div>
+              <div>
+                <label for="form-total-amt" class="block text-[11px] font-semibold uppercase tracking-wider text-flare font-bold">Total Quoted (OMR)</label>
+                <input type="number" step="0.001" id="form-total-amt" readonly class="mt-1 w-full border border-flare/40 bg-flare/10 px-3 py-2 text-xs font-mono font-bold text-flare focus:outline-none cursor-not-allowed" />
+              </div>
             </div>
 
             <div class="sm:col-span-2">
@@ -327,9 +337,19 @@ import "../styles/global.css";
               <input type="text" id="form-po-number" placeholder="e.g. PO-OQ-9842" class="mt-1 w-full border border-white/15 bg-[#0f1115] px-3 py-2 text-xs text-white placeholder-white/30 focus:border-flare focus:outline-none" />
             </div>
 
-            <div>
-              <label for="form-po-amt" class="block text-[11px] font-semibold uppercase tracking-wider text-white/70">PO Amount (OMR)</label>
-              <input type="number" step="0.001" id="form-po-amt" placeholder="0.000" class="mt-1 w-full border border-white/15 bg-[#0f1115] px-3 py-2 text-xs text-white placeholder-white/30 focus:border-flare focus:outline-none" />
+            <div class="sm:col-span-3 grid grid-cols-1 gap-3 sm:grid-cols-3 rounded border border-white/10 bg-[#0b0d11]/60 p-2.5">
+              <div>
+                <label for="form-po-basic-amt" class="block text-[11px] font-semibold uppercase tracking-wider text-white/70">PO Basic Amount (OMR)</label>
+                <input type="number" step="0.001" id="form-po-basic-amt" placeholder="0.000" class="mt-1 w-full border border-white/15 bg-[#0f1115] px-3 py-2 text-xs font-mono text-white placeholder-white/30 focus:border-flare focus:outline-none" />
+              </div>
+              <div>
+                <label for="form-po-vat-amt" class="block text-[11px] font-semibold uppercase tracking-wider text-amber-300">PO VAT 5% (OMR)</label>
+                <input type="number" step="0.001" id="form-po-vat-amt" placeholder="0.000" class="mt-1 w-full border border-white/15 bg-[#0f1115] px-3 py-2 text-xs font-mono text-amber-300 placeholder-white/30 focus:border-flare focus:outline-none" />
+              </div>
+              <div>
+                <label for="form-po-total-amt" class="block text-[11px] font-semibold uppercase tracking-wider text-emerald-400 font-bold">PO Total Value (OMR)</label>
+                <input type="number" step="0.001" id="form-po-total-amt" readonly class="mt-1 w-full border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-xs font-mono font-bold text-emerald-400 focus:outline-none cursor-not-allowed" />
+              </div>
             </div>
           </div>
         </div>
@@ -388,7 +408,7 @@ import "../styles/global.css";
   <script is:inline>
     // Config & Credential
     const AUTH_KEY = "nsts_admin_auth";
-    const STORAGE_KEY = "nsts_workflow_records_2026_v2";
+    const STORAGE_KEY = "nsts_workflow_records_2026_v3";
     const DEFAULT_USER = "admin";
     const DEFAULT_PASS = "nsts2026";
 
@@ -400,10 +420,16 @@ import "../styles/global.css";
         "quoteDate":  "2026-01-04",
         "client":  "ALSIG",
         "scope":  "Re routing of Fire water line",
-        "quoteAmt":  1130,
+        "basicAmt":  1130,
+        "vatAmt":  56.5,
+        "totalAmt":  1186.5,
+        "quoteAmt":  1186.5,
         "status":  "Approved",
         "poNumber":  "P26PO000068",
-        "poAmt":  1130,
+        "poBasicAmt":  1130,
+        "poVatAmt":  56.5,
+        "poTotalAmt":  1186.5,
+        "poAmt":  1186.5,
         "workStatus":  "Completed",
         "completionDate":  "",
         "invoiceNum":  "",
@@ -415,9 +441,15 @@ import "../styles/global.css";
         "quoteDate":  "2026-01-12",
         "client":  "OMC",
         "scope":  "Replace CS line with GRE",
-        "quoteAmt":  28000,
-        "status":  "Lost",
+        "basicAmt":  28000,
+        "vatAmt":  1400,
+        "totalAmt":  29400,
+        "quoteAmt":  29400,
+        "status":  "Approved",
         "poNumber":  "",
+        "poBasicAmt":  0,
+        "poVatAmt":  0,
+        "poTotalAmt":  0,
         "poAmt":  0,
         "workStatus":  "Not Started",
         "completionDate":  "",
@@ -430,10 +462,16 @@ import "../styles/global.css";
         "quoteDate":  "2026-01-27",
         "client":  "ALSIG",
         "scope":  "Quote for Tab",
-        "quoteAmt":  125,
+        "basicAmt":  125,
+        "vatAmt":  6.25,
+        "totalAmt":  131.25,
+        "quoteAmt":  131.25,
         "status":  "Approved",
         "poNumber":  "P26PO000092",
-        "poAmt":  125,
+        "poBasicAmt":  125,
+        "poVatAmt":  6.25,
+        "poTotalAmt":  131.25,
+        "poAmt":  131.25,
         "workStatus":  "Completed",
         "completionDate":  "",
         "invoiceNum":  "",
@@ -445,10 +483,16 @@ import "../styles/global.css";
         "quoteDate":  "2026-01-27",
         "client":  "BEC",
         "scope":  "Qupte for F key for OMC",
-        "quoteAmt":  1759,
+        "basicAmt":  1759,
+        "vatAmt":  87.95,
+        "totalAmt":  1846.95,
+        "quoteAmt":  1846.95,
         "status":  "Approved",
         "poNumber":  "7800011499",
-        "poAmt":  1275,
+        "poBasicAmt":  1275,
+        "poVatAmt":  63.75,
+        "poTotalAmt":  1338.75,
+        "poAmt":  1338.75,
         "workStatus":  "In Progress",
         "completionDate":  "",
         "invoiceNum":  "",
@@ -460,9 +504,15 @@ import "../styles/global.css";
         "quoteDate":  "2026-01-27",
         "client":  "BEC",
         "scope":  "Welder supply",
-        "quoteAmt":  865,
+        "basicAmt":  865,
+        "vatAmt":  43.25,
+        "totalAmt":  908.25,
+        "quoteAmt":  908.25,
         "status":  "Approved",
         "poNumber":  "",
+        "poBasicAmt":  0,
+        "poVatAmt":  0,
+        "poTotalAmt":  0,
         "poAmt":  0,
         "workStatus":  "Completed",
         "completionDate":  "",
@@ -475,10 +525,16 @@ import "../styles/global.css";
         "quoteDate":  "2026-02-04",
         "client":  "MHT",
         "scope":  "Quote for road Hump",
-        "quoteAmt":  3100,
+        "basicAmt":  3100,
+        "vatAmt":  155,
+        "totalAmt":  3255,
+        "quoteAmt":  3255,
         "status":  "Lost",
         "poNumber":  "PO3001-MHT-NSTS-2026",
-        "poAmt":  1300,
+        "poBasicAmt":  1300,
+        "poVatAmt":  65,
+        "poTotalAmt":  1365,
+        "poAmt":  1365,
         "workStatus":  "Completed",
         "completionDate":  "",
         "invoiceNum":  "",
@@ -490,10 +546,16 @@ import "../styles/global.css";
         "quoteDate":  "2026-02-10",
         "client":  "ALSIG",
         "scope":  "Quote for Scaffolder",
-        "quoteAmt":  442,
+        "basicAmt":  442,
+        "vatAmt":  22.1,
+        "totalAmt":  464.1,
+        "quoteAmt":  464.1,
         "status":  "Approved",
         "poNumber":  "P26PO000088",
-        "poAmt":  442,
+        "poBasicAmt":  442,
+        "poVatAmt":  22.1,
+        "poTotalAmt":  464.1,
+        "poAmt":  464.1,
         "workStatus":  "Completed",
         "completionDate":  "",
         "invoiceNum":  "",
@@ -505,10 +567,16 @@ import "../styles/global.css";
         "quoteDate":  "2026-02-15",
         "client":  "BEC",
         "scope":  "Quote for welding work at power plant",
-        "quoteAmt":  140,
+        "basicAmt":  140,
+        "vatAmt":  7,
+        "totalAmt":  147,
+        "quoteAmt":  147,
         "status":  "Approved",
         "poNumber":  "5200067328",
-        "poAmt":  140,
+        "poBasicAmt":  140,
+        "poVatAmt":  7,
+        "poTotalAmt":  147,
+        "poAmt":  147,
         "workStatus":  "Completed",
         "completionDate":  "",
         "invoiceNum":  "",
@@ -520,9 +588,15 @@ import "../styles/global.css";
         "quoteDate":  "2026-03-03",
         "client":  "YASSER",
         "scope":  "Quote for new factory",
-        "quoteAmt":  28995,
+        "basicAmt":  28995,
+        "vatAmt":  1449.75,
+        "totalAmt":  30444.75,
+        "quoteAmt":  30444.75,
         "status":  "Pending",
         "poNumber":  "",
+        "poBasicAmt":  0,
+        "poVatAmt":  0,
+        "poTotalAmt":  0,
         "poAmt":  0,
         "workStatus":  "Not Started",
         "completionDate":  "",
@@ -535,10 +609,16 @@ import "../styles/global.css";
         "quoteDate":  "2026-03-07",
         "client":  "ALSIG",
         "scope":  "Replacement of tube lights",
-        "quoteAmt":  498,
+        "basicAmt":  498,
+        "vatAmt":  24.900000000000002,
+        "totalAmt":  522.9,
+        "quoteAmt":  522.9,
         "status":  "Approved",
         "poNumber":  "P26PO000067",
-        "poAmt":  498,
+        "poBasicAmt":  498,
+        "poVatAmt":  24.900000000000002,
+        "poTotalAmt":  522.9,
+        "poAmt":  522.9,
         "workStatus":  "Completed",
         "completionDate":  "",
         "invoiceNum":  "",
@@ -550,10 +630,16 @@ import "../styles/global.css";
         "quoteDate":  "2026-03-07",
         "client":  "ALSIG",
         "scope":  "Additional man power for APSA TAR 2026",
-        "quoteAmt":  2587.9,
+        "basicAmt":  2587.9,
+        "vatAmt":  129.395,
+        "totalAmt":  2717.295,
+        "quoteAmt":  2717.295,
         "status":  "Approved",
         "poNumber":  "P26PO000073",
-        "poAmt":  2587,
+        "poBasicAmt":  2587,
+        "poVatAmt":  129.35,
+        "poTotalAmt":  2716.35,
+        "poAmt":  2716.35,
         "workStatus":  "Completed",
         "completionDate":  "",
         "invoiceNum":  "",
@@ -565,10 +651,16 @@ import "../styles/global.css";
         "quoteDate":  "2026-03-07",
         "client":  "ALSIG",
         "scope":  "Cable repairing",
-        "quoteAmt":  862,
+        "basicAmt":  862,
+        "vatAmt":  43.1,
+        "totalAmt":  905.1,
+        "quoteAmt":  905.1,
         "status":  "Approved",
         "poNumber":  "P26PO000076",
-        "poAmt":  862,
+        "poBasicAmt":  862,
+        "poVatAmt":  43.1,
+        "poTotalAmt":  905.1,
+        "poAmt":  905.1,
         "workStatus":  "Completed",
         "completionDate":  "",
         "invoiceNum":  "",
@@ -580,10 +672,16 @@ import "../styles/global.css";
         "quoteDate":  "2026-03-16",
         "client":  "BEC",
         "scope":  "Cooler tube bundle cleaning and painting",
-        "quoteAmt":  240,
+        "basicAmt":  240,
+        "vatAmt":  12,
+        "totalAmt":  252,
+        "quoteAmt":  252,
         "status":  "Approved",
         "poNumber":  "7800011597",
-        "poAmt":  240,
+        "poBasicAmt":  240,
+        "poVatAmt":  12,
+        "poTotalAmt":  252,
+        "poAmt":  252,
         "workStatus":  "Completed",
         "completionDate":  "",
         "invoiceNum":  "",
@@ -595,10 +693,16 @@ import "../styles/global.css";
         "quoteDate":  "2026-03-16",
         "client":  "BEC",
         "scope":  "PVC Foam tank installation",
-        "quoteAmt":  484.4,
+        "basicAmt":  484.4,
+        "vatAmt":  24.22,
+        "totalAmt":  508.62,
+        "quoteAmt":  508.62,
         "status":  "Approved",
         "poNumber":  "7800011566",
-        "poAmt":  484,
+        "poBasicAmt":  484,
+        "poVatAmt":  24.200000000000003,
+        "poTotalAmt":  508.2,
+        "poAmt":  508.2,
         "workStatus":  "Completed",
         "completionDate":  "",
         "invoiceNum":  "",
@@ -610,9 +714,15 @@ import "../styles/global.css";
         "quoteDate":  "2026-03-16",
         "client":  "Ahat",
         "scope":  "Quote for test flanges",
-        "quoteAmt":  2594,
-        "status":  "Lost",
+        "basicAmt":  2594,
+        "vatAmt":  129.70000000000002,
+        "totalAmt":  2723.7,
+        "quoteAmt":  2723.7,
+        "status":  "Approved",
         "poNumber":  "",
+        "poBasicAmt":  0,
+        "poVatAmt":  0,
+        "poTotalAmt":  0,
         "poAmt":  0,
         "workStatus":  "Not Started",
         "completionDate":  "",
@@ -625,10 +735,16 @@ import "../styles/global.css";
         "quoteDate":  "2026-04-02",
         "client":  "ALSIG",
         "scope":  "Quote for Catalyst refilling",
-        "quoteAmt":  580,
+        "basicAmt":  580,
+        "vatAmt":  29,
+        "totalAmt":  609,
+        "quoteAmt":  609,
         "status":  "Approved",
         "poNumber":  "P26PO000107",
-        "poAmt":  560,
+        "poBasicAmt":  560,
+        "poVatAmt":  28,
+        "poTotalAmt":  588,
+        "poAmt":  588,
         "workStatus":  "Completed",
         "completionDate":  "2026-05-04",
         "invoiceNum":  "",
@@ -640,10 +756,16 @@ import "../styles/global.css";
         "quoteDate":  "2026-04-02",
         "client":  "ALSIG",
         "scope":  "Quote for APSA1 compressor work",
-        "quoteAmt":  2537,
+        "basicAmt":  2537,
+        "vatAmt":  126.85000000000001,
+        "totalAmt":  2663.85,
+        "quoteAmt":  2663.85,
         "status":  "Approved",
         "poNumber":  "P26PO000149",
-        "poAmt":  2537,
+        "poBasicAmt":  2537,
+        "poVatAmt":  126.85000000000001,
+        "poTotalAmt":  2663.85,
+        "poAmt":  2663.85,
         "workStatus":  "Completed",
         "completionDate":  "",
         "invoiceNum":  "",
@@ -655,10 +777,16 @@ import "../styles/global.css";
         "quoteDate":  "2026-04-07",
         "client":  "BEC",
         "scope":  "Installation of raptur disc",
-        "quoteAmt":  200,
+        "basicAmt":  200,
+        "vatAmt":  10,
+        "totalAmt":  210,
+        "quoteAmt":  210,
         "status":  "Approved",
         "poNumber":  "7800011691",
-        "poAmt":  200,
+        "poBasicAmt":  200,
+        "poVatAmt":  10,
+        "poTotalAmt":  210,
+        "poAmt":  210,
         "workStatus":  "Completed",
         "completionDate":  "2026-05-04",
         "invoiceNum":  "",
@@ -670,10 +798,16 @@ import "../styles/global.css";
         "quoteDate":  "2026-04-07",
         "client":  "BEC",
         "scope":  "Quote for pipe bending",
-        "quoteAmt":  160,
+        "basicAmt":  160,
+        "vatAmt":  8,
+        "totalAmt":  168,
+        "quoteAmt":  168,
         "status":  "Approved",
         "poNumber":  "7800011796",
-        "poAmt":  160,
+        "poBasicAmt":  160,
+        "poVatAmt":  8,
+        "poTotalAmt":  168,
+        "poAmt":  168,
         "workStatus":  "Completed",
         "completionDate":  "",
         "invoiceNum":  "",
@@ -685,9 +819,15 @@ import "../styles/global.css";
         "quoteDate":  "2026-04-08",
         "client":  "ALSIG",
         "scope":  "Quote for valve operating platforms",
-        "quoteAmt":  9372,
+        "basicAmt":  9372,
+        "vatAmt":  468.6,
+        "totalAmt":  9840.6,
+        "quoteAmt":  9840.6,
         "status":  "Pending",
         "poNumber":  "",
+        "poBasicAmt":  0,
+        "poVatAmt":  0,
+        "poTotalAmt":  0,
         "poAmt":  0,
         "workStatus":  "Not Started",
         "completionDate":  "",
@@ -700,10 +840,16 @@ import "../styles/global.css";
         "quoteDate":  "2026-04-14",
         "client":  "ALSIG",
         "scope":  "Quote for Drum Spill Pallet",
-        "quoteAmt":  180,
+        "basicAmt":  180,
+        "vatAmt":  9,
+        "totalAmt":  189,
+        "quoteAmt":  189,
         "status":  "Approved",
         "poNumber":  "P26PO000108",
-        "poAmt":  180,
+        "poBasicAmt":  180,
+        "poVatAmt":  9,
+        "poTotalAmt":  189,
+        "poAmt":  189,
         "workStatus":  "Completed",
         "completionDate":  "",
         "invoiceNum":  "",
@@ -715,10 +861,16 @@ import "../styles/global.css";
         "quoteDate":  "2026-04-25",
         "client":  "ALSIG",
         "scope":  "Quote for valve chamber rectification work",
-        "quoteAmt":  5187,
+        "basicAmt":  5187,
+        "vatAmt":  259.35,
+        "totalAmt":  5446.35,
+        "quoteAmt":  5446.35,
         "status":  "Approved",
         "poNumber":  "P26PO000125",
-        "poAmt":  5187,
+        "poBasicAmt":  5187,
+        "poVatAmt":  259.35,
+        "poTotalAmt":  5446.35,
+        "poAmt":  5446.35,
         "workStatus":  "Completed",
         "completionDate":  "2026-09-13",
         "invoiceNum":  "",
@@ -730,10 +882,16 @@ import "../styles/global.css";
         "quoteDate":  "2026-05-01",
         "client":  "ALSIG",
         "scope":  "Quote for TCN intercooler gasket replacement",
-        "quoteAmt":  710.4,
+        "basicAmt":  710.4,
+        "vatAmt":  35.52,
+        "totalAmt":  745.92,
+        "quoteAmt":  745.92,
         "status":  "Approved",
         "poNumber":  "P26PO000118",
-        "poAmt":  710,
+        "poBasicAmt":  710,
+        "poVatAmt":  35.5,
+        "poTotalAmt":  745.5,
+        "poAmt":  745.5,
         "workStatus":  "Completed",
         "completionDate":  "2026-05-06",
         "invoiceNum":  "",
@@ -745,9 +903,15 @@ import "../styles/global.css";
         "quoteDate":  "2026-05-05",
         "client":  "MHT",
         "scope":  "Quote for Airline",
-        "quoteAmt":  1437,
+        "basicAmt":  1437,
+        "vatAmt":  71.850000000000009,
+        "totalAmt":  1508.85,
+        "quoteAmt":  1508.85,
         "status":  "Approved",
         "poNumber":  "",
+        "poBasicAmt":  0,
+        "poVatAmt":  0,
+        "poTotalAmt":  0,
         "poAmt":  0,
         "workStatus":  "Not Started",
         "completionDate":  "",
@@ -760,9 +924,15 @@ import "../styles/global.css";
         "quoteDate":  "2026-05-12",
         "client":  "MHT",
         "scope":  "Quote for Acid tank frame",
-        "quoteAmt":  1600,
+        "basicAmt":  1600,
+        "vatAmt":  80,
+        "totalAmt":  1680,
+        "quoteAmt":  1680,
         "status":  "Pending",
         "poNumber":  "",
+        "poBasicAmt":  0,
+        "poVatAmt":  0,
+        "poTotalAmt":  0,
         "poAmt":  0,
         "workStatus":  "Not Started",
         "completionDate":  "",
@@ -775,10 +945,16 @@ import "../styles/global.css";
         "quoteDate":  "2026-04-07",
         "client":  "BEC",
         "scope":  "Quote for additional foam tank piping",
-        "quoteAmt":  218.4,
+        "basicAmt":  218.4,
+        "vatAmt":  10.920000000000002,
+        "totalAmt":  229.32,
+        "quoteAmt":  229.32,
         "status":  "Approved",
         "poNumber":  "7800011709",
-        "poAmt":  486,
+        "poBasicAmt":  486,
+        "poVatAmt":  24.3,
+        "poTotalAmt":  510.3,
+        "poAmt":  510.3,
         "workStatus":  "Completed",
         "completionDate":  "2026-05-10",
         "invoiceNum":  "",
@@ -790,10 +966,16 @@ import "../styles/global.css";
         "quoteDate":  "2026-05-20",
         "client":  "BEC",
         "scope":  "Quote for spool painting",
-        "quoteAmt":  80,
+        "basicAmt":  80,
+        "vatAmt":  4,
+        "totalAmt":  84,
+        "quoteAmt":  84,
         "status":  "Approved",
         "poNumber":  "5200068610",
-        "poAmt":  80,
+        "poBasicAmt":  80,
+        "poVatAmt":  4,
+        "poTotalAmt":  84,
+        "poAmt":  84,
         "workStatus":  "Completed",
         "completionDate":  "",
         "invoiceNum":  "",
@@ -805,10 +987,16 @@ import "../styles/global.css";
         "quoteDate":  "2026-05-24",
         "client":  "ALSIG",
         "scope":  "Quote for AC AMC",
-        "quoteAmt":  3120,
+        "basicAmt":  3120,
+        "vatAmt":  156,
+        "totalAmt":  3276,
+        "quoteAmt":  3276,
         "status":  "Approved",
         "poNumber":  "P26PO000179",
-        "poAmt":  2964,
+        "poBasicAmt":  2964,
+        "poVatAmt":  148.20000000000002,
+        "poTotalAmt":  3112.2,
+        "poAmt":  3112.2,
         "workStatus":  "In Progress",
         "completionDate":  "",
         "invoiceNum":  "",
@@ -820,9 +1008,15 @@ import "../styles/global.css";
         "quoteDate":  "2026-06-01",
         "client":  "ALSIG",
         "scope":  "Quotr for Control Room Modification",
-        "quoteAmt":  18000,
-        "status":  "Lost",
+        "basicAmt":  18000,
+        "vatAmt":  900,
+        "totalAmt":  18900,
+        "quoteAmt":  18900,
+        "status":  "Approved",
         "poNumber":  "",
+        "poBasicAmt":  0,
+        "poVatAmt":  0,
+        "poTotalAmt":  0,
         "poAmt":  0,
         "workStatus":  "Not Started",
         "completionDate":  "",
@@ -835,9 +1029,15 @@ import "../styles/global.css";
         "quoteDate":  "2026-06-09",
         "client":  "ALSIG",
         "scope":  "Quotr for Battery",
-        "quoteAmt":  480,
+        "basicAmt":  480,
+        "vatAmt":  24,
+        "totalAmt":  504,
+        "quoteAmt":  504,
         "status":  "Pending",
         "poNumber":  "",
+        "poBasicAmt":  0,
+        "poVatAmt":  0,
+        "poTotalAmt":  0,
         "poAmt":  0,
         "workStatus":  "Not Started",
         "completionDate":  "",
@@ -850,9 +1050,15 @@ import "../styles/global.css";
         "quoteDate":  "2026-06-11",
         "client":  "BEC",
         "scope":  "PVC line at phosphoric acid pump",
-        "quoteAmt":  120,
+        "basicAmt":  120,
+        "vatAmt":  6,
+        "totalAmt":  126,
+        "quoteAmt":  126,
         "status":  "Approved",
         "poNumber":  "",
+        "poBasicAmt":  0,
+        "poVatAmt":  0,
+        "poTotalAmt":  0,
         "poAmt":  0,
         "workStatus":  "Not Started",
         "completionDate":  "",
@@ -865,10 +1071,16 @@ import "../styles/global.css";
         "quoteDate":  "2026-06-21",
         "client":  "ALSIG",
         "scope":  "Sea water pipe valve chamber repairing at SIPC Corridoor",
-        "quoteAmt":  1700,
+        "basicAmt":  1700,
+        "vatAmt":  85,
+        "totalAmt":  1785,
+        "quoteAmt":  1785,
         "status":  "Approved",
         "poNumber":  "P26PO000230",
-        "poAmt":  1700,
+        "poBasicAmt":  1700,
+        "poVatAmt":  85,
+        "poTotalAmt":  1785,
+        "poAmt":  1785,
         "workStatus":  "In Progress",
         "completionDate":  "",
         "invoiceNum":  "",
@@ -880,10 +1092,16 @@ import "../styles/global.css";
         "quoteDate":  "2026-06-25",
         "client":  "ALSIG",
         "scope":  "Back up area drain pit and line",
-        "quoteAmt":  12477,
+        "basicAmt":  12477,
+        "vatAmt":  623.85,
+        "totalAmt":  13100.85,
+        "quoteAmt":  13100.85,
         "status":  "Approved",
         "poNumber":  "P26PO000170",
-        "poAmt":  12477,
+        "poBasicAmt":  12477,
+        "poVatAmt":  623.85,
+        "poTotalAmt":  13100.85,
+        "poAmt":  13100.85,
         "workStatus":  "Completed",
         "completionDate":  "2026-09-08",
         "invoiceNum":  "",
@@ -895,9 +1113,15 @@ import "../styles/global.css";
         "quoteDate":  "2026-06-11",
         "client":  "BEC",
         "scope":  "Supply of medium duty racks",
-        "quoteAmt":  2340,
-        "status":  "Lost",
+        "basicAmt":  2340,
+        "vatAmt":  117,
+        "totalAmt":  2457,
+        "quoteAmt":  2457,
+        "status":  "Approved",
         "poNumber":  "",
+        "poBasicAmt":  0,
+        "poVatAmt":  0,
+        "poTotalAmt":  0,
         "poAmt":  0,
         "workStatus":  "Not Started",
         "completionDate":  "",
@@ -910,10 +1134,16 @@ import "../styles/global.css";
         "quoteDate":  "2026-07-06",
         "client":  "ALSIG",
         "scope":  "Cold box thickness test",
-        "quoteAmt":  481,
+        "basicAmt":  481,
+        "vatAmt":  24.05,
+        "totalAmt":  505.05,
+        "quoteAmt":  505.05,
         "status":  "Approved",
         "poNumber":  "P26PO000186",
-        "poAmt":  481,
+        "poBasicAmt":  481,
+        "poVatAmt":  24.05,
+        "poTotalAmt":  505.05,
+        "poAmt":  505.05,
         "workStatus":  "Completed",
         "completionDate":  "2026-07-28",
         "invoiceNum":  "",
@@ -925,9 +1155,15 @@ import "../styles/global.css";
         "quoteDate":  "2026-07-06",
         "client":  "ALSIG",
         "scope":  "PHE Cleaning",
-        "quoteAmt":  14440,
-        "status":  "Under Revision",
+        "basicAmt":  14440,
+        "vatAmt":  722,
+        "totalAmt":  15162,
+        "quoteAmt":  15162,
+        "status":  "Lost",
         "poNumber":  "",
+        "poBasicAmt":  0,
+        "poVatAmt":  0,
+        "poTotalAmt":  0,
         "poAmt":  0,
         "workStatus":  "Not Started",
         "completionDate":  "",
@@ -940,10 +1176,16 @@ import "../styles/global.css";
         "quoteDate":  "2026-07-14",
         "client":  "ALSIG",
         "scope":  "MAF Work",
-        "quoteAmt":  1920,
+        "basicAmt":  1920,
+        "vatAmt":  96,
+        "totalAmt":  2016,
+        "quoteAmt":  2016,
         "status":  "Approved",
         "poNumber":  "P26PO000195",
-        "poAmt":  1920,
+        "poBasicAmt":  1920,
+        "poVatAmt":  96,
+        "poTotalAmt":  2016,
+        "poAmt":  2016,
         "workStatus":  "In Progress",
         "completionDate":  "",
         "invoiceNum":  "",
@@ -955,9 +1197,15 @@ import "../styles/global.css";
         "quoteDate":  "2026-07-20",
         "client":  "ALSIG",
         "scope":  "Earthing system correction work",
-        "quoteAmt":  6220,
-        "status":  "Lost",
+        "basicAmt":  6220,
+        "vatAmt":  311,
+        "totalAmt":  6531,
+        "quoteAmt":  6531,
+        "status":  "Approved",
         "poNumber":  "",
+        "poBasicAmt":  0,
+        "poVatAmt":  0,
+        "poTotalAmt":  0,
         "poAmt":  0,
         "workStatus":  "Not Started",
         "completionDate":  "",
@@ -970,9 +1218,15 @@ import "../styles/global.css";
         "quoteDate":  "2026-07-21",
         "client":  "G4s",
         "scope":  "Excavation work at ALSIG",
-        "quoteAmt":  425,
+        "basicAmt":  425,
+        "vatAmt":  21.25,
+        "totalAmt":  446.25,
+        "quoteAmt":  446.25,
         "status":  "Pending",
         "poNumber":  "",
+        "poBasicAmt":  0,
+        "poVatAmt":  0,
+        "poTotalAmt":  0,
         "poAmt":  0,
         "workStatus":  "Not Started",
         "completionDate":  "",
@@ -985,9 +1239,15 @@ import "../styles/global.css";
         "quoteDate":  "2026-07-21",
         "client":  "BEC",
         "scope":  "Fusel oil line hydrotest \u0026 3\" water line leak fixing",
-        "quoteAmt":  664.8,
+        "basicAmt":  664.8,
+        "vatAmt":  33.24,
+        "totalAmt":  698.04,
+        "quoteAmt":  698.04,
         "status":  "Approved",
         "poNumber":  "",
+        "poBasicAmt":  0,
+        "poVatAmt":  0,
+        "poTotalAmt":  0,
         "poAmt":  0,
         "workStatus":  "Not Started",
         "completionDate":  "",
@@ -1000,9 +1260,15 @@ import "../styles/global.css";
         "quoteDate":  "2026-08-09",
         "client":  "ALSIG",
         "scope":  "Man power and equipment supply",
-        "quoteAmt":  1567,
+        "basicAmt":  1567,
+        "vatAmt":  78.350000000000009,
+        "totalAmt":  1645.35,
+        "quoteAmt":  1645.35,
         "status":  "Approved",
         "poNumber":  "",
+        "poBasicAmt":  0,
+        "poVatAmt":  0,
+        "poTotalAmt":  0,
         "poAmt":  0,
         "workStatus":  "Not Started",
         "completionDate":  "",
@@ -1015,10 +1281,16 @@ import "../styles/global.css";
         "quoteDate":  "2026-08-29",
         "client":  "BEC",
         "scope":  "Foam system propotionater installation",
-        "quoteAmt":  460,
+        "basicAmt":  460,
+        "vatAmt":  23,
+        "totalAmt":  483,
+        "quoteAmt":  483,
         "status":  "Approved",
         "poNumber":  "7800011908",
-        "poAmt":  460,
+        "poBasicAmt":  460,
+        "poVatAmt":  23,
+        "poTotalAmt":  483,
+        "poAmt":  483,
         "workStatus":  "In Progress",
         "completionDate":  "",
         "invoiceNum":  "",
@@ -1030,9 +1302,15 @@ import "../styles/global.css";
         "quoteDate":  "2026-08-12",
         "client":  "BEC",
         "scope":  "Inst cabling job",
+        "basicAmt":  0,
+        "vatAmt":  0,
+        "totalAmt":  0,
         "quoteAmt":  0,
         "status":  "Dummy Quote",
         "poNumber":  "",
+        "poBasicAmt":  0,
+        "poVatAmt":  0,
+        "poTotalAmt":  0,
         "poAmt":  0,
         "workStatus":  "Not Started",
         "completionDate":  "",
@@ -1045,10 +1323,16 @@ import "../styles/global.css";
         "quoteDate":  "2026-08-31",
         "client":  "ALSIG",
         "scope":  "COLD BOX PAINTING",
-        "quoteAmt":  12400,
+        "basicAmt":  12400,
+        "vatAmt":  620,
+        "totalAmt":  13020,
+        "quoteAmt":  13020,
         "status":  "Approved",
         "poNumber":  "P26PO000229",
-        "poAmt":  12400,
+        "poBasicAmt":  12400,
+        "poVatAmt":  620,
+        "poTotalAmt":  13020,
+        "poAmt":  13020,
         "workStatus":  "Not Started",
         "completionDate":  "",
         "invoiceNum":  "",
@@ -1060,10 +1344,16 @@ import "../styles/global.css";
         "quoteDate":  "2026-09-14",
         "client":  "ALSIG",
         "scope":  "Safety Obsevation items",
-        "quoteAmt":  1240,
-        "status":  "Under Revision",
+        "basicAmt":  1240,
+        "vatAmt":  62,
+        "totalAmt":  1302,
+        "quoteAmt":  1302,
+        "status":  "Approved",
         "poNumber":  "P26PO000248",
-        "poAmt":  1240,
+        "poBasicAmt":  1240,
+        "poVatAmt":  62,
+        "poTotalAmt":  1302,
+        "poAmt":  1302,
         "workStatus":  "Not Started",
         "completionDate":  "",
         "invoiceNum":  "",
@@ -1075,9 +1365,15 @@ import "../styles/global.css";
         "quoteDate":  "2026-09-15",
         "client":  "BEC",
         "scope":  "3rd Stage cooler bundle cleaning",
-        "quoteAmt":  360,
+        "basicAmt":  360,
+        "vatAmt":  18,
+        "totalAmt":  378,
+        "quoteAmt":  378,
         "status":  "Approved",
         "poNumber":  "",
+        "poBasicAmt":  0,
+        "poVatAmt":  0,
+        "poTotalAmt":  0,
         "poAmt":  0,
         "workStatus":  "Completed",
         "completionDate":  "2026-09-13",
@@ -1090,10 +1386,16 @@ import "../styles/global.css";
         "quoteDate":  "2026-09-20",
         "client":  "ALSIG",
         "scope":  "Sign Board (Syed)",
-        "quoteAmt":  550,
+        "basicAmt":  550,
+        "vatAmt":  27.5,
+        "totalAmt":  577.5,
+        "quoteAmt":  577.5,
         "status":  "Approved",
         "poNumber":  "P26PO000235",
-        "poAmt":  550,
+        "poBasicAmt":  550,
+        "poVatAmt":  27.5,
+        "poTotalAmt":  577.5,
+        "poAmt":  577.5,
         "workStatus":  "In Progress",
         "completionDate":  "",
         "invoiceNum":  "",
@@ -1105,9 +1407,15 @@ import "../styles/global.css";
         "quoteDate":  "2026-09-20",
         "client":  "BEC",
         "scope":  "PSV installation on SRD line",
-        "quoteAmt":  156,
+        "basicAmt":  156,
+        "vatAmt":  7.8000000000000007,
+        "totalAmt":  163.8,
+        "quoteAmt":  163.8,
         "status":  "Approved",
         "poNumber":  "",
+        "poBasicAmt":  0,
+        "poVatAmt":  0,
+        "poTotalAmt":  0,
         "poAmt":  0,
         "workStatus":  "Completed",
         "completionDate":  "",
@@ -1120,9 +1428,15 @@ import "../styles/global.css";
         "quoteDate":  "2026-09-23",
         "client":  "Maxwell",
         "scope":  "Alsig Work",
-        "quoteAmt":  700,
+        "basicAmt":  700,
+        "vatAmt":  35,
+        "totalAmt":  735,
+        "quoteAmt":  735,
         "status":  "Approved",
         "poNumber":  "",
+        "poBasicAmt":  0,
+        "poVatAmt":  0,
+        "poTotalAmt":  0,
         "poAmt":  0,
         "workStatus":  "Completed",
         "completionDate":  "2026-10-06",
@@ -1135,9 +1449,15 @@ import "../styles/global.css";
         "quoteDate":  "2026-09-23",
         "client":  "ALSIG",
         "scope":  "Raised floor tiles",
-        "quoteAmt":  645,
+        "basicAmt":  645,
+        "vatAmt":  32.25,
+        "totalAmt":  677.25,
+        "quoteAmt":  677.25,
         "status":  "Lost",
         "poNumber":  "",
+        "poBasicAmt":  0,
+        "poVatAmt":  0,
+        "poTotalAmt":  0,
         "poAmt":  0,
         "workStatus":  "Not Started",
         "completionDate":  "",
@@ -1150,9 +1470,15 @@ import "../styles/global.css";
         "quoteDate":  "2026-09-28",
         "client":  "ALSIG",
         "scope":  "Quote for manpower supply_Skilled on call",
-        "quoteAmt":  1776,
+        "basicAmt":  1776,
+        "vatAmt":  88.800000000000011,
+        "totalAmt":  1864.8,
+        "quoteAmt":  1864.8,
         "status":  "Approved",
         "poNumber":  "",
+        "poBasicAmt":  0,
+        "poVatAmt":  0,
+        "poTotalAmt":  0,
         "poAmt":  0,
         "workStatus":  "Not Started",
         "completionDate":  "",
@@ -1165,10 +1491,16 @@ import "../styles/global.css";
         "quoteDate":  "2026-09-28",
         "client":  "ALSIG",
         "scope":  "PHE Cleaning",
-        "quoteAmt":  7200,
+        "basicAmt":  7200,
+        "vatAmt":  360,
+        "totalAmt":  7560,
+        "quoteAmt":  7560,
         "status":  "Approved",
         "poNumber":  "P26PO000242",
-        "poAmt":  7200,
+        "poBasicAmt":  7200,
+        "poVatAmt":  360,
+        "poTotalAmt":  7560,
+        "poAmt":  7560,
         "workStatus":  "Not Started",
         "completionDate":  "",
         "invoiceNum":  "",
@@ -1180,9 +1512,15 @@ import "../styles/global.css";
         "quoteDate":  "2026-09-29",
         "client":  "Linde",
         "scope":  "Man power supply",
+        "basicAmt":  0,
+        "vatAmt":  0,
+        "totalAmt":  0,
         "quoteAmt":  0,
         "status":  "Under Revision",
         "poNumber":  "",
+        "poBasicAmt":  0,
+        "poVatAmt":  0,
+        "poTotalAmt":  0,
         "poAmt":  0,
         "workStatus":  "Not Started",
         "completionDate":  "",
@@ -1195,10 +1533,16 @@ import "../styles/global.css";
         "quoteDate":  "2026-10-25",
         "client":  "ALSIG",
         "scope":  "Weigh bridge barrier and rubber sheet",
-        "quoteAmt":  1280,
+        "basicAmt":  1280,
+        "vatAmt":  64,
+        "totalAmt":  1344,
+        "quoteAmt":  1344,
         "status":  "Approved",
         "poNumber":  "P26PO000256",
-        "poAmt":  1280,
+        "poBasicAmt":  1280,
+        "poVatAmt":  64,
+        "poTotalAmt":  1344,
+        "poAmt":  1344,
         "workStatus":  "Not Started",
         "completionDate":  "",
         "invoiceNum":  "",
@@ -1210,10 +1554,16 @@ import "../styles/global.css";
         "quoteDate":  "2026-10-28",
         "client":  "ALSIG",
         "scope":  "Quote for manpower supply_UnSkilled on call",
-        "quoteAmt":  1100,
-        "status":  "Under Revision",
+        "basicAmt":  1100,
+        "vatAmt":  55,
+        "totalAmt":  1155,
+        "quoteAmt":  1155,
+        "status":  "Approved",
         "poNumber":  "500 Hrs",
-        "poAmt":  1100,
+        "poBasicAmt":  1100,
+        "poVatAmt":  55,
+        "poTotalAmt":  1155,
+        "poAmt":  1155,
         "workStatus":  "Not Started",
         "completionDate":  "",
         "invoiceNum":  "",
@@ -1225,9 +1575,15 @@ import "../styles/global.css";
         "quoteDate":  "2026-11-01",
         "client":  "ALSIG",
         "scope":  "Quote for TCN APU Heater fan",
-        "quoteAmt":  380,
+        "basicAmt":  380,
+        "vatAmt":  19,
+        "totalAmt":  399,
+        "quoteAmt":  399,
         "status":  "Under Revision",
         "poNumber":  "",
+        "poBasicAmt":  0,
+        "poVatAmt":  0,
+        "poTotalAmt":  0,
         "poAmt":  0,
         "workStatus":  "Not Started",
         "completionDate":  "",
@@ -1240,9 +1596,15 @@ import "../styles/global.css";
         "quoteDate":  "2026-11-01",
         "client":  "ALSIG",
         "scope":  "Quote for Transformer room repair",
-        "quoteAmt":  950,
+        "basicAmt":  950,
+        "vatAmt":  47.5,
+        "totalAmt":  997.5,
+        "quoteAmt":  997.5,
         "status":  "Pending",
         "poNumber":  "",
+        "poBasicAmt":  0,
+        "poVatAmt":  0,
+        "poTotalAmt":  0,
         "poAmt":  0,
         "workStatus":  "Not Started",
         "completionDate":  "",
@@ -1255,9 +1617,15 @@ import "../styles/global.css";
         "quoteDate":  "2026-11-03",
         "client":  "ALSIG",
         "scope":  "Quote for Cryo valve repair kit",
-        "quoteAmt":  310,
+        "basicAmt":  310,
+        "vatAmt":  15.5,
+        "totalAmt":  325.5,
+        "quoteAmt":  325.5,
         "status":  "Under Revision",
         "poNumber":  "",
+        "poBasicAmt":  0,
+        "poVatAmt":  0,
+        "poTotalAmt":  0,
         "poAmt":  0,
         "workStatus":  "Not Started",
         "completionDate":  "",
@@ -1270,9 +1638,15 @@ import "../styles/global.css";
         "quoteDate":  "2026-11-04",
         "client":  "BEC",
         "scope":  "OMC AC and chiller body repairing and painting",
-        "quoteAmt":  2489.6,
+        "basicAmt":  2489.6,
+        "vatAmt":  124.48,
+        "totalAmt":  2614.08,
+        "quoteAmt":  2614.08,
         "status":  "Pending",
         "poNumber":  "",
+        "poBasicAmt":  0,
+        "poVatAmt":  0,
+        "poTotalAmt":  0,
         "poAmt":  0,
         "workStatus":  "Not Started",
         "completionDate":  "",
@@ -1285,9 +1659,15 @@ import "../styles/global.css";
         "quoteDate":  "2026-11-09",
         "client":  "ALSIG",
         "scope":  "Tube light replacement",
-        "quoteAmt":  715,
+        "basicAmt":  715,
+        "vatAmt":  35.75,
+        "totalAmt":  750.75,
+        "quoteAmt":  750.75,
         "status":  "Pending",
         "poNumber":  "",
+        "poBasicAmt":  0,
+        "poVatAmt":  0,
+        "poTotalAmt":  0,
         "poAmt":  0,
         "workStatus":  "Not Started",
         "completionDate":  "",
@@ -1300,9 +1680,15 @@ import "../styles/global.css";
         "quoteDate":  "2026-11-11",
         "client":  "ALSIG",
         "scope":  "Quote for APSA Air filter shelter",
-        "quoteAmt":  769,
+        "basicAmt":  769,
+        "vatAmt":  38.45,
+        "totalAmt":  807.45,
+        "quoteAmt":  807.45,
         "status":  "Pending",
         "poNumber":  "",
+        "poBasicAmt":  0,
+        "poVatAmt":  0,
+        "poTotalAmt":  0,
         "poAmt":  0,
         "workStatus":  "Not Started",
         "completionDate":  "",
@@ -1315,9 +1701,15 @@ import "../styles/global.css";
         "quoteDate":  "2026-11-12",
         "client":  "Beaver",
         "scope":  "Onboard vessel plate welding",
-        "quoteAmt":  1363,
+        "basicAmt":  1363,
+        "vatAmt":  68.15,
+        "totalAmt":  1431.15,
+        "quoteAmt":  1431.15,
         "status":  "Pending",
         "poNumber":  "",
+        "poBasicAmt":  0,
+        "poVatAmt":  0,
+        "poTotalAmt":  0,
         "poAmt":  0,
         "workStatus":  "Not Started",
         "completionDate":  "",
@@ -1330,9 +1722,15 @@ import "../styles/global.css";
         "quoteDate":  "2026-11-16",
         "client":  "BEC",
         "scope":  "Bird protection at Foam Tank Shelter and maintenance building",
-        "quoteAmt":  5150,
+        "basicAmt":  5150,
+        "vatAmt":  257.5,
+        "totalAmt":  5407.5,
+        "quoteAmt":  5407.5,
         "status":  "Pending",
         "poNumber":  "",
+        "poBasicAmt":  0,
+        "poVatAmt":  0,
+        "poTotalAmt":  0,
         "poAmt":  0,
         "workStatus":  "Not Started",
         "completionDate":  "",
@@ -1345,10 +1743,16 @@ import "../styles/global.css";
         "quoteDate":  "2026-01-04",
         "client":  "ALSIG",
         "scope":  "Supply of Equipment",
-        "quoteAmt":  405,
+        "basicAmt":  405,
+        "vatAmt":  20.25,
+        "totalAmt":  425.25,
+        "quoteAmt":  425.25,
         "status":  "Approved",
         "poNumber":  "P26PO000004",
-        "poAmt":  405,
+        "poBasicAmt":  405,
+        "poVatAmt":  20.25,
+        "poTotalAmt":  425.25,
+        "poAmt":  425.25,
         "workStatus":  "Completed",
         "completionDate":  "",
         "invoiceNum":  "",
@@ -1360,10 +1764,16 @@ import "../styles/global.css";
         "quoteDate":  "2026-01-04",
         "client":  "ALSIG",
         "scope":  "MAF Work",
-        "quoteAmt":  600,
+        "basicAmt":  600,
+        "vatAmt":  30,
+        "totalAmt":  630,
+        "quoteAmt":  630,
         "status":  "Approved",
         "poNumber":  "P26PO000005",
-        "poAmt":  600,
+        "poBasicAmt":  600,
+        "poVatAmt":  30,
+        "poTotalAmt":  630,
+        "poAmt":  630,
         "workStatus":  "Completed",
         "completionDate":  "",
         "invoiceNum":  "",
@@ -1375,10 +1785,16 @@ import "../styles/global.css";
         "quoteDate":  "2026-01-04",
         "client":  "BEC",
         "scope":  "OMC PVC piping",
-        "quoteAmt":  120,
+        "basicAmt":  120,
+        "vatAmt":  6,
+        "totalAmt":  126,
+        "quoteAmt":  126,
         "status":  "Approved",
         "poNumber":  "7800011766",
-        "poAmt":  120,
+        "poBasicAmt":  120,
+        "poVatAmt":  6,
+        "poTotalAmt":  126,
+        "poAmt":  126,
         "workStatus":  "Completed",
         "completionDate":  "",
         "invoiceNum":  "",
@@ -1390,10 +1806,16 @@ import "../styles/global.css";
         "quoteDate":  "2026-01-04",
         "client":  "BEC",
         "scope":  "OMC 3\" GI piping",
-        "quoteAmt":  664,
+        "basicAmt":  664,
+        "vatAmt":  33.2,
+        "totalAmt":  697.2,
+        "quoteAmt":  697.2,
         "status":  "Approved",
         "poNumber":  "7800011812",
-        "poAmt":  664,
+        "poBasicAmt":  664,
+        "poVatAmt":  33.2,
+        "poTotalAmt":  697.2,
+        "poAmt":  697.2,
         "workStatus":  "In Progress",
         "completionDate":  "2026-09-25",
         "invoiceNum":  "",
@@ -1405,10 +1827,16 @@ import "../styles/global.css";
         "quoteDate":  "2026-01-04",
         "client":  "ALSIG",
         "scope":  "Man power and equipment",
-        "quoteAmt":  1567,
+        "basicAmt":  1567,
+        "vatAmt":  78.350000000000009,
+        "totalAmt":  1645.35,
+        "quoteAmt":  1645.35,
         "status":  "Approved",
         "poNumber":  "P26PO000205",
-        "poAmt":  1567,
+        "poBasicAmt":  1567,
+        "poVatAmt":  78.350000000000009,
+        "poTotalAmt":  1645.35,
+        "poAmt":  1645.35,
         "workStatus":  "Completed",
         "completionDate":  "",
         "invoiceNum":  "",
@@ -1496,7 +1924,7 @@ import "../styles/global.css";
     // Data Management
     function loadRecords() {
       // Clear legacy sample key if present
-      try { localStorage.removeItem("nsts_workflow_records"); localStorage.removeItem("nsts_workflow_records_2026"); } catch (e) {}
+      try { localStorage.removeItem("nsts_workflow_records"); localStorage.removeItem("nsts_workflow_records_2026"); localStorage.removeItem("nsts_workflow_records_2026_v2"); } catch (e) {}
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         try {
@@ -1588,30 +2016,30 @@ import "../styles/global.css";
       let invoicedCount = 0;
 
       records.forEach((r) => {
-        const qAmt = Number(r.quoteAmt) || 0;
-        const pAmt = Number(r.poAmt) || 0;
-        totalQuoted += qAmt;
+        const qTot = Number(r.totalAmt || r.quoteAmt) || 0;
+        const pTot = Number(r.poTotalAmt || r.poAmt) || 0;
+        totalQuoted += qTot;
 
         if (r.status === "Approved") {
-          totalPo += pAmt > 0 ? pAmt : qAmt;
+          totalPo += pTot > 0 ? pTot : qTot;
           poCount++;
         }
         if (r.status === "Pending") {
-          pendingVal += qAmt;
+          pendingVal += qTot;
           pendingCount++;
         }
         if (r.invoiceDate) {
-          invoicedTotal += pAmt > 0 ? pAmt : qAmt;
+          invoicedTotal += pTot > 0 ? pTot : qTot;
           invoicedCount++;
         }
       });
 
       metricQuotedTotal.textContent = fmtOmr(totalQuoted);
-      metricQuotedCount.textContent = `${records.length} total quotes tracked`;
+      metricQuotedCount.textContent = `${records.length} quotes • incl. 5% VAT`;
       metricPoTotal.textContent = fmtOmr(totalPo);
-      metricPoCount.textContent = `${poCount} approved with PO`;
+      metricPoCount.textContent = `${poCount} approved • incl. 5% VAT`;
       metricPendingCount.textContent = pendingCount;
-      metricPendingVal.textContent = `OMR ${fmtOmr(pendingVal)} in review`;
+      metricPendingVal.textContent = `OMR ${fmtOmr(pendingVal)} incl. VAT`;
       metricInvoicedTotal.textContent = fmtOmr(invoicedTotal);
       metricInvoicedCount.textContent = `${invoicedCount} invoice(s) submitted`;
 
@@ -1664,9 +2092,10 @@ import "../styles/global.css";
             <p class="line-clamp-2 text-white/80" title="${r.scope || ""}">${r.scope || "—"}</p>
           </td>
 
-          <!-- Quoted Amount -->
-          <td class="whitespace-nowrap px-3 py-3.5 font-mono font-bold text-white">
-            ${fmtOmr(r.quoteAmt)}
+          <!-- Quoted Total & VAT Breakdown (Option A) -->
+          <td class="whitespace-nowrap px-3 py-3.5">
+            <span class="font-mono font-bold text-white">OMR ${fmtOmr(r.totalAmt || r.quoteAmt)}</span>
+            <span class="block font-mono text-[11px] text-white/50">Base: ${fmtOmr(r.basicAmt || (r.totalAmt ? r.totalAmt / 1.05 : 0))} + 5% VAT: ${fmtOmr(r.vatAmt || (r.totalAmt ? r.totalAmt - (r.totalAmt / 1.05) : 0))}</span>
           </td>
 
           <!-- Approval Status -->
@@ -1674,12 +2103,17 @@ import "../styles/global.css";
             ${getStatusBadge(r.status)}
           </td>
 
-          <!-- PO Details -->
+          <!-- PO Details (Option A) -->
           <td class="whitespace-nowrap px-3 py-3.5">
             ${
               r.poNumber
                 ? `<span class="font-mono font-semibold text-emerald-400">${r.poNumber}</span>
-                   <span class="block font-mono text-[11px] text-white/50">OMR ${fmtOmr(r.poAmt)}</span>`
+                   <span class="block font-mono font-bold text-white text-xs">OMR ${fmtOmr(r.poTotalAmt || r.poAmt)}</span>
+                   ${
+                     (r.poBasicAmt || r.poVatAmt)
+                       ? `<span class="block font-mono text-[10px] text-white/50">Base: ${fmtOmr(r.poBasicAmt)} + VAT: ${fmtOmr(r.poVatAmt)}</span>`
+                       : ""
+                   }`
                 : `<span class="text-white/30">—</span>`
             }
           </td>
@@ -1730,11 +2164,23 @@ import "../styles/global.css";
         document.getElementById("form-ref").value = editRecord.ref || "";
         document.getElementById("form-date").value = editRecord.quoteDate || "";
         document.getElementById("form-client").value = editRecord.client || "";
-        document.getElementById("form-quote-amt").value = editRecord.quoteAmt || "";
+        const bAmt = editRecord.basicAmt !== undefined ? editRecord.basicAmt : (editRecord.quoteAmt ? editRecord.quoteAmt / 1.05 : "");
+        const vAmt = editRecord.vatAmt !== undefined ? editRecord.vatAmt : (bAmt ? bAmt * 0.05 : "");
+        const tAmt = editRecord.totalAmt || editRecord.quoteAmt || "";
+        document.getElementById("form-basic-amt").value = bAmt !== "" ? Number(bAmt).toFixed(3) : "";
+        document.getElementById("form-vat-amt").value = vAmt !== "" ? Number(vAmt).toFixed(3) : "";
+        document.getElementById("form-total-amt").value = tAmt !== "" ? Number(tAmt).toFixed(3) : "";
+
         document.getElementById("form-scope").value = editRecord.scope || "";
         document.getElementById("form-status").value = editRecord.status || "Pending";
         document.getElementById("form-po-number").value = editRecord.poNumber || "";
-        document.getElementById("form-po-amt").value = editRecord.poAmt || "";
+
+        const poBase = editRecord.poBasicAmt !== undefined ? editRecord.poBasicAmt : (editRecord.poAmt ? editRecord.poAmt / 1.05 : "");
+        const poVat = editRecord.poVatAmt !== undefined ? editRecord.poVatAmt : (poBase ? poBase * 0.05 : "");
+        const poTot = editRecord.poTotalAmt || editRecord.poAmt || "";
+        document.getElementById("form-po-basic-amt").value = poBase !== "" ? Number(poBase).toFixed(3) : "";
+        document.getElementById("form-po-vat-amt").value = poVat !== "" ? Number(poVat).toFixed(3) : "";
+        document.getElementById("form-po-total-amt").value = poTot !== "" ? Number(poTot).toFixed(3) : "";
         document.getElementById("form-work-status").value = editRecord.workStatus || "Not Started";
         document.getElementById("form-completed-date").value = editRecord.completionDate || "";
         document.getElementById("form-invoice-num").value = editRecord.invoiceNum || "";
@@ -1747,7 +2193,13 @@ import "../styles/global.css";
         // Default today's date
         const today = new Date().toISOString().split("T")[0];
         document.getElementById("form-date").value = today;
-        document.getElementById("form-ref").value = `NSTS-QT-${String(records.length + 2601).slice(-4)}`;
+        document.getElementById("form-ref").value = `NSTS/QUOTE/${String(records.length + 1).padStart(3, "0")}/2026`;
+        document.getElementById("form-basic-amt").value = "";
+        document.getElementById("form-vat-amt").value = "";
+        document.getElementById("form-total-amt").value = "";
+        document.getElementById("form-po-basic-amt").value = "";
+        document.getElementById("form-po-vat-amt").value = "";
+        document.getElementById("form-po-total-amt").value = "";
       }
       recordModal.classList.remove("hidden");
       recordModal.classList.add("flex");
@@ -1756,6 +2208,43 @@ import "../styles/global.css";
     function closeModal() {
       recordModal.classList.add("hidden");
       recordModal.classList.remove("flex");
+    }
+
+    // Auto-calculate VAT (5%) and Total on input
+    const formBasicAmt = document.getElementById("form-basic-amt");
+    const formVatAmt = document.getElementById("form-vat-amt");
+    const formTotalAmt = document.getElementById("form-total-amt");
+
+    if (formBasicAmt && formVatAmt && formTotalAmt) {
+      formBasicAmt.addEventListener("input", () => {
+        const base = parseFloat(formBasicAmt.value) || 0;
+        const vat = Math.round(base * 0.05 * 1000) / 1000;
+        formVatAmt.value = vat > 0 ? vat.toFixed(3) : (base > 0 ? "0.000" : "");
+        formTotalAmt.value = (base + (parseFloat(formVatAmt.value) || vat)).toFixed(3);
+      });
+      formVatAmt.addEventListener("input", () => {
+        const base = parseFloat(formBasicAmt.value) || 0;
+        const vat = parseFloat(formVatAmt.value) || 0;
+        formTotalAmt.value = (base + vat).toFixed(3);
+      });
+    }
+
+    const formPoBasicAmt = document.getElementById("form-po-basic-amt");
+    const formPoVatAmt = document.getElementById("form-po-vat-amt");
+    const formPoTotalAmt = document.getElementById("form-po-total-amt");
+
+    if (formPoBasicAmt && formPoVatAmt && formPoTotalAmt) {
+      formPoBasicAmt.addEventListener("input", () => {
+        const base = parseFloat(formPoBasicAmt.value) || 0;
+        const vat = Math.round(base * 0.05 * 1000) / 1000;
+        formPoVatAmt.value = vat > 0 ? vat.toFixed(3) : (base > 0 ? "0.000" : "");
+        formPoTotalAmt.value = (base + (parseFloat(formPoVatAmt.value) || vat)).toFixed(3);
+      });
+      formPoVatAmt.addEventListener("input", () => {
+        const base = parseFloat(formPoBasicAmt.value) || 0;
+        const vat = parseFloat(formPoVatAmt.value) || 0;
+        formPoTotalAmt.value = (base + vat).toFixed(3);
+      });
     }
 
     openCreateBtn.addEventListener("click", () => openModal(null));
@@ -1769,16 +2258,30 @@ import "../styles/global.css";
     recordForm.addEventListener("submit", (e) => {
       e.preventDefault();
       const id = document.getElementById("record-id").value || `rec_${Date.now()}`;
+      const basicAmt = parseFloat(document.getElementById("form-basic-amt").value) || 0;
+      const vatAmt = parseFloat(document.getElementById("form-vat-amt").value) || 0;
+      const totalAmt = parseFloat(document.getElementById("form-total-amt").value) || (basicAmt + vatAmt);
+
+      const poBasicAmt = parseFloat(document.getElementById("form-po-basic-amt").value) || 0;
+      const poVatAmt = parseFloat(document.getElementById("form-po-vat-amt").value) || 0;
+      const poTotalAmt = parseFloat(document.getElementById("form-po-total-amt").value) || (poBasicAmt + poVatAmt);
+
       const updated = {
         id,
         ref: document.getElementById("form-ref").value.trim(),
         quoteDate: document.getElementById("form-date").value,
         client: document.getElementById("form-client").value.trim(),
-        quoteAmt: parseFloat(document.getElementById("form-quote-amt").value) || 0,
+        basicAmt,
+        vatAmt,
+        totalAmt,
+        quoteAmt: totalAmt,
         scope: document.getElementById("form-scope").value.trim(),
         status: document.getElementById("form-status").value,
         poNumber: document.getElementById("form-po-number").value.trim(),
-        poAmt: parseFloat(document.getElementById("form-po-amt").value) || 0,
+        poBasicAmt,
+        poVatAmt,
+        poTotalAmt,
+        poAmt: poTotalAmt,
         workStatus: document.getElementById("form-work-status").value,
         completionDate: document.getElementById("form-completed-date").value,
         invoiceNum: document.getElementById("form-invoice-num").value.trim(),
