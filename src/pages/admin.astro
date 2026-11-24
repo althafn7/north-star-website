@@ -2095,7 +2095,8 @@ import "../styles/global.css";
           <!-- Quoted Total & VAT Breakdown (Option A) -->
           <td class="whitespace-nowrap px-3 py-3.5">
             <span class="font-mono font-bold text-white">OMR ${fmtOmr(r.totalAmt || r.quoteAmt)}</span>
-            <span class="block font-mono text-[11px] text-white/50">Base: ${fmtOmr(r.basicAmt || (r.totalAmt ? r.totalAmt / 1.05 : 0))} + 5% VAT: ${fmtOmr(r.vatAmt || (r.totalAmt ? r.totalAmt - (r.totalAmt / 1.05) : 0))}</span>
+            <span class="mt-0.5 block font-mono text-[11px] text-white/60">Base: OMR ${fmtOmr(r.basicAmt || (r.totalAmt ? r.totalAmt / 1.05 : 0))}</span>
+            <span class="block font-mono text-[11px] text-amber-300/80">VAT (5%): OMR ${fmtOmr(r.vatAmt || (r.totalAmt ? r.totalAmt - (r.totalAmt / 1.05) : 0))}</span>
           </td>
 
           <!-- Approval Status -->
@@ -2108,10 +2109,11 @@ import "../styles/global.css";
             ${
               r.poNumber
                 ? `<span class="font-mono font-semibold text-emerald-400">${r.poNumber}</span>
-                   <span class="block font-mono font-bold text-white text-xs">OMR ${fmtOmr(r.poTotalAmt || r.poAmt)}</span>
+                   <span class="mt-0.5 block font-mono font-bold text-white text-xs">OMR ${fmtOmr(r.poTotalAmt || r.poAmt)}</span>
                    ${
                      (r.poBasicAmt || r.poVatAmt)
-                       ? `<span class="block font-mono text-[10px] text-white/50">Base: ${fmtOmr(r.poBasicAmt)} + VAT: ${fmtOmr(r.poVatAmt)}</span>`
+                       ? `<span class="mt-0.5 block font-mono text-[10px] text-white/60">Base: OMR ${fmtOmr(r.poBasicAmt)}</span>
+                          <span class="block font-mono text-[10px] text-amber-300/80">VAT (5%): OMR ${fmtOmr(r.poVatAmt)}</span>`
                        : ""
                    }`
                 : `<span class="text-white/30">—</span>`
