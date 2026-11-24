@@ -1,0 +1,914 @@
+---
+import "../styles/global.css";
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Operations Portal | North Star Technical Services LLC</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" type="image/png" href="/logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body class="min-h-screen bg-[#0f1115] font-sans text-white antialiased">
+
+  <!-- ================= AUTH GATE (LOGIN SCREEN) ================= -->
+  <div id="login-gate" class="fixed inset-0 z-50 flex items-center justify-center bg-[#0b0d11] p-4">
+    <div class="relative w-full max-w-md border border-white/10 border-t-4 border-t-flare bg-[#161920] p-8 shadow-2xl sm:p-10">
+      <div class="flex flex-col items-center text-center">
+        <div class="flex h-16 w-16 items-center justify-center rounded-full bg-white p-2.5 shadow-md">
+          <img src="/logo.png" alt="North Star logo" class="h-full w-auto object-contain" />
+        </div>
+        <span class="mt-4 text-xs font-semibold uppercase tracking-[0.25em] text-flare">North Star Operations</span>
+        <h1 class="mt-1 font-display text-4xl font-extrabold tracking-tight text-white">Workflow Portal</h1>
+        <p class="mt-2 text-xs text-white/60">Quotes • Purchase Orders • Execution • Invoicing</p>
+      </div>
+
+      <form id="login-form" class="mt-8 space-y-4">
+        <div>
+          <label for="username" class="block text-xs font-semibold uppercase tracking-wider text-white/70">Username</label>
+          <input
+            type="text"
+            id="username"
+            name="username"
+            required
+            autocomplete="username"
+            value="admin"
+            class="mt-1.5 w-full border border-white/15 bg-[#0f1115] px-4 py-2.5 text-sm text-white placeholder-white/30 focus:border-flare focus:outline-none focus:ring-1 focus:ring-flare"
+            placeholder="admin"
+          />
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between">
+            <label for="password" class="block text-xs font-semibold uppercase tracking-wider text-white/70">Password</label>
+            <span class="text-[11px] text-white/40">Default: <code class="text-flare">nsts2026</code></span>
+          </div>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            required
+            autocomplete="current-password"
+            class="mt-1.5 w-full border border-white/15 bg-[#0f1115] px-4 py-2.5 text-sm text-white placeholder-white/30 focus:border-flare focus:outline-none focus:ring-1 focus:ring-flare"
+            placeholder="••••••••"
+          />
+        </div>
+
+        <div id="login-error" class="hidden rounded-sm bg-red-900/40 p-2.5 text-xs font-medium text-red-300">
+          Invalid username or password. Please try again.
+        </div>
+
+        <button
+          type="submit"
+          class="w-full bg-flare py-3 text-sm font-semibold tracking-wider text-white shadow-lg transition-colors hover:bg-red-700"
+        >
+          Sign In to Portal
+        </button>
+      </form>
+
+      <div class="mt-6 border-t border-white/10 pt-4 text-center">
+        <a href="/" class="text-xs text-white/50 transition-colors hover:text-white">← Back to public website</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MAIN ADMIN DASHBOARD ================= -->
+  <div id="admin-app" class="hidden min-h-screen flex-col">
+    <!-- Top Navigation -->
+    <header class="sticky top-0 z-40 border-b border-white/10 bg-[#161920]/95 backdrop-blur-md">
+      <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
+        <div class="flex items-center gap-3">
+          <a href="/" class="flex items-center gap-2.5" title="View live website">
+            <img src="/logo.png" alt="North Star logo" class="h-9 w-auto" />
+            <div class="border-l border-white/20 pl-2.5">
+              <span class="block font-display text-lg font-extrabold leading-none tracking-wide text-white">NORTH STAR</span>
+              <span class="block text-[10px] font-semibold uppercase tracking-wider text-flare">Operations Portal</span>
+            </div>
+          </a>
+        </div>
+
+        <!-- Action tools -->
+        <div class="flex items-center gap-2.5 sm:gap-3">
+          <a
+            href="/"
+            target="_blank"
+            class="hidden items-center gap-1.5 rounded-sm border border-white/15 px-3 py-1.5 text-xs font-medium text-white/80 transition-colors hover:border-white/40 hover:text-white md:inline-flex"
+          >
+            <span>Live Site</span>
+            <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          </a>
+
+          <button
+            id="export-csv-btn"
+            type="button"
+            class="inline-flex items-center gap-1.5 rounded-sm border border-white/20 bg-white/5 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-white/15"
+          >
+            <svg class="h-3.5 w-3.5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span class="hidden sm:inline">Export Excel/CSV</span>
+            <span class="sm:hidden">CSV</span>
+          </button>
+
+          <button
+            id="open-create-modal-btn"
+            type="button"
+            class="inline-flex items-center gap-1.5 bg-flare px-3.5 py-1.5 text-xs font-semibold text-white shadow-md transition-colors hover:bg-red-700"
+          >
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span>New Job / Quote</span>
+          </button>
+
+          <button
+            id="logout-btn"
+            type="button"
+            title="Log out"
+            class="rounded-sm border border-white/15 p-1.5 text-white/60 transition-colors hover:border-red-500 hover:text-red-400"
+          >
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Page Content -->
+    <main class="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6">
+      
+      <!-- Summary Metric Cards -->
+      <section class="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+        <div class="border border-white/10 bg-[#161920] p-4 shadow-sm">
+          <span class="text-[11px] font-semibold uppercase tracking-wider text-white/50">Total Quoted Value</span>
+          <div class="mt-1.5 flex items-baseline gap-1">
+            <span class="text-xs font-semibold text-flare">OMR</span>
+            <span id="metric-quoted-total" class="font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">0</span>
+          </div>
+          <span id="metric-quoted-count" class="mt-1 block text-[11px] text-white/40">0 active quotes</span>
+        </div>
+
+        <div class="border border-white/10 border-l-4 border-l-emerald-500 bg-[#161920] p-4 shadow-sm">
+          <span class="text-[11px] font-semibold uppercase tracking-wider text-emerald-400">POs Received (Approved)</span>
+          <div class="mt-1.5 flex items-baseline gap-1">
+            <span class="text-xs font-semibold text-emerald-400">OMR</span>
+            <span id="metric-po-total" class="font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">0</span>
+          </div>
+          <span id="metric-po-count" class="mt-1 block text-[11px] text-white/40">0 jobs with PO</span>
+        </div>
+
+        <div class="border border-white/10 border-l-4 border-l-amber-500 bg-[#161920] p-4 shadow-sm">
+          <span class="text-[11px] font-semibold uppercase tracking-wider text-amber-400">Pending Approvals</span>
+          <div class="mt-1.5 flex items-baseline gap-1">
+            <span id="metric-pending-count" class="font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">0</span>
+            <span class="text-xs font-medium text-white/50">quotes</span>
+          </div>
+          <span id="metric-pending-val" class="mt-1 block text-[11px] text-white/40">OMR 0 in review</span>
+        </div>
+
+        <div class="border border-white/10 border-l-4 border-l-blue-500 bg-[#161920] p-4 shadow-sm">
+          <span class="text-[11px] font-semibold uppercase tracking-wider text-blue-400">Invoiced / Completed</span>
+          <div class="mt-1.5 flex items-baseline gap-1">
+            <span class="text-xs font-semibold text-blue-400">OMR</span>
+            <span id="metric-invoiced-total" class="font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">0</span>
+          </div>
+          <span id="metric-invoiced-count" class="mt-1 block text-[11px] text-white/40">0 jobs invoiced</span>
+        </div>
+      </section>
+
+      <!-- Table Toolbar (Search & Filters) -->
+      <section class="mt-6 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+        <div class="flex flex-1 flex-wrap items-center gap-2.5">
+          <div class="relative min-w-[220px] flex-1 sm:max-w-xs">
+            <input
+              type="text"
+              id="search-input"
+              placeholder="Search client, PO #, scope, quote #..."
+              class="w-full border border-white/15 bg-[#161920] py-2 pl-9 pr-3 text-xs text-white placeholder-white/40 focus:border-flare focus:outline-none"
+            />
+            <svg class="absolute left-3 top-2.5 h-4 w-4 text-white/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </div>
+
+          <select
+            id="filter-status"
+            class="border border-white/15 bg-[#161920] px-3 py-2 text-xs text-white/80 focus:border-flare focus:outline-none"
+          >
+            <option value="ALL">All Approval Statuses</option>
+            <option value="Pending">Pending Approval</option>
+            <option value="Approved">PO Received / Approved</option>
+            <option value="Under Revision">Under Revision</option>
+            <option value="Lost">Lost / Cancelled</option>
+          </select>
+
+          <select
+            id="filter-work"
+            class="border border-white/15 bg-[#161920] px-3 py-2 text-xs text-white/80 focus:border-flare focus:outline-none"
+          >
+            <option value="ALL">All Work Progress</option>
+            <option value="Not Started">Not Started</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+          </select>
+        </div>
+
+        <div class="text-right text-xs text-white/50">
+          Showing <span id="record-count" class="font-semibold text-white">0</span> records
+        </div>
+      </section>
+
+      <!-- Workflow Table -->
+      <section class="mt-3 overflow-hidden border border-white/10 bg-[#161920] shadow-xl">
+        <div class="overflow-x-auto">
+          <table class="w-full min-w-[1050px] text-left text-xs">
+            <thead class="border-b border-white/15 bg-[#1a1e27] text-[11px] font-bold uppercase tracking-wider text-white/70">
+              <tr>
+                <th class="py-3.5 pl-4 pr-3">Ref &amp; Date</th>
+                <th class="px-3 py-3.5">Client</th>
+                <th class="px-3 py-3.5">Job / Scope Description</th>
+                <th class="px-3 py-3.5">Quote (OMR)</th>
+                <th class="px-3 py-3.5">Approval Status</th>
+                <th class="px-3 py-3.5">PO Details</th>
+                <th class="px-3 py-3.5">Work Progress</th>
+                <th class="px-3 py-3.5">Invoicing</th>
+                <th class="py-3.5 pl-3 pr-4 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="workflow-table-body" class="divide-y divide-white/5">
+              <!-- Dynamically populated rows -->
+            </tbody>
+          </table>
+        </div>
+
+        <div id="no-records-msg" class="hidden py-12 text-center text-sm text-white/40">
+          No records match your filter criteria. Click "New Job / Quote" to add one.
+        </div>
+      </section>
+
+      <!-- Bottom Utility Bar -->
+      <section class="mt-6 flex flex-wrap items-center justify-between gap-3 text-xs text-white/40">
+        <div>
+          Data is saved securely in your browser (<span class="text-emerald-400">Auto-saved</span>).
+        </div>
+        <div class="flex items-center gap-3">
+          <button id="backup-json-btn" type="button" class="underline hover:text-white">Download JSON Backup</button>
+          <span>•</span>
+          <button id="reset-sample-btn" type="button" class="underline hover:text-white">Reload Sample Data</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- ================= ADD / EDIT RECORD MODAL ================= -->
+  <div id="record-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 p-4 backdrop-blur-xs">
+    <div class="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto border border-white/15 border-t-4 border-t-flare bg-[#161920] p-6 shadow-2xl sm:p-8">
+      <button
+        id="modal-close-btn"
+        type="button"
+        class="absolute right-4 top-4 text-white/50 transition-colors hover:text-white"
+        aria-label="Close"
+      >
+        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+
+      <span id="modal-eyebrow" class="text-xs font-semibold uppercase tracking-[0.2em] text-flare">New Entry</span>
+      <h2 id="modal-title" class="font-display text-2xl font-extrabold text-white sm:text-3xl">Add Job / Quotation</h2>
+
+      <form id="record-form" class="mt-6 space-y-6">
+        <input type="hidden" id="record-id" name="id" value="" />
+
+        <!-- Section 1: Quotation Details -->
+        <div>
+          <h3 class="border-b border-white/10 pb-1.5 text-xs font-bold uppercase tracking-wider text-white/80">1. Quotation Details</h3>
+          <div class="mt-3 grid grid-cols-1 gap-3.5 sm:grid-cols-2">
+            <div>
+              <label for="form-ref" class="block text-[11px] font-semibold uppercase tracking-wider text-white/70">Quote Ref #</label>
+              <input type="text" id="form-ref" required placeholder="e.g. NSTS-QT-2601" class="mt-1 w-full border border-white/15 bg-[#0f1115] px-3 py-2 text-xs text-white placeholder-white/30 focus:border-flare focus:outline-none" />
+            </div>
+
+            <div>
+              <label for="form-date" class="block text-[11px] font-semibold uppercase tracking-wider text-white/70">Quote Date</label>
+              <input type="date" id="form-date" required class="mt-1 w-full border border-white/15 bg-[#0f1115] px-3 py-2 text-xs text-white focus:border-flare focus:outline-none" />
+            </div>
+
+            <div>
+              <label for="form-client" class="block text-[11px] font-semibold uppercase tracking-wider text-white/70">Client Name</label>
+              <input type="text" id="form-client" required placeholder="e.g. OQ, Sohar Aluminium, Vale..." class="mt-1 w-full border border-white/15 bg-[#0f1115] px-3 py-2 text-xs text-white placeholder-white/30 focus:border-flare focus:outline-none" />
+            </div>
+
+            <div>
+              <label for="form-quote-amt" class="block text-[11px] font-semibold uppercase tracking-wider text-white/70">Quoted Amount (OMR)</label>
+              <input type="number" step="0.001" id="form-quote-amt" required placeholder="0.000" class="mt-1 w-full border border-white/15 bg-[#0f1115] px-3 py-2 text-xs text-white placeholder-white/30 focus:border-flare focus:outline-none" />
+            </div>
+
+            <div class="sm:col-span-2">
+              <label for="form-scope" class="block text-[11px] font-semibold uppercase tracking-wider text-white/70">Job / Scope Description</label>
+              <textarea id="form-scope" rows="2" required placeholder="e.g. API 650 Storage Tank Shell Rehabilitation & Pad Plate Testing" class="mt-1 w-full border border-white/15 bg-[#0f1115] px-3 py-2 text-xs text-white placeholder-white/30 focus:border-flare focus:outline-none"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 2: Approval & PO Details -->
+        <div>
+          <h3 class="border-b border-white/10 pb-1.5 text-xs font-bold uppercase tracking-wider text-white/80">2. Approval &amp; Purchase Order (PO)</h3>
+          <div class="mt-3 grid grid-cols-1 gap-3.5 sm:grid-cols-3">
+            <div>
+              <label for="form-status" class="block text-[11px] font-semibold uppercase tracking-wider text-white/70">Approval Status</label>
+              <select id="form-status" class="mt-1 w-full border border-white/15 bg-[#0f1115] px-3 py-2 text-xs text-white focus:border-flare focus:outline-none">
+                <option value="Pending">Pending Approval</option>
+                <option value="Approved">PO Received / Approved</option>
+                <option value="Under Revision">Under Revision</option>
+                <option value="Lost">Lost / Cancelled</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="form-po-number" class="block text-[11px] font-semibold uppercase tracking-wider text-white/70">PO Number</label>
+              <input type="text" id="form-po-number" placeholder="e.g. PO-OQ-9842" class="mt-1 w-full border border-white/15 bg-[#0f1115] px-3 py-2 text-xs text-white placeholder-white/30 focus:border-flare focus:outline-none" />
+            </div>
+
+            <div>
+              <label for="form-po-amt" class="block text-[11px] font-semibold uppercase tracking-wider text-white/70">PO Amount (OMR)</label>
+              <input type="number" step="0.001" id="form-po-amt" placeholder="0.000" class="mt-1 w-full border border-white/15 bg-[#0f1115] px-3 py-2 text-xs text-white placeholder-white/30 focus:border-flare focus:outline-none" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 3: Execution & Invoicing -->
+        <div>
+          <h3 class="border-b border-white/10 pb-1.5 text-xs font-bold uppercase tracking-wider text-white/80">3. Work Execution &amp; Invoicing</h3>
+          <div class="mt-3 grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
+            <div>
+              <label for="form-work-status" class="block text-[11px] font-semibold uppercase tracking-wider text-white/70">Work Progress</label>
+              <select id="form-work-status" class="mt-1 w-full border border-white/15 bg-[#0f1115] px-3 py-2 text-xs text-white focus:border-flare focus:outline-none">
+                <option value="Not Started">Not Started</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Completed">Completed</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="form-completed-date" class="block text-[11px] font-semibold uppercase tracking-wider text-white/70">Completion Date</label>
+              <input type="date" id="form-completed-date" class="mt-1 w-full border border-white/15 bg-[#0f1115] px-3 py-2 text-xs text-white focus:border-flare focus:outline-none" />
+            </div>
+
+            <div>
+              <label for="form-invoice-num" class="block text-[11px] font-semibold uppercase tracking-wider text-white/70">Invoice #</label>
+              <input type="text" id="form-invoice-num" placeholder="INV-2026-042" class="mt-1 w-full border border-white/15 bg-[#0f1115] px-3 py-2 text-xs text-white placeholder-white/30 focus:border-flare focus:outline-none" />
+            </div>
+
+            <div>
+              <label for="form-invoice-date" class="block text-[11px] font-semibold uppercase tracking-wider text-white/70">Invoice Submission Date</label>
+              <input type="date" id="form-invoice-date" class="mt-1 w-full border border-white/15 bg-[#0f1115] px-3 py-2 text-xs text-white focus:border-flare focus:outline-none" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit & Cancel -->
+        <div class="flex items-center justify-end gap-3 border-t border-white/10 pt-4">
+          <button
+            type="button"
+            id="modal-cancel-btn"
+            class="border border-white/20 px-4 py-2 text-xs font-semibold text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            class="bg-flare px-6 py-2 text-xs font-semibold uppercase tracking-wider text-white shadow-md transition-colors hover:bg-red-700"
+          >
+            Save Record
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Client-Side Portal Logic -->
+  <script is:inline>
+    // Config & Credential
+    const AUTH_KEY = "nsts_admin_auth";
+    const STORAGE_KEY = "nsts_workflow_records";
+    const DEFAULT_USER = "admin";
+    const DEFAULT_PASS = "nsts2026";
+
+    // Initial Sample Records matching real Oman industrial clients
+    const SAMPLE_RECORDS = [
+      {
+        id: "rec_1",
+        ref: "NSTS-QT-2601",
+        quoteDate: "2026-11-04",
+        client: "OQ Refineries",
+        scope: "ASME B31.3 Process Piping Spool Fabrication & NDT RT Testing (SS304)",
+        quoteAmt: 14850.000,
+        status: "Approved",
+        poNumber: "PO-OQ-88219",
+        poAmt: 14850.000,
+        workStatus: "In Progress",
+        completionDate: "",
+        invoiceNum: "",
+        invoiceDate: ""
+      },
+      {
+        id: "rec_2",
+        ref: "NSTS-QT-2602",
+        quoteDate: "2026-11-08",
+        client: "Sohar Aluminium",
+        scope: "Potline Structural Steel Platform Reinforcement & Crane Rigging Assistance",
+        quoteAmt: 8600.000,
+        status: "Approved",
+        poNumber: "PO-SA-43190",
+        poAmt: 8600.000,
+        workStatus: "Completed",
+        completionDate: "2026-11-20",
+        invoiceNum: "NSTS-INV-26-004",
+        invoiceDate: "2026-11-22"
+      },
+      {
+        id: "rec_3",
+        ref: "NSTS-QT-2603",
+        quoteDate: "2026-11-14",
+        client: "Vale Oman Pelletizing",
+        scope: "API 653 Storage Tank Bottom Shell Plate Replacement & Pneumatic Pad Testing",
+        quoteAmt: 22400.000,
+        status: "Pending",
+        poNumber: "",
+        poAmt: 0,
+        workStatus: "Not Started",
+        completionDate: "",
+        invoiceNum: "",
+        invoiceDate: ""
+      },
+      {
+        id: "rec_4",
+        ref: "NSTS-QT-2604",
+        quoteDate: "2026-11-18",
+        client: "Oman Methanol Company",
+        scope: "Cooling Water Line Flange Modification & Precision Weld Build-up",
+        quoteAmt: 5750.000,
+        status: "Under Revision",
+        poNumber: "",
+        poAmt: 0,
+        workStatus: "Not Started",
+        completionDate: "",
+        invoiceNum: "",
+        invoiceDate: ""
+      }
+    ];
+
+    // State
+    let records = [];
+
+    // Elements
+    const loginGate = document.getElementById("login-gate");
+    const adminApp = document.getElementById("admin-app");
+    const loginForm = document.getElementById("login-form");
+    const loginError = document.getElementById("login-error");
+    const logoutBtn = document.getElementById("logout-btn");
+
+    const tableBody = document.getElementById("workflow-table-body");
+    const noRecordsMsg = document.getElementById("no-records-msg");
+    const searchInput = document.getElementById("search-input");
+    const filterStatus = document.getElementById("filter-status");
+    const filterWork = document.getElementById("filter-work");
+    const recordCountEl = document.getElementById("record-count");
+
+    const metricQuotedTotal = document.getElementById("metric-quoted-total");
+    const metricQuotedCount = document.getElementById("metric-quoted-count");
+    const metricPoTotal = document.getElementById("metric-po-total");
+    const metricPoCount = document.getElementById("metric-po-count");
+    const metricPendingCount = document.getElementById("metric-pending-count");
+    const metricPendingVal = document.getElementById("metric-pending-val");
+    const metricInvoicedTotal = document.getElementById("metric-invoiced-total");
+    const metricInvoicedCount = document.getElementById("metric-invoiced-count");
+
+    const recordModal = document.getElementById("record-modal");
+    const openCreateBtn = document.getElementById("open-create-modal-btn");
+    const modalCloseBtn = document.getElementById("modal-close-btn");
+    const modalCancelBtn = document.getElementById("modal-cancel-btn");
+    const recordForm = document.getElementById("record-form");
+    const modalTitle = document.getElementById("modal-title");
+    const modalEyebrow = document.getElementById("modal-eyebrow");
+
+    const exportCsvBtn = document.getElementById("export-csv-btn");
+    const backupJsonBtn = document.getElementById("backup-json-btn");
+    const resetSampleBtn = document.getElementById("reset-sample-btn");
+
+    // Initialize Auth
+    function checkAuth() {
+      const isAuthed = localStorage.getItem(AUTH_KEY) === "true";
+      if (isAuthed) {
+        loginGate.classList.add("hidden");
+        adminApp.classList.remove("hidden");
+        adminApp.classList.add("flex");
+        loadRecords();
+        render();
+      } else {
+        loginGate.classList.remove("hidden");
+        adminApp.classList.add("hidden");
+        adminApp.classList.remove("flex");
+      }
+    }
+
+    // Login Form Submit
+    loginForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const user = document.getElementById("username").value.trim();
+      const pass = document.getElementById("password").value.trim();
+
+      if (user.toLowerCase() === DEFAULT_USER && pass === DEFAULT_PASS) {
+        localStorage.setItem(AUTH_KEY, "true");
+        loginError.classList.add("hidden");
+        checkAuth();
+      } else {
+        loginError.classList.remove("hidden");
+      }
+    });
+
+    // Logout
+    logoutBtn.addEventListener("click", () => {
+      if (confirm("Log out of North Star Operations Portal?")) {
+        localStorage.removeItem(AUTH_KEY);
+        checkAuth();
+      }
+    });
+
+    // Data Management
+    function loadRecords() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try {
+          records = JSON.parse(saved);
+        } catch (e) {
+          records = SAMPLE_RECORDS;
+        }
+      } else {
+        records = SAMPLE_RECORDS;
+        saveRecords();
+      }
+    }
+
+    function saveRecords() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+      render();
+    }
+
+    // Helpers
+    function fmtOmr(num) {
+      if (!num || isNaN(num)) return "0.000";
+      return Number(num).toLocaleString("en-US", { minimumFractionDigits: 3, maximumFractionDigits: 3 });
+    }
+
+    function fmtDate(dStr) {
+      if (!dStr) return "—";
+      const parts = dStr.split("-");
+      if (parts.length === 3) {
+        const d = new Date(parts[0], parts[1] - 1, parts[2]);
+        return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+      }
+      return dStr;
+    }
+
+    function getStatusBadge(status) {
+      switch (status) {
+        case "Approved":
+          return `<span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-300 ring-1 ring-emerald-500/30">
+            <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span> Approved (PO)
+          </span>`;
+        case "Pending":
+          return `<span class="inline-flex items-center gap-1.5 rounded-full bg-amber-500/15 px-2.5 py-0.5 text-[11px] font-semibold text-amber-300 ring-1 ring-amber-500/30">
+            <span class="h-1.5 w-1.5 rounded-full bg-amber-400"></span> Pending Approval
+          </span>`;
+        case "Under Revision":
+          return `<span class="inline-flex items-center gap-1.5 rounded-full bg-blue-500/15 px-2.5 py-0.5 text-[11px] font-semibold text-blue-300 ring-1 ring-blue-500/30">
+            <span class="h-1.5 w-1.5 rounded-full bg-blue-400"></span> Under Revision
+          </span>`;
+        case "Lost":
+          return `<span class="inline-flex items-center gap-1.5 rounded-full bg-neutral-500/15 px-2.5 py-0.5 text-[11px] font-semibold text-neutral-400 ring-1 ring-neutral-500/30">
+            <span class="h-1.5 w-1.5 rounded-full bg-neutral-400"></span> Lost / Cancelled
+          </span>`;
+        default:
+          return status;
+      }
+    }
+
+    function getWorkBadge(workStatus) {
+      switch (workStatus) {
+        case "Completed":
+          return `<span class="font-semibold text-emerald-400">✔ Completed</span>`;
+        case "In Progress":
+          return `<span class="font-semibold text-amber-300">⚡ In Progress</span>`;
+        default:
+          return `<span class="text-white/40">⏳ Not Started</span>`;
+      }
+    }
+
+    // Render Metrics & Table
+    function render() {
+      // 1. Calculate Metrics
+      let totalQuoted = 0;
+      let totalPo = 0;
+      let poCount = 0;
+      let pendingVal = 0;
+      let pendingCount = 0;
+      let invoicedTotal = 0;
+      let invoicedCount = 0;
+
+      records.forEach((r) => {
+        const qAmt = Number(r.quoteAmt) || 0;
+        const pAmt = Number(r.poAmt) || 0;
+        totalQuoted += qAmt;
+
+        if (r.status === "Approved") {
+          totalPo += pAmt > 0 ? pAmt : qAmt;
+          poCount++;
+        }
+        if (r.status === "Pending") {
+          pendingVal += qAmt;
+          pendingCount++;
+        }
+        if (r.invoiceDate) {
+          invoicedTotal += pAmt > 0 ? pAmt : qAmt;
+          invoicedCount++;
+        }
+      });
+
+      metricQuotedTotal.textContent = fmtOmr(totalQuoted);
+      metricQuotedCount.textContent = `${records.length} total quotes tracked`;
+      metricPoTotal.textContent = fmtOmr(totalPo);
+      metricPoCount.textContent = `${poCount} approved with PO`;
+      metricPendingCount.textContent = pendingCount;
+      metricPendingVal.textContent = `OMR ${fmtOmr(pendingVal)} in review`;
+      metricInvoicedTotal.textContent = fmtOmr(invoicedTotal);
+      metricInvoicedCount.textContent = `${invoicedCount} invoice(s) submitted`;
+
+      // 2. Filter records
+      const q = searchInput.value.trim().toLowerCase();
+      const statusF = filterStatus.value;
+      const workF = filterWork.value;
+
+      const filtered = records.filter((r) => {
+        const matchesStatus = statusF === "ALL" || r.status === statusF;
+        const matchesWork = workF === "ALL" || r.workStatus === workF;
+        const matchesQuery =
+          !q ||
+          (r.client && r.client.toLowerCase().includes(q)) ||
+          (r.ref && r.ref.toLowerCase().includes(q)) ||
+          (r.scope && r.scope.toLowerCase().includes(q)) ||
+          (r.poNumber && r.poNumber.toLowerCase().includes(q)) ||
+          (r.invoiceNum && r.invoiceNum.toLowerCase().includes(q));
+
+        return matchesStatus && matchesWork && matchesQuery;
+      });
+
+      recordCountEl.textContent = filtered.length;
+
+      // 3. Render Table Rows
+      if (filtered.length === 0) {
+        tableBody.innerHTML = "";
+        noRecordsMsg.classList.remove("hidden");
+        return;
+      }
+      noRecordsMsg.classList.add("hidden");
+
+      tableBody.innerHTML = filtered
+        .map(
+          (r) => `
+        <tr class="transition-colors hover:bg-white/[0.03]">
+          <!-- Ref & Date -->
+          <td class="py-3.5 pl-4 pr-3">
+            <span class="font-mono font-bold text-white">${r.ref || "—"}</span>
+            <span class="mt-0.5 block text-[11px] text-white/50">${fmtDate(r.quoteDate)}</span>
+          </td>
+
+          <!-- Client -->
+          <td class="px-3 py-3.5">
+            <span class="font-bold text-white">${r.client || "—"}</span>
+          </td>
+
+          <!-- Scope -->
+          <td class="max-w-[260px] px-3 py-3.5">
+            <p class="line-clamp-2 text-white/80" title="${r.scope || ""}">${r.scope || "—"}</p>
+          </td>
+
+          <!-- Quoted Amount -->
+          <td class="whitespace-nowrap px-3 py-3.5 font-mono font-bold text-white">
+            ${fmtOmr(r.quoteAmt)}
+          </td>
+
+          <!-- Approval Status -->
+          <td class="whitespace-nowrap px-3 py-3.5">
+            ${getStatusBadge(r.status)}
+          </td>
+
+          <!-- PO Details -->
+          <td class="whitespace-nowrap px-3 py-3.5">
+            ${
+              r.poNumber
+                ? `<span class="font-mono font-semibold text-emerald-400">${r.poNumber}</span>
+                   <span class="block font-mono text-[11px] text-white/50">OMR ${fmtOmr(r.poAmt)}</span>`
+                : `<span class="text-white/30">—</span>`
+            }
+          </td>
+
+          <!-- Work Progress -->
+          <td class="whitespace-nowrap px-3 py-3.5">
+            <div>${getWorkBadge(r.workStatus)}</div>
+            ${r.completionDate ? `<span class="block text-[11px] text-white/50">Done: ${fmtDate(r.completionDate)}</span>` : ""}
+          </td>
+
+          <!-- Invoicing -->
+          <td class="whitespace-nowrap px-3 py-3.5">
+            ${
+              r.invoiceDate
+                ? `<span class="font-semibold text-blue-300">Submitted: ${fmtDate(r.invoiceDate)}</span>
+                   ${r.invoiceNum ? `<span class="block font-mono text-[11px] text-white/50">${r.invoiceNum}</span>` : ""}`
+                : `<span class="text-white/30">Not Invoiced</span>`
+            }
+          </td>
+
+          <!-- Actions -->
+          <td class="whitespace-nowrap py-3.5 pl-3 pr-4 text-right">
+            <button
+              onclick="window._editRecord('${r.id}')"
+              class="rounded-sm border border-white/15 px-2 py-1 text-[11px] text-white/80 transition-colors hover:border-white/40 hover:text-white"
+            >
+              Edit
+            </button>
+            <button
+              onclick="window._deleteRecord('${r.id}')"
+              class="ml-1 rounded-sm border border-red-500/20 px-2 py-1 text-[11px] text-red-400 transition-colors hover:border-red-500/60 hover:bg-red-900/20"
+            >
+              Delete
+            </button>
+          </td>
+        </tr>
+      `
+        )
+        .join("");
+    }
+
+    // Modal Operations
+    function openModal(editRecord = null) {
+      if (editRecord) {
+        modalEyebrow.textContent = "Edit Entry";
+        modalTitle.textContent = "Update Workflow Record";
+        document.getElementById("record-id").value = editRecord.id;
+        document.getElementById("form-ref").value = editRecord.ref || "";
+        document.getElementById("form-date").value = editRecord.quoteDate || "";
+        document.getElementById("form-client").value = editRecord.client || "";
+        document.getElementById("form-quote-amt").value = editRecord.quoteAmt || "";
+        document.getElementById("form-scope").value = editRecord.scope || "";
+        document.getElementById("form-status").value = editRecord.status || "Pending";
+        document.getElementById("form-po-number").value = editRecord.poNumber || "";
+        document.getElementById("form-po-amt").value = editRecord.poAmt || "";
+        document.getElementById("form-work-status").value = editRecord.workStatus || "Not Started";
+        document.getElementById("form-completed-date").value = editRecord.completionDate || "";
+        document.getElementById("form-invoice-num").value = editRecord.invoiceNum || "";
+        document.getElementById("form-invoice-date").value = editRecord.invoiceDate || "";
+      } else {
+        modalEyebrow.textContent = "New Entry";
+        modalTitle.textContent = "Add Job / Quotation";
+        recordForm.reset();
+        document.getElementById("record-id").value = "";
+        // Default today's date
+        const today = new Date().toISOString().split("T")[0];
+        document.getElementById("form-date").value = today;
+        document.getElementById("form-ref").value = `NSTS-QT-${String(records.length + 2601).slice(-4)}`;
+      }
+      recordModal.classList.remove("hidden");
+      recordModal.classList.add("flex");
+    }
+
+    function closeModal() {
+      recordModal.classList.add("hidden");
+      recordModal.classList.remove("flex");
+    }
+
+    openCreateBtn.addEventListener("click", () => openModal(null));
+    modalCloseBtn.addEventListener("click", closeModal);
+    modalCancelBtn.addEventListener("click", closeModal);
+    recordModal.addEventListener("click", (e) => {
+      if (e.target === recordModal) closeModal();
+    });
+
+    // Form Save
+    recordForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const id = document.getElementById("record-id").value || `rec_${Date.now()}`;
+      const updated = {
+        id,
+        ref: document.getElementById("form-ref").value.trim(),
+        quoteDate: document.getElementById("form-date").value,
+        client: document.getElementById("form-client").value.trim(),
+        quoteAmt: parseFloat(document.getElementById("form-quote-amt").value) || 0,
+        scope: document.getElementById("form-scope").value.trim(),
+        status: document.getElementById("form-status").value,
+        poNumber: document.getElementById("form-po-number").value.trim(),
+        poAmt: parseFloat(document.getElementById("form-po-amt").value) || 0,
+        workStatus: document.getElementById("form-work-status").value,
+        completionDate: document.getElementById("form-completed-date").value,
+        invoiceNum: document.getElementById("form-invoice-num").value.trim(),
+        invoiceDate: document.getElementById("form-invoice-date").value
+      };
+
+      const existingIndex = records.findIndex((r) => r.id === id);
+      if (existingIndex >= 0) {
+        records[existingIndex] = updated;
+      } else {
+        records.unshift(updated);
+      }
+
+      saveRecords();
+      closeModal();
+    });
+
+    // Expose Global edit/delete for inline table buttons
+    window._editRecord = function (id) {
+      const rec = records.find((r) => r.id === id);
+      if (rec) openModal(rec);
+    };
+
+    window._deleteRecord = function (id) {
+      const rec = records.find((r) => r.id === id);
+      if (rec && confirm(`Delete quote "${rec.ref}" for ${rec.client}?`)) {
+        records = records.filter((r) => r.id !== id);
+        saveRecords();
+      }
+    };
+
+    // Filter Listeners
+    searchInput.addEventListener("input", render);
+    filterStatus.addEventListener("change", render);
+    filterWork.addEventListener("change", render);
+
+    // Export to Excel / CSV
+    exportCsvBtn.addEventListener("click", () => {
+      if (records.length === 0) {
+        alert("No records to export.");
+        return;
+      }
+      const headers = [
+        "Quote Ref",
+        "Quote Date",
+        "Client",
+        "Scope Description",
+        "Quoted OMR",
+        "Approval Status",
+        "PO Number",
+        "PO Amount OMR",
+        "Work Status",
+        "Completion Date",
+        "Invoice Number",
+        "Invoice Submission Date"
+      ];
+
+      const rows = records.map((r) => [
+        `"${(r.ref || "").replace(/"/g, '""')}"`,
+        `"${r.quoteDate || ""}"`,
+        `"${(r.client || "").replace(/"/g, '""')}"`,
+        `"${(r.scope || "").replace(/"/g, '""')}"`,
+        r.quoteAmt || 0,
+        `"${r.status || ""}"`,
+        `"${r.poNumber || ""}"`,
+        r.poAmt || 0,
+        `"${r.workStatus || ""}"`,
+        `"${r.completionDate || ""}"`,
+        `"${r.invoiceNum || ""}"`,
+        `"${r.invoiceDate || ""}"`
+      ]);
+
+      const csvContent = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `NorthStar_Workflow_Export_${new Date().toISOString().split("T")[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
+
+    // Backup JSON
+    backupJsonBtn.addEventListener("click", () => {
+      const blob = new Blob([JSON.stringify(records, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `NorthStar_Backup_${new Date().toISOString().split("T")[0]}.json`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
+
+    // Reload Sample
+    resetSampleBtn.addEventListener("click", () => {
+      if (confirm("Reset table to sample Oman contracting jobs? (Will replace current records)")) {
+        records = SAMPLE_RECORDS;
+        saveRecords();
+      }
+    });
+
+    // Run
+    checkAuth();
+  </script>
+</body>
+</html>
