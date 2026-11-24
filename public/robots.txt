@@ -1,6 +1,8 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
 Allow: /
+Disallow: /workflow
+Disallow: /admin
 
 # Sitemap
 Sitemap: https://www.northstaroman.com/sitemap.xml
