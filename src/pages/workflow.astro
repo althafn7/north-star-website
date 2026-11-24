@@ -90,7 +90,7 @@ import "../styles/global.css";
       <span class="text-xs font-semibold uppercase tracking-[0.2em] text-flare">Security Recovery</span>
       <h2 class="mt-1 font-display text-2xl font-extrabold text-white">Reset Portal Password</h2>
       <p class="mt-1.5 text-xs text-white/60">
-        Password resets are verified via your registered company administration email: <strong class="text-white">info@northstaroman.com</strong>.
+        To reset your password, enter your registered company administration email (<strong class="font-mono text-white">in****@northstaroman.com</strong>).
       </p>
 
       <form id="forgot-form" class="mt-5 space-y-4">
@@ -100,8 +100,9 @@ import "../styles/global.css";
             type="email"
             id="recovery-email"
             required
-            value="info@northstaroman.com"
-            class="mt-1.5 w-full border border-white/15 bg-[#0f1115] px-4 py-2.5 text-sm text-white focus:border-flare focus:outline-none"
+            autocomplete="email"
+            placeholder="in****@northstaroman.com"
+            class="mt-1.5 w-full border border-white/15 bg-[#0f1115] px-4 py-2.5 text-sm text-white placeholder-white/30 focus:border-flare focus:outline-none"
           />
         </div>
 
@@ -2061,7 +2062,9 @@ import "../styles/global.css";
     function openForgotModal() {
       if (!forgotForm) return;
       forgotForm.reset();
-      recoveryEmailInput.value = RECOVERY_EMAIL;
+      recoveryEmailInput.value = "";
+      recoveryEmailInput.removeAttribute("readonly");
+      recoveryEmailInput.classList.remove("opacity-60", "cursor-not-allowed");
       recoveryNewPassGroup.classList.add("hidden");
       forgotMsg.classList.add("hidden");
       forgotMsg.className = "hidden rounded-sm p-2.5 text-xs font-medium";
@@ -2090,7 +2093,7 @@ import "../styles/global.css";
         e.preventDefault();
         const email = recoveryEmailInput.value.trim().toLowerCase();
         if (email !== RECOVERY_EMAIL.toLowerCase()) {
-          forgotMsg.textContent = `Authorization failed: Email does not match registered company recovery address (${RECOVERY_EMAIL}).`;
+          forgotMsg.textContent = "Verification failed: The email entered does not match the registered company recovery address.";
           forgotMsg.className = "rounded-sm bg-red-900/40 p-2.5 text-xs font-medium text-red-300 block";
           return;
         }
@@ -2098,7 +2101,9 @@ import "../styles/global.css";
         // Step 1: Reveal new password inputs
         if (recoveryNewPassGroup.classList.contains("hidden")) {
           recoveryNewPassGroup.classList.remove("hidden");
-          forgotMsg.textContent = `Company email verified (${RECOVERY_EMAIL}). Please enter and confirm your new portal password.`;
+          recoveryEmailInput.setAttribute("readonly", "true");
+          recoveryEmailInput.classList.add("opacity-60", "cursor-not-allowed");
+          forgotMsg.textContent = "Identity verified. Please enter and confirm your new portal password below.";
           forgotMsg.className = "rounded-sm bg-emerald-900/40 p-2.5 text-xs font-medium text-emerald-300 block";
           forgotSubmitBtn.textContent = "Save New Password";
           newPassInput.focus();
