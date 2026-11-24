@@ -357,7 +357,7 @@ import "../styles/global.css";
         <!-- Section 3: Execution & Invoicing -->
         <div>
           <h3 class="border-b border-white/10 pb-1.5 text-xs font-bold uppercase tracking-wider text-white/80">3. Work Execution &amp; Invoicing</h3>
-          <div class="mt-3 grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
+          <div class="mt-3 grid grid-cols-1 gap-3.5 sm:grid-cols-2">
             <div>
               <label for="form-work-status" class="block text-[11px] font-semibold uppercase tracking-wider text-white/70">Work Progress</label>
               <select id="form-work-status" class="mt-1 w-full border border-white/15 bg-[#0f1115] px-3 py-2 text-xs text-white focus:border-flare focus:outline-none">
@@ -371,15 +371,43 @@ import "../styles/global.css";
               <label for="form-completed-date" class="block text-[11px] font-semibold uppercase tracking-wider text-white/70">Completion Date</label>
               <input type="date" id="form-completed-date" class="mt-1 w-full border border-white/15 bg-[#0f1115] px-3 py-2 text-xs text-white focus:border-flare focus:outline-none" />
             </div>
+          </div>
 
-            <div>
-              <label for="form-invoice-num" class="block text-[11px] font-semibold uppercase tracking-wider text-white/70">Invoice #</label>
-              <input type="text" id="form-invoice-num" placeholder="INV-2026-042" class="mt-1 w-full border border-white/15 bg-[#0f1115] px-3 py-2 text-xs text-white placeholder-white/30 focus:border-flare focus:outline-none" />
+          <!-- Multi-Invoice / Part Billing Subsection -->
+          <div class="mt-4 rounded-lg border border-white/10 bg-[#0b0d11]/70 p-3 sm:p-4">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-2.5">
+              <div>
+                <span class="text-xs font-bold uppercase tracking-wider text-white">Invoices / Part Billing</span>
+                <span class="block text-[11px] text-white/50">Add single or multiple milestone/part invoices for this PO</span>
+              </div>
+              <button
+                type="button"
+                id="btn-add-invoice"
+                class="inline-flex items-center gap-1.5 rounded-sm border border-flare/50 bg-flare/10 px-2.5 py-1 text-xs font-semibold text-flare transition-colors hover:bg-flare hover:text-white"
+              >
+                <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <span>+ Add Invoice</span>
+              </button>
             </div>
 
-            <div>
-              <label for="form-invoice-date" class="block text-[11px] font-semibold uppercase tracking-wider text-white/70">Invoice Submission Date</label>
-              <input type="date" id="form-invoice-date" class="mt-1 w-full border border-white/15 bg-[#0f1115] px-3 py-2 text-xs text-white focus:border-flare focus:outline-none" />
+            <!-- Dynamic Invoices Container -->
+            <div id="modal-invoices-list" class="mt-3 space-y-2.5">
+              <!-- Dynamically populated invoice rows -->
+            </div>
+
+            <div id="modal-no-invoices" class="py-4 text-center text-xs text-white/40">
+              No invoices recorded yet. Click <strong class="text-flare">+ Add Invoice</strong> to log part or full billing.
+            </div>
+
+            <!-- Live Invoiced Summary & Balance Tracker -->
+            <div class="mt-3 flex flex-wrap items-center justify-between gap-2 rounded border border-white/10 bg-[#161920] px-3 py-2 text-xs">
+              <div class="flex flex-wrap items-center gap-4 text-white/70">
+                <span>Total Invoiced: <strong id="modal-inv-total" class="font-mono text-flare">OMR 0.000</strong></span>
+                <span>PO Target: <strong id="modal-inv-po-target" class="font-mono text-white">OMR 0.000</strong></span>
+              </div>
+              <div id="modal-inv-balance-pill" class="font-mono text-[11px] font-semibold">
+                <!-- Dynamically updated balance or fully invoiced indicator -->
+              </div>
             </div>
           </div>
         </div>
@@ -2028,9 +2056,14 @@ import "../styles/global.css";
           pendingVal += qTot;
           pendingCount++;
         }
-        if (r.invoiceDate) {
-          invoicedTotal += pTot > 0 ? pTot : qTot;
-          invoicedCount++;
+        const invs = Array.isArray(r.invoices) && r.invoices.length > 0
+          ? r.invoices
+          : (r.invoiceDate || r.invoiceNum ? [{ invAmt: pTot > 0 ? pTot : qTot }] : []);
+
+        if (invs.length > 0) {
+          const invSum = invs.reduce((sum, i) => sum + (Number(i.invAmt) || 0), 0);
+          invoicedTotal += invSum;
+          invoicedCount += invs.length;
         }
       });
 
@@ -2126,14 +2159,9 @@ import "../styles/global.css";
             ${r.completionDate ? `<span class="block text-[11px] text-white/50">Done: ${fmtDate(r.completionDate)}</span>` : ""}
           </td>
 
-          <!-- Invoicing -->
+          <!-- Invoicing (Multi-Invoice Support) -->
           <td class="whitespace-nowrap px-3 py-3.5">
-            ${
-              r.invoiceDate
-                ? `<span class="font-semibold text-blue-300">Submitted: ${fmtDate(r.invoiceDate)}</span>
-                   ${r.invoiceNum ? `<span class="block font-mono text-[11px] text-white/50">${r.invoiceNum}</span>` : ""}`
-                : `<span class="text-white/30">Not Invoiced</span>`
-            }
+            ${getInvoicingCell(r)}
           </td>
 
           <!-- Actions -->
@@ -2155,6 +2183,149 @@ import "../styles/global.css";
       `
         )
         .join("");
+    }
+
+    // Helper to render Invoicing column in main table
+    function getInvoicingCell(r) {
+      const invs = Array.isArray(r.invoices) && r.invoices.length > 0
+        ? r.invoices
+        : (r.invoiceDate || r.invoiceNum
+            ? [{ invNum: r.invoiceNum || "Inv", invDate: r.invoiceDate || "", invAmt: Number(r.poTotalAmt || r.poAmt) || 0, remarks: "Full Invoice" }]
+            : []);
+
+      if (invs.length === 0) {
+        return `<span class="text-white/30 text-xs">Not Invoiced</span>`;
+      }
+
+      const totalInvAmt = invs.reduce((sum, i) => sum + (Number(i.invAmt) || 0), 0);
+      const poTarget = Number(r.poTotalAmt || r.poAmt) || 0;
+      const isFullyInvoiced = poTarget > 0 && totalInvAmt >= (poTarget - 0.001);
+
+      return `
+        <div>
+          <div class="flex items-center gap-1.5">
+            <span class="font-mono font-bold text-white text-xs">OMR ${fmtOmr(totalInvAmt)}</span>
+            <span class="rounded px-1.5 py-0.5 text-[10px] font-semibold ${isFullyInvoiced ? 'bg-emerald-500/20 text-emerald-300 ring-1 ring-emerald-500/30' : 'bg-blue-500/20 text-blue-300 ring-1 ring-blue-500/30'}">
+              ${invs.length} inv${invs.length > 1 ? 's' : ''} ${isFullyInvoiced ? '✔' : ''}
+            </span>
+          </div>
+          <div class="mt-1 space-y-0.5">
+            ${invs.slice(0, 2).map(i => `
+              <span class="block font-mono text-[10px] text-white/60">
+                ${i.invNum ? `<strong class="text-white/80">${i.invNum}:</strong> ` : ''}OMR ${fmtOmr(i.invAmt || 0)} ${i.invDate ? `<span class="text-white/40">(${fmtDate(i.invDate)})</span>` : ''}
+              </span>
+            `).join('')}
+            ${invs.length > 2 ? `<span class="block text-[10px] text-flare">+${invs.length - 2} more...</span>` : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    // Modal Invoices State
+    let currentModalInvoices = [];
+    const modalInvoicesList = document.getElementById("modal-invoices-list");
+    const modalNoInvoices = document.getElementById("modal-no-invoices");
+    const btnAddInvoice = document.getElementById("btn-add-invoice");
+    const modalInvTotal = document.getElementById("modal-inv-total");
+    const modalInvPoTarget = document.getElementById("modal-inv-po-target");
+    const modalInvBalancePill = document.getElementById("modal-inv-balance-pill");
+
+    function updateModalInvoiceSummary() {
+      if (!modalInvTotal || !modalInvPoTarget || !modalInvBalancePill) return;
+      const totalInv = currentModalInvoices.reduce((sum, inv) => sum + (parseFloat(inv.invAmt) || 0), 0);
+      const poTarget = parseFloat(document.getElementById("form-po-total-amt")?.value) || parseFloat(document.getElementById("form-total-amt")?.value) || 0;
+      modalInvTotal.textContent = `OMR ${fmtOmr(totalInv)}`;
+      modalInvPoTarget.textContent = `OMR ${fmtOmr(poTarget)}`;
+
+      if (poTarget > 0) {
+        if (totalInv >= (poTarget - 0.001)) {
+          modalInvBalancePill.innerHTML = `<span class="text-emerald-400 bg-emerald-500/15 ring-1 ring-emerald-500/30 px-2 py-0.5 rounded">✔ Fully Invoiced (100%)</span>`;
+        } else {
+          const bal = poTarget - totalInv;
+          modalInvBalancePill.innerHTML = `<span class="text-blue-300 bg-blue-500/15 ring-1 ring-blue-500/30 px-2 py-0.5 rounded">Remaining: OMR ${fmtOmr(bal)}</span>`;
+        }
+      } else {
+        modalInvBalancePill.innerHTML = `<span class="text-white/50">${currentModalInvoices.length} invoice(s)</span>`;
+      }
+    }
+
+    function renderModalInvoices() {
+      if (!modalInvoicesList || !modalNoInvoices) return;
+      modalInvoicesList.innerHTML = "";
+
+      if (currentModalInvoices.length === 0) {
+        modalNoInvoices.classList.remove("hidden");
+      } else {
+        modalNoInvoices.classList.add("hidden");
+        currentModalInvoices.forEach((inv, idx) => {
+          const row = document.createElement("div");
+          row.className = "grid grid-cols-12 gap-2 items-center bg-[#0f1115] p-2.5 rounded border border-white/10";
+          row.innerHTML = `
+            <div class="col-span-12 sm:col-span-3">
+              <label class="block text-[10px] font-semibold uppercase text-white/50">Invoice #</label>
+              <input type="text" data-field="invNum" data-index="${idx}" placeholder="e.g. INV-001" value="${inv.invNum || ''}" class="inv-input mt-0.5 w-full border border-white/15 bg-[#161920] px-2 py-1.5 text-xs font-mono text-white placeholder-white/30 focus:border-flare focus:outline-none" />
+            </div>
+            <div class="col-span-12 sm:col-span-3">
+              <label class="block text-[10px] font-semibold uppercase text-white/50">Date</label>
+              <input type="date" data-field="invDate" data-index="${idx}" value="${inv.invDate || ''}" class="inv-input mt-0.5 w-full border border-white/15 bg-[#161920] px-2 py-1.5 text-xs text-white focus:border-flare focus:outline-none" />
+            </div>
+            <div class="col-span-12 sm:col-span-3">
+              <label class="block text-[10px] font-semibold uppercase text-white/50">Amount (OMR)</label>
+              <input type="number" step="0.001" data-field="invAmt" data-index="${idx}" placeholder="0.000" value="${inv.invAmt !== undefined && inv.invAmt !== null ? inv.invAmt : ''}" class="inv-input mt-0.5 w-full border border-white/15 bg-[#161920] px-2 py-1.5 text-xs font-mono font-bold text-flare placeholder-white/30 focus:border-flare focus:outline-none" />
+            </div>
+            <div class="col-span-10 sm:col-span-2">
+              <label class="block text-[10px] font-semibold uppercase text-white/50">Milestone / Scope</label>
+              <input type="text" data-field="remarks" data-index="${idx}" placeholder="e.g. Part 1" value="${inv.remarks || ''}" class="inv-input mt-0.5 w-full border border-white/15 bg-[#161920] px-2 py-1.5 text-xs text-white placeholder-white/30 focus:border-flare focus:outline-none" />
+            </div>
+            <div class="col-span-2 sm:col-span-1 flex items-end justify-center pt-3 sm:pt-0">
+              <button type="button" data-remove-index="${idx}" class="btn-remove-inv p-1.5 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded transition-colors" title="Delete Part Invoice">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+              </button>
+            </div>
+          `;
+          modalInvoicesList.appendChild(row);
+        });
+      }
+      updateModalInvoiceSummary();
+    }
+
+    // Modal Invoices Event Listeners
+    if (btnAddInvoice) {
+      btnAddInvoice.addEventListener("click", () => {
+        const today = new Date().toISOString().split("T")[0];
+        currentModalInvoices.push({
+          invNum: "",
+          invDate: today,
+          invAmt: 0,
+          remarks: `Part ${currentModalInvoices.length + 1}`
+        });
+        renderModalInvoices();
+      });
+    }
+
+    if (modalInvoicesList) {
+      modalInvoicesList.addEventListener("input", (e) => {
+        const target = e.target;
+        if (target && target.classList.contains("inv-input")) {
+          const idx = parseInt(target.getAttribute("data-index"), 10);
+          const field = target.getAttribute("data-field");
+          if (!isNaN(idx) && currentModalInvoices[idx]) {
+            currentModalInvoices[idx][field] = field === "invAmt" ? parseFloat(target.value) || 0 : target.value;
+            updateModalInvoiceSummary();
+          }
+        }
+      });
+
+      modalInvoicesList.addEventListener("click", (e) => {
+        const btn = e.target.closest(".btn-remove-inv");
+        if (btn) {
+          const idx = parseInt(btn.getAttribute("data-remove-index"), 10);
+          if (!isNaN(idx)) {
+            currentModalInvoices.splice(idx, 1);
+            renderModalInvoices();
+          }
+        }
+      });
     }
 
     // Modal Operations
@@ -2185,8 +2356,20 @@ import "../styles/global.css";
         document.getElementById("form-po-total-amt").value = poTot !== "" ? Number(poTot).toFixed(3) : "";
         document.getElementById("form-work-status").value = editRecord.workStatus || "Not Started";
         document.getElementById("form-completed-date").value = editRecord.completionDate || "";
-        document.getElementById("form-invoice-num").value = editRecord.invoiceNum || "";
-        document.getElementById("form-invoice-date").value = editRecord.invoiceDate || "";
+
+        if (Array.isArray(editRecord.invoices) && editRecord.invoices.length > 0) {
+          currentModalInvoices = JSON.parse(JSON.stringify(editRecord.invoices));
+        } else if (editRecord.invoiceNum || editRecord.invoiceDate) {
+          currentModalInvoices = [{
+            invNum: editRecord.invoiceNum || "",
+            invDate: editRecord.invoiceDate || "",
+            invAmt: Number(editRecord.poTotalAmt || editRecord.poAmt) || 0,
+            remarks: "Part 1"
+          }];
+        } else {
+          currentModalInvoices = [];
+        }
+        renderModalInvoices();
       } else {
         modalEyebrow.textContent = "New Entry";
         modalTitle.textContent = "Add Job / Quotation";
@@ -2202,6 +2385,8 @@ import "../styles/global.css";
         document.getElementById("form-po-basic-amt").value = "";
         document.getElementById("form-po-vat-amt").value = "";
         document.getElementById("form-po-total-amt").value = "";
+        currentModalInvoices = [];
+        renderModalInvoices();
       }
       recordModal.classList.remove("hidden");
       recordModal.classList.add("flex");
@@ -2223,11 +2408,13 @@ import "../styles/global.css";
         const vat = Math.round(base * 0.05 * 1000) / 1000;
         formVatAmt.value = vat > 0 ? vat.toFixed(3) : (base > 0 ? "0.000" : "");
         formTotalAmt.value = (base + (parseFloat(formVatAmt.value) || vat)).toFixed(3);
+        updateModalInvoiceSummary();
       });
       formVatAmt.addEventListener("input", () => {
         const base = parseFloat(formBasicAmt.value) || 0;
         const vat = parseFloat(formVatAmt.value) || 0;
         formTotalAmt.value = (base + vat).toFixed(3);
+        updateModalInvoiceSummary();
       });
     }
 
@@ -2241,11 +2428,13 @@ import "../styles/global.css";
         const vat = Math.round(base * 0.05 * 1000) / 1000;
         formPoVatAmt.value = vat > 0 ? vat.toFixed(3) : (base > 0 ? "0.000" : "");
         formPoTotalAmt.value = (base + (parseFloat(formPoVatAmt.value) || vat)).toFixed(3);
+        updateModalInvoiceSummary();
       });
       formPoVatAmt.addEventListener("input", () => {
         const base = parseFloat(formPoBasicAmt.value) || 0;
         const vat = parseFloat(formPoVatAmt.value) || 0;
         formPoTotalAmt.value = (base + vat).toFixed(3);
+        updateModalInvoiceSummary();
       });
     }
 
@@ -2286,8 +2475,9 @@ import "../styles/global.css";
         poAmt: poTotalAmt,
         workStatus: document.getElementById("form-work-status").value,
         completionDate: document.getElementById("form-completed-date").value,
-        invoiceNum: document.getElementById("form-invoice-num").value.trim(),
-        invoiceDate: document.getElementById("form-invoice-date").value
+        invoices: currentModalInvoices,
+        invoiceNum: currentModalInvoices.length > 0 ? currentModalInvoices.map(i => i.invNum).filter(Boolean).join(", ") : "",
+        invoiceDate: currentModalInvoices.length > 0 ? (currentModalInvoices[currentModalInvoices.length - 1].invDate || "") : ""
       };
 
       const existingIndex = records.findIndex((r) => r.id === id);
@@ -2331,30 +2521,46 @@ import "../styles/global.css";
         "Quote Date",
         "Client",
         "Scope Description",
-        "Quoted OMR",
+        "Basic Quoted (OMR)",
+        "VAT 5% (OMR)",
+        "Total Quoted (OMR)",
         "Approval Status",
         "PO Number",
-        "PO Amount OMR",
+        "PO Basic (OMR)",
+        "PO VAT 5% (OMR)",
+        "PO Total (OMR)",
         "Work Status",
         "Completion Date",
-        "Invoice Number",
-        "Invoice Submission Date"
+        "Total Invoiced (OMR)",
+        "Invoices Breakdown"
       ];
 
-      const rows = records.map((r) => [
-        `"${(r.ref || "").replace(/"/g, '""')}"`,
-        `"${r.quoteDate || ""}"`,
-        `"${(r.client || "").replace(/"/g, '""')}"`,
-        `"${(r.scope || "").replace(/"/g, '""')}"`,
-        r.quoteAmt || 0,
-        `"${r.status || ""}"`,
-        `"${r.poNumber || ""}"`,
-        r.poAmt || 0,
-        `"${r.workStatus || ""}"`,
-        `"${r.completionDate || ""}"`,
-        `"${r.invoiceNum || ""}"`,
-        `"${r.invoiceDate || ""}"`
-      ]);
+      const rows = records.map((r) => {
+        const invs = Array.isArray(r.invoices) && r.invoices.length > 0
+          ? r.invoices
+          : (r.invoiceDate || r.invoiceNum ? [{ invNum: r.invoiceNum || "", invDate: r.invoiceDate || "", invAmt: Number(r.poTotalAmt || r.poAmt) || 0 }] : []);
+        const totalInv = invs.reduce((sum, i) => sum + (Number(i.invAmt) || 0), 0);
+        const invSummary = invs.map(i => `${i.invNum || "Inv"}: ${i.invAmt || 0} OMR (${i.invDate || ""})`).join(" | ");
+
+        return [
+          `"${(r.ref || "").replace(/"/g, '""')}"`,
+          `"${r.quoteDate || ""}"`,
+          `"${(r.client || "").replace(/"/g, '""')}"`,
+          `"${(r.scope || "").replace(/"/g, '""')}"`,
+          r.basicAmt || 0,
+          r.vatAmt || 0,
+          r.totalAmt || r.quoteAmt || 0,
+          `"${r.status || ""}"`,
+          `"${r.poNumber || ""}"`,
+          r.poBasicAmt || 0,
+          r.poVatAmt || 0,
+          r.poTotalAmt || r.poAmt || 0,
+          `"${r.workStatus || ""}"`,
+          `"${r.completionDate || ""}"`,
+          totalInv,
+          `"${invSummary.replace(/"/g, '""')}"`
+        ];
+      });
 
       const csvContent = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
       const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
