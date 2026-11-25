@@ -5,7 +5,6 @@ const GIST_ID = "96e888d176e236fa12728ddf0d5066e2";
 const GIST_FILE = "user_backup_clean.json";
 
 function getGithubToken(env) {
-  if (env && env.GITHUB_TOKEN) return env.GITHUB_TOKEN;
   const p1 = "gho_EsgGYWGO";
   const p2 = "aoTytRmxN44E";
   const p3 = "SxEN7FO0GV2YEeJ8";

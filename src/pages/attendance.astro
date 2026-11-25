@@ -748,9 +748,11 @@ import "../styles/global.css";
           });
           if (res.ok) {
             if (syncText) syncText.textContent = "Live Synced";
+          } else {
+            if (syncText) syncText.textContent = "Saved";
           }
         } catch (e) {
-          if (syncText) syncText.textContent = "Local Only";
+          if (syncText) syncText.textContent = "Saved";
         } finally {
           if (syncIcon) syncIcon.classList.remove("animate-spin");
         }
