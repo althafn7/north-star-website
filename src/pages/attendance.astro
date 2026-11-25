@@ -591,13 +591,32 @@ import "../styles/global.css";
         return localStorage.getItem(CUSTOM_PASS_KEY) || DEFAULT_PASS;
       }
 
-      // Initial Seed Employees (From official payslips provided)
+      // Initial Seed Employees (From official payslips & management directives)
       const INITIAL_EMPLOYEES = [
+        { id: "emp_001", empNum: "001", name: "Nizamudeen A", designation: "General Manager", basic: 750.0 },
         { id: "emp_002", empNum: "002", name: "Suresh Kumar", designation: "Helper", basic: 150.0 },
         { id: "emp_003", empNum: "003", name: "Abdul Rahman", designation: "Fabrication", basic: 250.0 },
         { id: "emp_004", empNum: "004", name: "Mohammed Ahsan", designation: "Welder", basic: 170.0 },
-        { id: "emp_005", empNum: "005", name: "Muhammed Joshim", designation: "Helper", basic: 180.0 }
+        { id: "emp_005", empNum: "005", name: "Muhammed Joshim", designation: "Helper", basic: 180.0 },
+        { id: "emp_006", empNum: "006", name: "Althaf Nizam", designation: "Operations Manager", basic: 400.0 },
+        { id: "emp_007", empNum: "007", name: "Bavaneeth K", designation: "Mechanical Engineer", basic: 350.0 }
       ];
+
+      function mergeSeedEmployees(currentList) {
+        const map = new Map();
+        INITIAL_EMPLOYEES.forEach(emp => map.set(emp.empNum || emp.id, { ...emp }));
+        if (Array.isArray(currentList)) {
+          currentList.forEach(emp => {
+            const key = emp.empNum || emp.id;
+            if (map.has(key)) {
+              map.set(key, { ...map.get(key), ...emp });
+            } else {
+              map.set(key, emp);
+            }
+          });
+        }
+        return Array.from(map.values()).sort((a, b) => (a.empNum || "").localeCompare(b.empNum || ""));
+      }
 
       // State:
       // employees: array of { id, empNum, name, designation, basic }
@@ -639,7 +658,7 @@ import "../styles/global.css";
           const raw = localStorage.getItem(STORAGE_KEY_ATTENDANCE);
           if (raw) {
             const parsed = JSON.parse(raw);
-            employees = Array.isArray(parsed.employees) && parsed.employees.length > 0 ? parsed.employees : JSON.parse(JSON.stringify(INITIAL_EMPLOYEES));
+            employees = mergeSeedEmployees(parsed.employees);
             monthlyData = parsed.monthlyData || {};
           } else {
             employees = JSON.parse(JSON.stringify(INITIAL_EMPLOYEES));
@@ -697,9 +716,9 @@ import "../styles/global.css";
           if (res.ok) {
             const result = await res.json();
             if (result && result.data && Array.isArray(result.data.employees)) {
-              employees = result.data.employees;
+              employees = mergeSeedEmployees(result.data.employees);
               monthlyData = result.data.monthlyData || {};
-              localStorage.setItem(STORAGE_KEY_ATTENDANCE, JSON.stringify(result.data));
+              localStorage.setItem(STORAGE_KEY_ATTENDANCE, JSON.stringify({ employees, monthlyData }));
               render();
               if (syncText) syncText.textContent = "Live Synced";
             }
@@ -1220,8 +1239,9 @@ import "../styles/global.css";
           document.getElementById("modal-title").textContent = "Add New Employee";
           employeeForm.reset();
           document.getElementById("emp-internal-id").value = "";
-          // Auto-generate next number e.g. 006
-          const nextNum = String(employees.length + 2).padStart(3, "0");
+          // Auto-generate next number e.g. 008
+          const maxNum = employees.reduce((max, e) => Math.max(max, parseInt(e.empNum, 10) || 0), 0);
+          const nextNum = String(maxNum + 1).padStart(3, "0");
           document.getElementById("form-emp-num").value = nextNum;
         }
         employeeModal.classList.remove("hidden");
