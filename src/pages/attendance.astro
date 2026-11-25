@@ -145,6 +145,37 @@ import "../styles/global.css";
           -webkit-print-color-adjust: exact !important;
           print-color-adjust: exact !important;
         }
+
+        #printable-payslip .signature-stamp-block {
+          display: flex !important;
+          flex-direction: row !important;
+          align-items: flex-end !important;
+          justify-content: space-between !important;
+          visibility: visible !important;
+          page-break-inside: avoid !important;
+          break-inside: avoid !important;
+          margin-top: 18px !important;
+          padding-top: 10px !important;
+          border-top: 1.5px solid #000000 !important;
+        }
+
+        #printable-payslip img.stamp-img {
+          height: 84px !important;
+          width: 84px !important;
+          object-fit: contain !important;
+          display: inline-block !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+
+        #printable-payslip img.signature-img {
+          height: 60px !important;
+          width: auto !important;
+          object-fit: contain !important;
+          display: inline-block !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
       }
     </style>
   </head>
@@ -734,6 +765,43 @@ import "../styles/global.css";
               Hourly Rate = Basic ÷ Total Hours. Overtime Hourly Rate = Hourly Rate × 1.25 (Oman Labor Law Standard 125%). 
               Overtime Earning = OT Hours × OT Rate.
             </span>
+          </div>
+
+          <!-- Company Stamp & Authorized Signature -->
+          <div class="mt-6 pt-3 border-t-2 border-black/80 flex flex-col sm:flex-row items-center sm:items-end justify-between gap-4 signature-stamp-block">
+            <div class="text-[10.5px] text-gray-700 font-sans space-y-1 text-center sm:text-left">
+              <p class="font-extrabold text-black uppercase tracking-wider text-[11px]">NORTH STAR TECHNICAL SERVICES LLC</p>
+              <p class="font-medium text-gray-600">C.R. No: 1081582 | Sohar, Sultanate of Oman</p>
+              <p class="text-gray-500 italic text-[10px]">Officially authenticated &amp; verified payroll slip.</p>
+            </div>
+
+            <div class="flex flex-col items-center sm:items-end text-center sm:text-right">
+              <div class="text-[11px] font-bold uppercase tracking-wider text-black mb-1">
+                For NORTH STAR TECHNICAL SERVICES LLC
+              </div>
+              <div class="relative flex items-center justify-center sm:justify-end h-24 w-64 pr-1 my-1">
+                <!-- Official Circular Stamp -->
+                <img 
+                  src="/stamp-nsts.png" 
+                  alt="North Star Company Stamp" 
+                  loading="eager"
+                  decoding="sync"
+                  class="stamp-img h-24 w-24 object-contain filter drop-shadow-sm pointer-events-none select-none"
+                />
+                <!-- Althaf Signature -->
+                <img 
+                  src="/signature-althaf.png" 
+                  alt="Authorized Signatory - Althaf" 
+                  loading="eager"
+                  decoding="sync"
+                  class="signature-img h-20 w-auto object-contain -ml-8 z-10 pointer-events-none select-none"
+                />
+              </div>
+              <div class="w-56 border-t-2 border-black pt-1 text-center">
+                <span class="block text-xs font-bold uppercase tracking-wider text-black">Authorized Signatory</span>
+                <span class="block text-[10.5px] font-medium text-gray-700">Operations Manager</span>
+              </div>
+            </div>
           </div>
         </div>
 
