@@ -297,6 +297,96 @@ import "../styles/global.css";
       </main>
     </div>
 
+    <!-- ================= DAILY TIMESHEET & OVERTIME MODAL ================= -->
+    <div id="timesheet-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/85 p-3 sm:p-4 backdrop-blur-xs">
+      <div class="relative max-h-[92vh] w-full max-w-2xl flex flex-col border border-white/20 border-t-4 border-t-amber-400 bg-[#161920] shadow-2xl">
+        
+        <!-- Modal Header -->
+        <div class="flex items-start justify-between border-b border-white/10 p-5 sm:p-6 pb-4">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-semibold uppercase tracking-[0.2em] text-amber-400">Daily Attendance Log</span>
+              <span id="ts-emp-badge" class="font-mono text-xs text-white/50"></span>
+            </div>
+            <h2 id="ts-emp-name" class="font-display text-xl sm:text-2xl font-bold text-white mt-0.5">Staff Name</h2>
+            <div id="ts-period-info" class="text-xs text-white/60 mt-0.5">Month Information</div>
+          </div>
+          <button
+            type="button"
+            id="ts-close-top-btn"
+            class="text-white/50 transition-colors hover:text-white p-1"
+            title="Close (Esc)"
+          >
+            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+
+        <!-- Quick Fill & Live Totals Toolbar -->
+        <div class="flex flex-wrap items-center justify-between gap-2.5 bg-[#0f1115] px-5 py-3 border-b border-white/10 text-xs">
+          <div class="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              id="ts-fill-default-btn"
+              class="rounded bg-white/10 px-2.5 py-1 text-[11px] font-semibold text-white transition-colors hover:bg-white/20"
+              title="Fill 8 normal hours for all working days"
+            >
+              Fill 8 Normal Hrs
+            </button>
+            <button
+              type="button"
+              id="ts-clear-ot-btn"
+              class="rounded bg-white/5 px-2 py-1 text-[11px] font-semibold text-white/60 transition-colors hover:bg-white/15 hover:text-white"
+              title="Reset all OT hours to 0"
+            >
+              Clear OT
+            </button>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <span class="text-white/60">Total Normal: <strong id="ts-total-normal" class="text-white font-mono font-bold">0</strong> hrs</span>
+            <span class="text-white/30">•</span>
+            <span class="text-amber-400">Total OT: <strong id="ts-total-ot" class="font-mono font-bold text-amber-300">0</strong> hrs</span>
+          </div>
+        </div>
+
+        <!-- Scrollable Daily Grid -->
+        <div class="flex-1 overflow-y-auto p-4 sm:p-6 max-h-[55vh]">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead class="sticky top-0 z-10 border-b border-white/15 bg-[#1a1e27] text-[10.5px] font-bold uppercase tracking-wider text-white/70 shadow-sm">
+              <tr>
+                <th class="py-2 px-3 w-36">DATE</th>
+                <th class="py-2 px-3 w-36 text-center">NORMAL HRS</th>
+                <th class="py-2 px-3 w-36 text-center">OT HRS</th>
+                <th class="py-2 px-3 text-right">DAY TOTAL</th>
+              </tr>
+            </thead>
+            <tbody id="ts-days-tbody" class="divide-y divide-white/5 font-mono">
+              <!-- Dynamically populated 1 to 28/29/30/31 days -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="flex items-center justify-between border-t border-white/10 p-4 sm:p-5 bg-[#161920]">
+          <button
+            type="button"
+            id="ts-cancel-btn"
+            class="rounded-xs border border-white/20 px-4 py-2 text-xs font-semibold text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            id="ts-save-btn"
+            class="inline-flex items-center gap-1.5 rounded-xs bg-flare px-6 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-md transition-colors hover:bg-red-700"
+          >
+            Save &amp; Update Payroll
+          </button>
+        </div>
+
+      </div>
+    </div>
+
     <!-- ================= ADD / EDIT EMPLOYEE MODAL ================= -->
     <div id="employee-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 p-4 backdrop-blur-xs">
       <div class="relative max-h-[90vh] w-full max-w-lg overflow-y-auto border border-white/15 border-t-4 border-t-flare bg-[#161920] p-6 shadow-2xl sm:p-8">
@@ -653,6 +743,21 @@ import "../styles/global.css";
       const closePayslipBtn = document.getElementById("close-payslip-btn");
       const printPayslipBtn = document.getElementById("print-payslip-btn");
 
+      // Timesheet Modal Elements
+      const timesheetModal = document.getElementById("timesheet-modal");
+      const tsEmpBadge = document.getElementById("ts-emp-badge");
+      const tsEmpName = document.getElementById("ts-emp-name");
+      const tsPeriodInfo = document.getElementById("ts-period-info");
+      const tsDaysTbody = document.getElementById("ts-days-tbody");
+      const tsTotalNormal = document.getElementById("ts-total-normal");
+      const tsTotalOt = document.getElementById("ts-total-ot");
+      const tsFillDefaultBtn = document.getElementById("ts-fill-default-btn");
+      const tsClearOtBtn = document.getElementById("ts-clear-ot-btn");
+      const tsCloseTopBtn = document.getElementById("ts-close-top-btn");
+      const tsCancelBtn = document.getElementById("ts-cancel-btn");
+      const tsSaveBtn = document.getElementById("ts-save-btn");
+      let currentTsEmpId = null;
+
       // Auth Check
       function checkAuth() {
         const isAuthed = localStorage.getItem(AUTH_KEY) === "true";
@@ -790,15 +895,16 @@ import "../styles/global.css";
                 </button>
               </td>
 
-              <!-- Staff Name -->
+              <!-- Staff Name (Click to open Daily Timesheet & OT pop-up) -->
               <td class="w-[160px] px-2 py-2.5 font-bold text-white text-[11px]">
                 <button
                   type="button"
-                  onclick="window._viewPaySlip('${emp.id}')"
-                  class="text-left hover:text-flare hover:underline transition-colors block truncate w-full"
-                  title="View Pay Slip"
+                  onclick="window._openDailyTimesheet('${emp.id}')"
+                  class="text-left text-white hover:text-amber-400 hover:underline transition-colors flex items-center justify-between gap-1 w-full group cursor-pointer"
+                  title="Click to view & log daily Normal & OT hours"
                 >
-                  ${emp.name || "—"}
+                  <span class="truncate">${emp.name || "—"}</span>
+                  <span class="rounded bg-amber-400/10 border border-amber-400/30 px-1 py-0.5 text-[9px] font-mono text-amber-300 group-hover:bg-amber-400/25 shrink-0">Daily 📅</span>
                 </button>
               </td>
 
@@ -908,6 +1014,197 @@ import "../styles/global.css";
         render();
       };
 
+      // ================= Daily Timesheet & Overtime Modal =================
+      function closeTimesheetModal() {
+        if (!timesheetModal) return;
+        timesheetModal.classList.add("hidden");
+        timesheetModal.classList.remove("flex");
+        currentTsEmpId = null;
+      }
+
+      function updateTsLiveTotals() {
+        if (!tsDaysTbody) return;
+        let totNorm = 0;
+        let totOt = 0;
+        const rows = tsDaysTbody.querySelectorAll("tr");
+        rows.forEach(row => {
+          const normInp = row.querySelector(".ts-input-normal");
+          const otInp = row.querySelector(".ts-input-ot");
+          const dayTotSpan = row.querySelector(".ts-day-total");
+          const normVal = Math.max(0, parseFloat(normInp ? normInp.value : 0) || 0);
+          const otVal = Math.max(0, parseFloat(otInp ? otInp.value : 0) || 0);
+          if (dayTotSpan) dayTotSpan.textContent = (normVal + otVal);
+          totNorm += normVal;
+          totOt += otVal;
+        });
+        if (tsTotalNormal) tsTotalNormal.textContent = totNorm;
+        if (tsTotalOt) tsTotalOt.textContent = totOt;
+      }
+
+      window._openDailyTimesheet = function(empId) {
+        const emp = employees.find(e => e.id === empId);
+        if (!emp) return;
+        currentTsEmpId = empId;
+
+        const p = getPeriodDetails(selectedPeriod);
+        const monthNamesShort = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+        const monthShort = monthNamesShort[p.month - 1] || "MTH";
+
+        if (tsEmpBadge) tsEmpBadge.textContent = `Emp #${emp.empNum || "—"}`;
+        if (tsEmpName) tsEmpName.textContent = emp.name || "Staff";
+        if (tsPeriodInfo) {
+          tsPeriodInfo.innerHTML = `
+            <span class="font-bold text-white">${monthShort} ${p.year}</span> • 
+            <span>${p.days} Days in Month</span> • 
+            <span>Standard Working Hours: <strong class="text-amber-400 font-mono">${p.totalHrs}h</strong> (${p.days}d × 8h)</span>
+          `;
+        }
+
+        // Get existing logged days or defaults
+        monthlyData[selectedPeriod] = monthlyData[selectedPeriod] || {};
+        const empMonth = monthlyData[selectedPeriod][empId] || {};
+        const savedDays = empMonth.days || {};
+
+        let rowsHtml = "";
+        const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+        for (let d = 1; d <= p.days; d++) {
+          const dateObj = new Date(p.year, p.month - 1, d);
+          const dow = dayNames[dateObj.getDay()];
+          const isFriday = (dateObj.getDay() === 5);
+
+          let normVal = 8;
+          let otVal = 0;
+
+          if (savedDays[d] !== undefined) {
+            normVal = Number(savedDays[d].normal) >= 0 ? Number(savedDays[d].normal) : 8;
+            otVal = Number(savedDays[d].ot) >= 0 ? Number(savedDays[d].ot) : 0;
+          } else if (empMonth.otHours && d === 1 && Object.keys(savedDays).length === 0) {
+            // Backward compat: if there was previous lump-sum OT
+            otVal = Number(empMonth.otHours);
+          }
+
+          const daySum = normVal + otVal;
+
+          rowsHtml += `
+            <tr class="hover:bg-white/[0.04] transition-colors ${isFriday ? 'bg-white/[0.02]' : ''}" data-day="${d}">
+              <td class="py-2 px-3 font-medium text-white">
+                <span class="font-bold text-white text-xs">${d} ${monthShort}</span>
+                <span class="text-white/40 text-[10px] ml-1.5 uppercase tracking-wide">(${dow})</span>
+                ${isFriday ? '<span class="ml-1 rounded bg-blue-500/10 px-1 py-0.2 text-[9px] text-blue-300 font-sans">Fri</span>' : ''}
+              </td>
+              <td class="py-1.5 px-3 text-center">
+                <input
+                  type="number"
+                  min="0"
+                  max="24"
+                  step="0.5"
+                  data-day="${d}"
+                  data-type="normal"
+                  value="${normVal}"
+                  class="ts-input-normal w-20 rounded border border-white/20 bg-[#0f1115] px-2 py-1 text-center font-mono text-xs font-bold text-white focus:border-amber-400 focus:outline-none"
+                />
+              </td>
+              <td class="py-1.5 px-3 text-center">
+                <input
+                  type="number"
+                  min="0"
+                  max="24"
+                  step="0.5"
+                  data-day="${d}"
+                  data-type="ot"
+                  value="${otVal}"
+                  class="ts-input-ot w-20 rounded border border-amber-500/30 bg-[#0f1115] px-2 py-1 text-center font-mono text-xs font-bold text-amber-300 focus:border-amber-400 focus:outline-none"
+                />
+              </td>
+              <td class="py-2 px-3 text-right font-mono font-bold text-white/90">
+                <span class="ts-day-total text-xs">${daySum}</span><span class="text-white/30 text-[10px] ml-0.5">h</span>
+              </td>
+            </tr>
+          `;
+        }
+
+        if (tsDaysTbody) tsDaysTbody.innerHTML = rowsHtml;
+        updateTsLiveTotals();
+
+        if (timesheetModal) {
+          timesheetModal.classList.remove("hidden");
+          timesheetModal.classList.add("flex");
+        }
+      };
+
+      if (tsDaysTbody) {
+        tsDaysTbody.addEventListener("input", (e) => {
+          if (e.target.classList.contains("ts-input-normal") || e.target.classList.contains("ts-input-ot")) {
+            updateTsLiveTotals();
+          }
+        });
+      }
+
+      if (tsFillDefaultBtn) {
+        tsFillDefaultBtn.addEventListener("click", () => {
+          if (!tsDaysTbody) return;
+          const normInputs = tsDaysTbody.querySelectorAll(".ts-input-normal");
+          normInputs.forEach(inp => { inp.value = 8; });
+          updateTsLiveTotals();
+        });
+      }
+
+      if (tsClearOtBtn) {
+        tsClearOtBtn.addEventListener("click", () => {
+          if (!tsDaysTbody) return;
+          const otInputs = tsDaysTbody.querySelectorAll(".ts-input-ot");
+          otInputs.forEach(inp => { inp.value = 0; });
+          updateTsLiveTotals();
+        });
+      }
+
+      if (tsCloseTopBtn) tsCloseTopBtn.addEventListener("click", closeTimesheetModal);
+      if (tsCancelBtn) tsCancelBtn.addEventListener("click", closeTimesheetModal);
+
+      if (timesheetModal) {
+        timesheetModal.addEventListener("click", (e) => {
+          if (e.target === timesheetModal) closeTimesheetModal();
+        });
+      }
+
+      if (tsSaveBtn) {
+        tsSaveBtn.addEventListener("click", () => {
+          if (!currentTsEmpId) return;
+          const p = getPeriodDetails(selectedPeriod);
+          const daysObj = {};
+          let totalNorm = 0;
+          let totalOt = 0;
+
+          if (tsDaysTbody) {
+            const rows = tsDaysTbody.querySelectorAll("tr");
+            rows.forEach(row => {
+              const d = row.getAttribute("data-day");
+              const normInp = row.querySelector(".ts-input-normal");
+              const otInp = row.querySelector(".ts-input-ot");
+              const normVal = Math.max(0, parseFloat(normInp ? normInp.value : 0) || 0);
+              const otVal = Math.max(0, parseFloat(otInp ? otInp.value : 0) || 0);
+              if (d) {
+                daysObj[d] = { normal: normVal, ot: otVal };
+                totalNorm += normVal;
+                totalOt += otVal;
+              }
+            });
+          }
+
+          if (!monthlyData[selectedPeriod]) monthlyData[selectedPeriod] = {};
+          monthlyData[selectedPeriod][currentTsEmpId] = {
+            days: daysObj,
+            normalHours: totalNorm,
+            otHours: totalOt
+          };
+
+          saveData();
+          closeTimesheetModal();
+          render();
+        });
+      }
+
       // Employee Modal Management
       function openEmployeeModal(emp = null) {
         if (emp) {
@@ -990,6 +1287,7 @@ import "../styles/global.css";
         const p = getPeriodDetails(selectedPeriod);
         const empMonth = (monthlyData[selectedPeriod] && monthlyData[selectedPeriod][empId]) || { otHours: 0 };
         const otHrs = Number(empMonth.otHours) || 0;
+        const normalHrs = (empMonth.normalHours !== undefined) ? Number(empMonth.normalHours) : p.totalHrs;
         const basic = Number(emp.basic) || 0;
         const hourlyRate = p.totalHrs > 0 ? (basic / p.totalHrs) : 0;
         const otRate = hourlyRate * 1.25;
@@ -1004,7 +1302,7 @@ import "../styles/global.css";
 
         document.getElementById("slip-basic-col").textContent = fmtOmr(basic);
         document.getElementById("slip-working-hrs").textContent = p.totalHrs;
-        document.getElementById("slip-present-hrs").textContent = p.totalHrs;
+        document.getElementById("slip-present-hrs").textContent = normalHrs;
         document.getElementById("slip-basic-earning").textContent = fmtOmr(basic);
 
         document.getElementById("slip-ot-hrs").textContent = otHrs;
@@ -1040,6 +1338,7 @@ import "../styles/global.css";
       // Escape key to close modals
       window.addEventListener("keydown", (e) => {
         if (e.key === "Escape") {
+          closeTimesheetModal();
           closeEmployeeModal();
           if (payslipModal) {
             payslipModal.classList.add("hidden");
