@@ -1,0 +1,1145 @@
+---
+// North Star Technical Services LLC - Staff Attendance & Payroll Portal
+// Dedicated web portal for monthly attendance, automated Oman Labor Law overtime, and official printable pay slips.
+import "../styles/global.css";
+---
+
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Staff Attendance &amp; Payroll Portal | North Star Technical Services LLC</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" type="image/png" href="/logo.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      @media print {
+        body * {
+          visibility: hidden;
+        }
+        #printable-payslip, #printable-payslip * {
+          visibility: visible;
+        }
+        #printable-payslip {
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 100%;
+          margin: 0;
+          padding: 24px;
+          background: white !important;
+          color: black !important;
+        }
+        .no-print {
+          display: none !important;
+        }
+      }
+    </style>
+  </head>
+
+  <body class="min-h-screen bg-[#0b0d11] font-sans text-white/90 antialiased selection:bg-flare selection:text-white">
+    <!-- ================= LOGIN GATEWAY ================= -->
+    <div id="login-gate" class="fixed inset-0 z-50 flex items-center justify-center bg-[#0b0d11] p-4">
+      <div class="w-full max-w-md border border-white/10 bg-[#161920] p-8 shadow-2xl">
+        <div class="flex items-center gap-3">
+          <img src="/logo.png" alt="North Star logo" class="h-10 w-auto" />
+          <div class="border-l border-white/20 pl-3">
+            <span class="block font-display text-lg font-extrabold text-white">NORTH STAR</span>
+            <span class="block text-[11px] font-semibold uppercase tracking-wider text-flare">Attendance &amp; Payroll</span>
+          </div>
+        </div>
+
+        <h1 class="mt-6 text-xl font-bold text-white">Staff Payroll Portal</h1>
+        <p class="mt-1 text-xs text-white/60">Authorized administrative access only. Sign in to manage staff attendance, calculate overtime, and generate pay slips.</p>
+
+        <form id="login-form" class="mt-6 space-y-4">
+          <div>
+            <label for="username" class="block text-xs font-medium uppercase tracking-wider text-white/70">Username</label>
+            <input
+              type="text"
+              id="username"
+              required
+              class="mt-1.5 w-full border border-white/15 bg-[#0f1115] px-3.5 py-2.5 text-sm text-white placeholder-white/30 focus:border-flare focus:outline-none"
+              placeholder="e.g. admin"
+              autocomplete="username"
+            />
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between">
+              <label for="password" class="block text-xs font-medium uppercase tracking-wider text-white/70">Password</label>
+              <button
+                type="button"
+                id="open-forgot-modal-btn"
+                class="text-[11px] font-medium text-flare transition-colors hover:underline"
+              >
+                Forgot Password?
+              </button>
+            </div>
+            <input
+              type="password"
+              id="password"
+              required
+              class="mt-1.5 w-full border border-white/15 bg-[#0f1115] px-3.5 py-2.5 text-sm text-white placeholder-white/30 focus:border-flare focus:outline-none"
+              placeholder="••••••••"
+              autocomplete="current-password"
+            />
+          </div>
+
+          <div id="login-error" class="hidden rounded-sm bg-red-950/60 border border-red-500/40 p-2.5 text-xs text-red-300">
+            Invalid username or password. Please try again.
+          </div>
+
+          <button
+            type="submit"
+            class="w-full bg-flare py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-lg transition-colors hover:bg-red-700"
+          >
+            Sign In to Payroll
+          </button>
+        </form>
+
+        <div class="mt-6 border-t border-white/10 pt-4 text-center">
+          <a href="/workflow" class="text-xs text-white/50 transition-colors hover:text-white">
+            ← Switch to Operations Portal (/workflow)
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= MAIN ATTENDANCE & PAYROLL APP ================= -->
+    <div id="admin-app" class="hidden min-h-screen flex-col">
+      <!-- Top Navigation -->
+      <header class="sticky top-0 z-40 border-b border-white/10 bg-[#161920]/95 backdrop-blur-md">
+        <div class="mx-auto flex max-w-[1440px] items-center justify-between px-3 py-3 sm:px-6">
+          <div class="flex items-center gap-3">
+            <a href="/" class="flex items-center gap-2.5" title="View live website">
+              <img src="/logo.png" alt="North Star logo" class="h-9 w-auto" />
+              <div class="border-l border-white/20 pl-2.5">
+                <span class="block font-display text-lg font-extrabold leading-none tracking-wide text-white">NORTH STAR</span>
+                <span class="block text-[10px] font-semibold uppercase tracking-wider text-flare">Attendance &amp; Payroll</span>
+              </div>
+            </a>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex items-center gap-2 sm:gap-3">
+            <a
+              href="/workflow"
+              class="inline-flex items-center gap-1.5 rounded-sm border border-white/15 px-3 py-1.5 text-xs font-medium text-white/80 transition-colors hover:border-white/40 hover:text-white"
+              title="Operations Workflow Portal"
+            >
+              <span>Operations Portal</span>
+              <svg class="h-3.5 w-3.5 text-flare" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            </a>
+
+            <button
+              id="export-csv-btn"
+              type="button"
+              class="inline-flex items-center gap-1.5 rounded-sm border border-white/20 bg-white/5 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-white/15"
+              title="Export Current Month Payroll to CSV"
+            >
+              <svg class="h-3.5 w-3.5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <span class="hidden sm:inline">Export Payroll</span>
+              <span class="sm:hidden">CSV</span>
+            </button>
+
+            <button
+              id="cloud-sync-btn"
+              type="button"
+              title="Live Cloud Sync: Click to refresh and sync with cloud database"
+              class="inline-flex items-center gap-1.5 rounded-sm border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1.5 text-xs font-medium text-emerald-300 transition-colors hover:border-emerald-400 hover:bg-emerald-500/20"
+            >
+              <span class="inline-block h-2 w-2 rounded-full bg-emerald-400"></span>
+              <span id="cloud-sync-text" class="hidden sm:inline">Live Synced</span>
+              <svg id="cloud-sync-icon" class="h-3.5 w-3.5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+            </button>
+
+            <button
+              id="open-create-employee-btn"
+              type="button"
+              class="inline-flex items-center gap-1.5 bg-flare px-3.5 py-1.5 text-xs font-semibold text-white shadow-md transition-colors hover:bg-red-700"
+            >
+              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <span>+ Add Employee</span>
+            </button>
+
+            <button
+              id="logout-btn"
+              type="button"
+              title="Log out"
+              class="rounded-sm border border-white/15 p-1.5 text-white/60 transition-colors hover:border-red-500 hover:text-red-400"
+            >
+              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <main class="mx-auto w-full max-w-[1440px] flex-1 px-2.5 py-4 sm:px-4 lg:px-6">
+        
+        <!-- Summary Metric Cards -->
+        <section class="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+          <div class="border border-white/10 bg-[#161920] p-4 shadow-sm">
+            <span class="text-[11px] font-semibold uppercase tracking-wider text-white/50">Total Staff / Workers</span>
+            <div class="mt-1.5 flex items-baseline gap-1">
+              <span id="metric-staff-count" class="font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">0</span>
+              <span class="text-xs font-medium text-white/50">employees</span>
+            </div>
+            <span id="metric-staff-sub" class="mt-1 block text-[11px] text-white/40">Registered in company</span>
+          </div>
+
+          <div class="border border-white/10 border-l-4 border-l-blue-500 bg-[#161920] p-4 shadow-sm">
+            <span class="text-[11px] font-semibold uppercase tracking-wider text-blue-400">Total Basic Payroll</span>
+            <div class="mt-1.5 flex items-baseline gap-1">
+              <span class="text-xs font-semibold text-blue-400">OMR</span>
+              <span id="metric-basic-total" class="font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">0.000</span>
+            </div>
+            <span class="mt-1 block text-[11px] text-white/40">Fixed monthly basic</span>
+          </div>
+
+          <div class="border border-white/10 border-l-4 border-l-amber-500 bg-[#161920] p-4 shadow-sm">
+            <span class="text-[11px] font-semibold uppercase tracking-wider text-amber-400">Total Overtime (OT)</span>
+            <div class="mt-1.5 flex items-baseline gap-1">
+              <span class="text-xs font-semibold text-amber-400">OMR</span>
+              <span id="metric-ot-total" class="font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">0.000</span>
+            </div>
+            <span id="metric-ot-hours-sub" class="mt-1 block text-[11px] text-white/40">0 hrs total (125% rate)</span>
+          </div>
+
+          <div class="border border-white/10 border-l-4 border-l-emerald-500 bg-[#161920] p-4 shadow-sm">
+            <span class="text-[11px] font-semibold uppercase tracking-wider text-emerald-400">Net Monthly Payout</span>
+            <div class="mt-1.5 flex items-baseline gap-1">
+              <span class="text-xs font-semibold text-emerald-400">OMR</span>
+              <span id="metric-net-total" class="font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">0.000</span>
+            </div>
+            <span id="metric-net-sub" class="mt-1 block text-[11px] text-white/40">Basic + Overtime</span>
+          </div>
+        </section>
+
+        <!-- Salary Period & Controls Bar -->
+        <section class="mt-6 flex flex-wrap items-center justify-between gap-3 rounded border border-white/10 bg-[#161920] p-3.5 shadow-sm">
+          <div class="flex flex-wrap items-center gap-3">
+            <label for="period-select" class="text-xs font-bold uppercase tracking-wider text-red-400">Salary Period:</label>
+            <input
+              type="month"
+              id="period-select"
+              class="border border-white/20 bg-[#0f1115] px-3 py-1.5 text-xs font-mono font-bold text-white focus:border-flare focus:outline-none"
+            />
+            <div id="period-info-badge" class="inline-flex items-center gap-2 rounded bg-white/5 px-2.5 py-1 text-xs text-white/70">
+              <!-- Dynamically populated: 30 days = 240 hrs -->
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-3">
+            <div class="relative min-w-[200px] sm:w-64">
+              <input
+                type="text"
+                id="search-input"
+                placeholder="Search staff name, ID, trade..."
+                class="w-full border border-white/15 bg-[#0f1115] py-1.5 pl-8 pr-3 text-xs text-white placeholder-white/40 focus:border-flare focus:outline-none"
+              />
+              <svg class="absolute left-2.5 top-2 h-3.5 w-3.5 text-white/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </div>
+            <span class="text-xs font-semibold text-red-400">
+              Showing <span id="staff-count-badge" class="font-bold text-red-300">0</span> staff
+            </span>
+          </div>
+        </section>
+
+        <!-- Attendance & Payroll Table -->
+        <section class="mt-4 border border-white/10 bg-[#161920] shadow-xl">
+          <div class="overflow-x-auto md:overflow-x-visible">
+            <table class="w-full text-left text-xs">
+              <thead class="sticky top-[60px] sm:top-[61px] z-30 border-b border-white/15 bg-[#1a1e27] text-[10.5px] font-bold uppercase tracking-wider text-white/70 shadow-md">
+                <tr>
+                  <th class="sticky top-[60px] sm:top-[61px] z-30 bg-[#1a1e27] w-[75px] py-2.5 pl-2.5 pr-1">Emp #</th>
+                  <th class="sticky top-[60px] sm:top-[61px] z-30 bg-[#1a1e27] w-[160px] px-2 py-2.5">Staff Name</th>
+                  <th class="sticky top-[60px] sm:top-[61px] z-30 bg-[#1a1e27] w-[110px] px-1.5 py-2.5">Designation</th>
+                  <th class="sticky top-[60px] sm:top-[61px] z-30 bg-[#1a1e27] w-[95px] px-1.5 py-2.5">Basic (OMR)</th>
+                  <th class="sticky top-[60px] sm:top-[61px] z-30 bg-[#1a1e27] w-[85px] px-1.5 py-2.5">Std Hrs</th>
+                  <th class="sticky top-[60px] sm:top-[61px] z-30 bg-[#1a1e27] w-[95px] px-1.5 py-2.5">Rate / Hr</th>
+                  <th class="sticky top-[60px] sm:top-[61px] z-30 bg-[#1a1e27] w-[95px] px-1.5 py-2.5">OT Rate (125%)</th>
+                  <th class="sticky top-[60px] sm:top-[61px] z-30 bg-[#1a1e27] w-[100px] px-1.5 py-2.5">OT Hours</th>
+                  <th class="sticky top-[60px] sm:top-[61px] z-30 bg-[#1a1e27] w-[105px] px-1.5 py-2.5">OT Earning</th>
+                  <th class="sticky top-[60px] sm:top-[61px] z-30 bg-[#1a1e27] w-[115px] px-1.5 py-2.5">Net Pay (OMR)</th>
+                  <th class="sticky top-[60px] sm:top-[61px] z-30 bg-[#1a1e27] w-[110px] py-2.5 pl-1 pr-2 text-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="payroll-table-body" class="divide-y divide-white/5">
+                <!-- Dynamically populated staff payroll rows -->
+              </tbody>
+            </table>
+          </div>
+
+          <div id="no-staff-msg" class="hidden py-12 text-center text-sm text-white/40">
+            No employees found. Click "+ Add Employee" above to register staff.
+          </div>
+        </section>
+
+        <!-- Bottom Utility Bar -->
+        <section class="mt-6 flex flex-wrap items-center justify-between gap-3 text-xs text-red-400">
+          <div class="font-medium text-red-400">
+            Staff attendance &amp; payroll data is synchronized live across all devices (<span id="footer-sync-status" class="font-semibold text-emerald-400">Live Cloud Active</span>).
+          </div>
+          <div class="flex items-center gap-3">
+            <button id="backup-json-btn" type="button" class="font-medium text-red-400 underline transition-colors hover:text-red-300">Download Attendance JSON</button>
+            <span class="font-bold text-red-400">•</span>
+            <button id="reset-sample-btn" type="button" class="font-medium text-red-400 underline transition-colors hover:text-red-300">Reload Initial 4 Staff</button>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- ================= ADD / EDIT EMPLOYEE MODAL ================= -->
+    <div id="employee-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 p-4 backdrop-blur-xs">
+      <div class="relative max-h-[90vh] w-full max-w-lg overflow-y-auto border border-white/15 border-t-4 border-t-flare bg-[#161920] p-6 shadow-2xl sm:p-8">
+        <button
+          id="modal-close-btn"
+          type="button"
+          class="absolute right-4 top-4 text-white/50 transition-colors hover:text-white"
+          aria-label="Close"
+        >
+          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+
+        <span id="modal-eyebrow" class="text-xs font-semibold uppercase tracking-[0.2em] text-flare">Staff Register</span>
+        <h2 id="modal-title" class="font-display text-2xl font-extrabold text-white">Add New Employee</h2>
+
+        <form id="employee-form" class="mt-6 space-y-4">
+          <input type="hidden" id="emp-internal-id" value="" />
+
+          <div>
+            <label for="form-emp-num" class="block text-[11px] font-semibold uppercase tracking-wider text-white/70">Employee Number / ID</label>
+            <input
+              type="text"
+              id="form-emp-num"
+              required
+              placeholder="e.g. 006"
+              class="mt-1 w-full border border-white/15 bg-[#0f1115] px-3 py-2 text-xs font-mono text-white placeholder-white/30 focus:border-flare focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label for="form-emp-name" class="block text-[11px] font-semibold uppercase tracking-wider text-white/70">Full Name</label>
+            <input
+              type="text"
+              id="form-emp-name"
+              required
+              placeholder="e.g. Rajesh Kumar"
+              class="mt-1 w-full border border-white/15 bg-[#0f1115] px-3 py-2 text-xs text-white placeholder-white/30 focus:border-flare focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label for="form-emp-designation" class="block text-[11px] font-semibold uppercase tracking-wider text-white/70">Designation / Trade</label>
+            <input
+              type="text"
+              id="form-emp-designation"
+              required
+              placeholder="e.g. Welder, Scaffolder, Fabrication, Helper, Rigger..."
+              class="mt-1 w-full border border-white/15 bg-[#0f1115] px-3 py-2 text-xs text-white placeholder-white/30 focus:border-flare focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label for="form-emp-basic" class="block text-[11px] font-semibold uppercase tracking-wider text-white/70">Basic Salary (OMR)</label>
+            <input
+              type="number"
+              step="0.001"
+              id="form-emp-basic"
+              required
+              placeholder="e.g. 180.000"
+              class="mt-1 w-full border border-white/15 bg-[#0f1115] px-3 py-2 text-xs font-mono text-white placeholder-white/30 focus:border-flare focus:outline-none"
+            />
+          </div>
+
+          <div class="flex items-center justify-end gap-3 border-t border-white/10 pt-4">
+            <button
+              type="button"
+              id="modal-cancel-btn"
+              class="border border-white/20 px-4 py-2 text-xs font-semibold text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="bg-flare px-6 py-2 text-xs font-semibold uppercase tracking-wider text-white shadow-md transition-colors hover:bg-red-700"
+            >
+              Save Employee
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ================= OFFICIAL PRINTABLE PAY SLIP MODAL ================= -->
+    <div id="payslip-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/85 p-4 backdrop-blur-xs">
+      <div class="relative max-h-[95vh] w-full max-w-2xl overflow-y-auto border border-white/20 bg-[#161920] p-6 shadow-2xl sm:p-8">
+        
+        <!-- Modal Controls (Hidden in print) -->
+        <div class="no-print flex items-center justify-between border-b border-white/10 pb-4">
+          <span class="text-xs font-semibold uppercase tracking-wider text-flare">Pay Slip Preview</span>
+          <div class="flex items-center gap-2">
+            <button
+              type="button"
+              id="print-payslip-btn"
+              class="inline-flex items-center gap-1.5 bg-flare px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-white shadow transition-colors hover:bg-red-700"
+            >
+              <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+              <span>Print / Save PDF</span>
+            </button>
+            <button
+              type="button"
+              id="close-payslip-btn"
+              class="border border-white/20 px-3 py-1.5 text-xs font-medium text-white/70 transition-colors hover:border-white/40 hover:text-white"
+            >
+              ✕ Close
+            </button>
+          </div>
+        </div>
+
+        <!-- ================= PRINTABLE PAY SLIP DOCUMENT ================= -->
+        <div id="printable-payslip" class="mt-6 rounded border border-white/15 bg-white p-6 text-black sm:p-8 font-sans">
+          <!-- Company Header -->
+          <div class="border-b-2 border-black pb-4 text-center">
+            <h1 class="font-display text-xl font-extrabold tracking-wide text-black uppercase sm:text-2xl">NORTH STAR TECHNICAL SERVICES LLC</h1>
+            <p class="text-xs font-semibold uppercase tracking-wider text-gray-700 mt-0.5">Mechanical Engineering Contractors</p>
+            <h2 class="mt-2 text-sm font-bold tracking-widest uppercase bg-black text-white py-1 px-4 inline-block">Employee Pay Slip</h2>
+          </div>
+
+          <!-- Employee Header Details -->
+          <div class="mt-5 grid grid-cols-2 gap-4 border border-black/30 p-3.5 text-xs">
+            <div>
+              <span class="text-gray-600 font-medium">Employee Number :</span>
+              <strong id="slip-emp-num" class="ml-2 font-mono font-bold text-black text-sm">002</strong>
+            </div>
+            <div>
+              <span class="text-gray-600 font-medium">Salary Period :</span>
+              <strong id="slip-period" class="ml-2 font-mono font-bold text-black text-sm">2026-04-01</strong>
+            </div>
+            <div>
+              <span class="text-gray-600 font-medium">Employee Name :</span>
+              <strong id="slip-emp-name" class="ml-2 font-bold text-black text-sm">Suresh Kumar</strong>
+            </div>
+            <div>
+              <span class="text-gray-600 font-medium">Designation :</span>
+              <strong id="slip-designation" class="ml-2 font-bold text-black text-sm">Helper</strong>
+            </div>
+          </div>
+
+          <!-- Earnings Breakdown Table -->
+          <div class="mt-5">
+            <table class="w-full border-collapse border border-black text-left text-xs">
+              <thead class="bg-gray-100 text-[11px] font-bold uppercase border-b border-black">
+                <tr>
+                  <th class="border border-black p-2 w-12 text-center">Sl No</th>
+                  <th class="border border-black p-2">Description</th>
+                  <th class="border border-black p-2 text-right">Basic (OMR)</th>
+                  <th class="border border-black p-2 text-center">Total Working Hrs</th>
+                  <th class="border border-black p-2 text-center">Hrs Present / OT Hrs</th>
+                  <th class="border border-black p-2 text-right">Amount Earning (OMR)</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-black/30 font-mono">
+                <tr>
+                  <td class="border border-black p-2 text-center">1</td>
+                  <td class="border border-black p-2 font-sans font-bold">Salary (Basic)</td>
+                  <td id="slip-basic-col" class="border border-black p-2 text-right font-bold">150.000</td>
+                  <td id="slip-working-hrs" class="border border-black p-2 text-center">240</td>
+                  <td id="slip-present-hrs" class="border border-black p-2 text-center">240</td>
+                  <td id="slip-basic-earning" class="border border-black p-2 text-right font-bold">150.000</td>
+                </tr>
+                <tr>
+                  <td class="border border-black p-2 text-center">2</td>
+                  <td class="border border-black p-2 font-sans font-bold">OT (Overtime @ 125%)</td>
+                  <td class="border border-black p-2 text-right text-gray-500">—</td>
+                  <td class="border border-black p-2 text-center text-gray-500">—</td>
+                  <td id="slip-ot-hrs" class="border border-black p-2 text-center font-bold">17</td>
+                  <td id="slip-ot-earning" class="border border-black p-2 text-right font-bold">13.281</td>
+                </tr>
+              </tbody>
+              <tfoot class="border-t-2 border-black font-bold bg-gray-50">
+                <tr>
+                  <td colspan="5" class="border border-black p-2.5 text-right font-sans uppercase tracking-wider text-sm">
+                    Total Salary Payout:
+                  </td>
+                  <td id="slip-total-amount" class="border border-black p-2.5 text-right font-mono text-base font-extrabold text-black">
+                    OMR 163.281
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+
+          <!-- Formula Explanatory Note -->
+          <div class="mt-4 border border-dashed border-gray-400 p-2.5 text-[10px] text-gray-600 leading-relaxed">
+            <strong>Calculation Method:</strong> Total Working Hours = <span id="slip-days-calc">30 days × 8 hrs = 240 hrs</span>. 
+            Hourly Rate = Basic ÷ Total Hours. Overtime Hourly Rate = Hourly Rate × 1.25 (Oman Labor Law Standard 125%). 
+            Overtime Earning = OT Hours × OT Rate.
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Client-Side Attendance Logic -->
+    <script is:inline>
+      const AUTH_KEY = "nsts_admin_auth";
+      const STORAGE_KEY_ATTENDANCE = "nsts_attendance_payroll_v1";
+      const CUSTOM_PASS_KEY = "nsts_custom_password";
+      const DEFAULT_USER = "admin";
+      const DEFAULT_PASS = "nsts2026";
+
+      function getActivePassword() {
+        return localStorage.getItem(CUSTOM_PASS_KEY) || DEFAULT_PASS;
+      }
+
+      // Initial Seed Employees (From official payslips provided)
+      const INITIAL_EMPLOYEES = [
+        { id: "emp_002", empNum: "002", name: "Suresh Kumar", designation: "Helper", basic: 150.0 },
+        { id: "emp_003", empNum: "003", name: "Abdul Rahman", designation: "Fabrication", basic: 250.0 },
+        { id: "emp_004", empNum: "004", name: "Mohammed Ahsan", designation: "Welder", basic: 170.0 },
+        { id: "emp_005", empNum: "005", name: "Muhammed Joshim", designation: "Helper", basic: 180.0 }
+      ];
+
+      // State:
+      // employees: array of { id, empNum, name, designation, basic }
+      // monthlyData: map of { "YYYY-MM": { "empId": { otHours: 17 } } }
+      let employees = [];
+      let monthlyData = {};
+      let selectedPeriod = "";
+
+      // Days in Month Calculator
+      function getDaysInMonth(year, month) {
+        return new Date(year, month, 0).getDate();
+      }
+
+      function getPeriodDetails(periodStr) {
+        if (!periodStr) {
+          const now = new Date();
+          const y = now.getFullYear();
+          const m = String(now.getMonth() + 1).padStart(2, "0");
+          periodStr = `${y}-${m}`;
+        }
+        const [yearStr, monthStr] = periodStr.split("-");
+        const y = parseInt(yearStr, 10);
+        const m = parseInt(monthStr, 10);
+        const days = getDaysInMonth(y, m);
+        const totalHrs = days * 8;
+        return { year: y, month: m, days, totalHrs, periodStr };
+      }
+
+      function fmtOmr(n) {
+        return (Number(n) || 0).toLocaleString("en-US", {
+          minimumFractionDigits: 3,
+          maximumFractionDigits: 3
+        });
+      }
+
+      // Load & Save
+      function loadData() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY_ATTENDANCE);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            employees = Array.isArray(parsed.employees) && parsed.employees.length > 0 ? parsed.employees : JSON.parse(JSON.stringify(INITIAL_EMPLOYEES));
+            monthlyData = parsed.monthlyData || {};
+          } else {
+            employees = JSON.parse(JSON.stringify(INITIAL_EMPLOYEES));
+            monthlyData = {
+              "2026-04": { "emp_002": { otHours: 17 } },
+              "2026-05": { "emp_003": { otHours: 54 } },
+              "2026-01": { "emp_005": { otHours: 94 } }
+            };
+          }
+        } catch (e) {
+          employees = JSON.parse(JSON.stringify(INITIAL_EMPLOYEES));
+          monthlyData = {};
+        }
+      }
+
+      function saveData() {
+        try {
+          const payload = { employees, monthlyData };
+          localStorage.setItem(STORAGE_KEY_ATTENDANCE, JSON.stringify(payload));
+          syncToCloud(payload);
+        } catch (e) {
+          console.error("Save error:", e);
+        }
+      }
+
+      async function syncToCloud(payload) {
+        const syncText = document.getElementById("cloud-sync-text");
+        const syncIcon = document.getElementById("cloud-sync-icon");
+        if (syncIcon) syncIcon.classList.add("animate-spin");
+        if (syncText) syncText.textContent = "Syncing...";
+
+        try {
+          const res = await fetch("/api/attendance-sync", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ data: payload })
+          });
+          if (res.ok) {
+            if (syncText) syncText.textContent = "Live Synced";
+          }
+        } catch (e) {
+          if (syncText) syncText.textContent = "Local Only";
+        } finally {
+          if (syncIcon) syncIcon.classList.remove("animate-spin");
+        }
+      }
+
+      async function pullFromCloud() {
+        const syncText = document.getElementById("cloud-sync-text");
+        const syncIcon = document.getElementById("cloud-sync-icon");
+        if (syncIcon) syncIcon.classList.add("animate-spin");
+
+        try {
+          const res = await fetch("/api/attendance-sync?cb=" + Date.now());
+          if (res.ok) {
+            const result = await res.json();
+            if (result && result.data && Array.isArray(result.data.employees)) {
+              employees = result.data.employees;
+              monthlyData = result.data.monthlyData || {};
+              localStorage.setItem(STORAGE_KEY_ATTENDANCE, JSON.stringify(result.data));
+              render();
+              if (syncText) syncText.textContent = "Live Synced";
+            }
+          }
+        } catch (e) {
+          console.log("Cloud pull note: using local cache");
+        } finally {
+          if (syncIcon) syncIcon.classList.remove("animate-spin");
+        }
+      }
+
+      // DOM Elements
+      const loginGate = document.getElementById("login-gate");
+      const adminApp = document.getElementById("admin-app");
+      const loginForm = document.getElementById("login-form");
+      const loginError = document.getElementById("login-error");
+      const logoutBtn = document.getElementById("logout-btn");
+
+      const periodSelect = document.getElementById("period-select");
+      const periodInfoBadge = document.getElementById("period-info-badge");
+      const searchInput = document.getElementById("search-input");
+      const staffCountBadge = document.getElementById("staff-count-badge");
+      const tableBody = document.getElementById("payroll-table-body");
+      const noStaffMsg = document.getElementById("no-staff-msg");
+
+      const metricStaffCount = document.getElementById("metric-staff-count");
+      const metricBasicTotal = document.getElementById("metric-basic-total");
+      const metricOtTotal = document.getElementById("metric-ot-total");
+      const metricOtHoursSub = document.getElementById("metric-ot-hours-sub");
+      const metricNetTotal = document.getElementById("metric-net-total");
+
+      // Employee Modal
+      const employeeModal = document.getElementById("employee-modal");
+      const openCreateBtn = document.getElementById("open-create-employee-btn");
+      const modalCloseBtn = document.getElementById("modal-close-btn");
+      const modalCancelBtn = document.getElementById("modal-cancel-btn");
+      const employeeForm = document.getElementById("employee-form");
+
+      // Payslip Modal
+      const payslipModal = document.getElementById("payslip-modal");
+      const closePayslipBtn = document.getElementById("close-payslip-btn");
+      const printPayslipBtn = document.getElementById("print-payslip-btn");
+
+      // Auth Check
+      function checkAuth() {
+        const isAuthed = localStorage.getItem(AUTH_KEY) === "true";
+        if (isAuthed) {
+          loginGate.classList.add("hidden");
+          adminApp.classList.remove("hidden");
+          adminApp.classList.add("flex");
+          loadData();
+          initPeriod();
+          render();
+          pullFromCloud();
+        } else {
+          loginGate.classList.remove("hidden");
+          adminApp.classList.add("hidden");
+          adminApp.classList.remove("flex");
+        }
+      }
+
+      loginForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const u = document.getElementById("username").value.trim().toLowerCase();
+        const p = document.getElementById("password").value.trim();
+        if (u === DEFAULT_USER && p === getActivePassword()) {
+          localStorage.setItem(AUTH_KEY, "true");
+          loginError.classList.add("hidden");
+          checkAuth();
+        } else {
+          loginError.classList.remove("hidden");
+        }
+      });
+
+      if (logoutBtn) {
+        logoutBtn.addEventListener("click", () => {
+          localStorage.removeItem(AUTH_KEY);
+          checkAuth();
+        });
+      }
+
+      function initPeriod() {
+        const now = new Date();
+        const curY = now.getFullYear();
+        const curM = String(now.getMonth() + 1).padStart(2, "0");
+        selectedPeriod = `${curY}-${curM}`;
+        if (periodSelect) periodSelect.value = selectedPeriod;
+      }
+
+      // Render Table & Metrics
+      function render() {
+        const p = getPeriodDetails(selectedPeriod || (periodSelect ? periodSelect.value : ""));
+        selectedPeriod = p.periodStr;
+
+        // Update Period Info Badge
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        if (periodInfoBadge) {
+          periodInfoBadge.innerHTML = `
+            <span class="font-bold text-white">${monthNames[p.month - 1]} ${p.year}</span>: 
+            <span class="text-white/80">${p.days} days</span> • 
+            <span class="font-mono text-flare font-bold">${p.totalHrs} hrs</span> (${p.days}d × 8h)
+          `;
+        }
+
+        const q = searchInput ? searchInput.value.trim().toLowerCase() : "";
+        const filtered = employees.filter(e => {
+          if (!q) return true;
+          return (
+            (e.name && e.name.toLowerCase().includes(q)) ||
+            (e.empNum && e.empNum.toLowerCase().includes(q)) ||
+            (e.designation && e.designation.toLowerCase().includes(q))
+          );
+        });
+
+        if (staffCountBadge) staffCountBadge.textContent = filtered.length;
+        if (metricStaffCount) metricStaffCount.textContent = employees.length;
+
+        // Ensure period container in monthlyData
+        if (!monthlyData[selectedPeriod]) {
+          monthlyData[selectedPeriod] = {};
+        }
+        const currentPeriodRecords = monthlyData[selectedPeriod];
+
+        let sumBasic = 0;
+        let sumOtAmt = 0;
+        let sumOtHrs = 0;
+        let sumNet = 0;
+
+        // Calculate metrics across all employees for this period
+        employees.forEach(emp => {
+          const basic = Number(emp.basic) || 0;
+          const empMonth = currentPeriodRecords[emp.id] || { otHours: 0 };
+          const otHrs = Number(empMonth.otHours) || 0;
+          const hourlyRate = p.totalHrs > 0 ? (basic / p.totalHrs) : 0;
+          const otRate = hourlyRate * 1.25;
+          const otAmt = otHrs * otRate;
+          const net = basic + otAmt;
+
+          sumBasic += basic;
+          sumOtHrs += otHrs;
+          sumOtAmt += otAmt;
+          sumNet += net;
+        });
+
+        if (metricBasicTotal) metricBasicTotal.textContent = fmtOmr(sumBasic);
+        if (metricOtTotal) metricOtTotal.textContent = fmtOmr(sumOtAmt);
+        if (metricOtHoursSub) metricOtHoursSub.textContent = `${sumOtHrs} hrs total (125% rate)`;
+        if (metricNetTotal) metricNetTotal.textContent = fmtOmr(sumNet);
+
+        // Render Table Body
+        if (filtered.length === 0) {
+          tableBody.innerHTML = "";
+          noStaffMsg.classList.remove("hidden");
+          return;
+        }
+        noStaffMsg.classList.add("hidden");
+
+        tableBody.innerHTML = filtered.map(emp => {
+          const basic = Number(emp.basic) || 0;
+          const empMonth = currentPeriodRecords[emp.id] || { otHours: 0 };
+          const otHrs = Number(empMonth.otHours) || 0;
+          const hourlyRate = p.totalHrs > 0 ? (basic / p.totalHrs) : 0;
+          const otRate = hourlyRate * 1.25;
+          const otAmt = otHrs * otRate;
+          const net = basic + otAmt;
+
+          return `
+            <tr class="transition-colors hover:bg-white/[0.03]">
+              <!-- Emp # (Click to print payslip) -->
+              <td class="w-[75px] py-2.5 pl-2.5 pr-1">
+                <button
+                  type="button"
+                  onclick="window._viewPaySlip('${emp.id}')"
+                  class="font-mono font-bold text-flare transition-colors hover:underline text-[11px]"
+                  title="Click to view & print pay slip"
+                >
+                  ${emp.empNum || "—"}
+                </button>
+              </td>
+
+              <!-- Staff Name -->
+              <td class="w-[160px] px-2 py-2.5 font-bold text-white text-[11px]">
+                <button
+                  type="button"
+                  onclick="window._viewPaySlip('${emp.id}')"
+                  class="text-left hover:text-flare hover:underline transition-colors block truncate w-full"
+                  title="View Pay Slip"
+                >
+                  ${emp.name || "—"}
+                </button>
+              </td>
+
+              <!-- Designation -->
+              <td class="w-[110px] px-1.5 py-2.5 text-white/80 text-[11px]">
+                <span class="rounded bg-white/5 px-1.5 py-0.5">${emp.designation || "—"}</span>
+              </td>
+
+              <!-- Basic Salary -->
+              <td class="w-[95px] px-1.5 py-2.5 font-mono font-bold text-white text-[11px]">
+                OMR ${fmtOmr(basic)}
+              </td>
+
+              <!-- Std Hrs -->
+              <td class="w-[85px] px-1.5 py-2.5 font-mono text-white/60 text-[11px]">
+                ${p.totalHrs}h
+              </td>
+
+              <!-- Normal Rate / Hr -->
+              <td class="w-[95px] px-1.5 py-2.5 font-mono text-[10px] text-white/50">
+                ${fmtOmr(hourlyRate)}/h
+              </td>
+
+              <!-- OT Rate (125%) -->
+              <td class="w-[95px] px-1.5 py-2.5 font-mono text-[10px] text-amber-300">
+                ${fmtOmr(otRate)}/h
+              </td>
+
+              <!-- OT Hours Input -->
+              <td class="w-[100px] px-1.5 py-2.5">
+                <div class="inline-flex items-center gap-1">
+                  <input
+                    type="number"
+                    step="0.5"
+                    min="0"
+                    value="${otHrs}"
+                    onchange="window._updateOt('${emp.id}', this.value)"
+                    class="w-16 border border-white/20 bg-[#0f1115] px-1.5 py-0.5 text-center font-mono text-xs font-bold text-amber-300 focus:border-flare focus:outline-none"
+                    title="Enter overtime hours"
+                  />
+                  <span class="text-[10px] text-white/40">hrs</span>
+                </div>
+              </td>
+
+              <!-- OT Earning -->
+              <td class="w-[105px] px-1.5 py-2.5 font-mono font-bold text-amber-300 text-[11px]">
+                OMR ${fmtOmr(otAmt)}
+              </td>
+
+              <!-- Net Pay -->
+              <td class="w-[115px] px-1.5 py-2.5 font-mono font-bold text-emerald-400 text-[11.5px]">
+                OMR ${fmtOmr(net)}
+              </td>
+
+              <!-- Actions -->
+              <td class="w-[110px] py-2.5 pl-1 pr-2 text-center">
+                <div class="inline-flex items-center gap-1">
+                  <button
+                    type="button"
+                    onclick="window._viewPaySlip('${emp.id}')"
+                    class="rounded-xs border border-blue-500/30 bg-blue-500/10 px-1.5 py-0.5 text-[10.5px] font-medium text-blue-300 transition-colors hover:border-blue-500/60 hover:bg-blue-500/25"
+                    title="View & print official pay slip"
+                  >
+                    Slip
+                  </button>
+                  <button
+                    type="button"
+                    onclick="window._editEmployee('${emp.id}')"
+                    class="rounded-xs border border-white/20 bg-white/5 px-1.5 py-0.5 text-[10.5px] font-medium text-white transition-colors hover:border-white/50 hover:bg-white/15"
+                    title="Edit employee"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    type="button"
+                    onclick="window._deleteEmployee('${emp.id}')"
+                    class="rounded-xs border border-red-500/30 bg-red-500/10 px-1 py-0.5 text-[10.5px] font-medium text-red-300 transition-colors hover:border-red-500/60 hover:bg-red-500/25"
+                    title="Delete employee"
+                  >
+                    Del
+                  </button>
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join("");
+      }
+
+      // Event Listeners for Period & Search
+      if (periodSelect) {
+        periodSelect.addEventListener("change", (e) => {
+          selectedPeriod = e.target.value;
+          render();
+        });
+      }
+      if (searchInput) {
+        searchInput.addEventListener("input", render);
+      }
+
+      // Update OT hours inline
+      window._updateOt = function(empId, val) {
+        const hrs = Math.max(0, parseFloat(val) || 0);
+        if (!monthlyData[selectedPeriod]) monthlyData[selectedPeriod] = {};
+        if (!monthlyData[selectedPeriod][empId]) monthlyData[selectedPeriod][empId] = {};
+        monthlyData[selectedPeriod][empId].otHours = hrs;
+        saveData();
+        render();
+      };
+
+      // Employee Modal Management
+      function openEmployeeModal(emp = null) {
+        if (emp) {
+          document.getElementById("modal-eyebrow").textContent = "Edit Staff";
+          document.getElementById("modal-title").textContent = "Update Employee Details";
+          document.getElementById("emp-internal-id").value = emp.id;
+          document.getElementById("form-emp-num").value = emp.empNum || "";
+          document.getElementById("form-emp-name").value = emp.name || "";
+          document.getElementById("form-emp-designation").value = emp.designation || "";
+          document.getElementById("form-emp-basic").value = emp.basic || "";
+        } else {
+          document.getElementById("modal-eyebrow").textContent = "New Staff";
+          document.getElementById("modal-title").textContent = "Add New Employee";
+          employeeForm.reset();
+          document.getElementById("emp-internal-id").value = "";
+          // Auto-generate next number e.g. 006
+          const nextNum = String(employees.length + 2).padStart(3, "0");
+          document.getElementById("form-emp-num").value = nextNum;
+        }
+        employeeModal.classList.remove("hidden");
+        employeeModal.classList.add("flex");
+      }
+
+      function closeEmployeeModal() {
+        employeeModal.classList.add("hidden");
+        employeeModal.classList.remove("flex");
+      }
+
+      if (openCreateBtn) openCreateBtn.addEventListener("click", () => openEmployeeModal());
+      if (modalCloseBtn) modalCloseBtn.addEventListener("click", closeEmployeeModal);
+      if (modalCancelBtn) modalCancelBtn.addEventListener("click", closeEmployeeModal);
+      if (employeeModal) {
+        employeeModal.addEventListener("click", (e) => {
+          if (e.target === employeeModal) closeEmployeeModal();
+        });
+      }
+
+      employeeForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const id = document.getElementById("emp-internal-id").value;
+        const empNum = document.getElementById("form-emp-num").value.trim();
+        const name = document.getElementById("form-emp-name").value.trim();
+        const designation = document.getElementById("form-emp-designation").value.trim();
+        const basic = parseFloat(document.getElementById("form-emp-basic").value) || 0;
+
+        if (id) {
+          const idx = employees.findIndex(emp => emp.id === id);
+          if (idx >= 0) {
+            employees[idx] = { ...employees[idx], empNum, name, designation, basic };
+          }
+        } else {
+          const newId = "emp_" + Date.now();
+          employees.push({ id: newId, empNum, name, designation, basic });
+        }
+
+        saveData();
+        closeEmployeeModal();
+        render();
+      });
+
+      window._editEmployee = function(id) {
+        const emp = employees.find(e => e.id === id);
+        if (emp) openEmployeeModal(emp);
+      };
+
+      window._deleteEmployee = function(id) {
+        const emp = employees.find(e => e.id === id);
+        if (emp && confirm(`Remove employee "${emp.name}" (ID: ${emp.empNum})?`)) {
+          employees = employees.filter(e => e.id !== id);
+          saveData();
+          render();
+        }
+      };
+
+      // ================= View & Print Official Pay Slip =================
+      window._viewPaySlip = function(empId) {
+        const emp = employees.find(e => e.id === empId);
+        if (!emp) return;
+
+        const p = getPeriodDetails(selectedPeriod);
+        const empMonth = (monthlyData[selectedPeriod] && monthlyData[selectedPeriod][empId]) || { otHours: 0 };
+        const otHrs = Number(empMonth.otHours) || 0;
+        const basic = Number(emp.basic) || 0;
+        const hourlyRate = p.totalHrs > 0 ? (basic / p.totalHrs) : 0;
+        const otRate = hourlyRate * 1.25;
+        const otAmt = otHrs * otRate;
+        const net = basic + otAmt;
+
+        document.getElementById("slip-emp-num").textContent = emp.empNum || "—";
+        document.getElementById("slip-period").textContent = `${p.year}-${String(p.month).padStart(2, "0")}-01`;
+        document.getElementById("slip-emp-name").textContent = emp.name || "—";
+        document.getElementById("slip-designation").textContent = emp.designation || "—";
+
+        document.getElementById("slip-basic-col").textContent = fmtOmr(basic);
+        document.getElementById("slip-working-hrs").textContent = p.totalHrs;
+        document.getElementById("slip-present-hrs").textContent = p.totalHrs;
+        document.getElementById("slip-basic-earning").textContent = fmtOmr(basic);
+
+        document.getElementById("slip-ot-hrs").textContent = otHrs;
+        document.getElementById("slip-ot-earning").textContent = fmtOmr(otAmt);
+
+        document.getElementById("slip-total-amount").textContent = `OMR ${fmtOmr(net)}`;
+        document.getElementById("slip-days-calc").textContent = `${p.days} days × 8 hrs = ${p.totalHrs} hrs`;
+
+        payslipModal.classList.remove("hidden");
+        payslipModal.classList.add("flex");
+      };
+
+      if (closePayslipBtn) {
+        closePayslipBtn.addEventListener("click", () => {
+          payslipModal.classList.add("hidden");
+          payslipModal.classList.remove("flex");
+        });
+      }
+      if (printPayslipBtn) {
+        printPayslipBtn.addEventListener("click", () => {
+          window.print();
+        });
+      }
+      if (payslipModal) {
+        payslipModal.addEventListener("click", (e) => {
+          if (e.target === payslipModal) {
+            payslipModal.classList.add("hidden");
+            payslipModal.classList.remove("flex");
+          }
+        });
+      }
+
+      // Escape key to close modals
+      window.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          closeEmployeeModal();
+          if (payslipModal) {
+            payslipModal.classList.add("hidden");
+            payslipModal.classList.remove("flex");
+          }
+        }
+      });
+
+      // Export to CSV
+      const exportCsvBtn = document.getElementById("export-csv-btn");
+      if (exportCsvBtn) {
+        exportCsvBtn.addEventListener("click", () => {
+          const p = getPeriodDetails(selectedPeriod);
+          const currentPeriodRecords = (monthlyData[selectedPeriod]) || {};
+
+          const headers = [
+            "Emp Number",
+            "Name",
+            "Designation",
+            "Salary Period",
+            "Month Days",
+            "Total Working Hours",
+            "Basic Salary (OMR)",
+            "Hourly Rate (OMR)",
+            "OT Rate (125% OMR)",
+            "OT Hours",
+            "OT Earning (OMR)",
+            "Net Pay (OMR)"
+          ];
+
+          const rows = employees.map(emp => {
+            const basic = Number(emp.basic) || 0;
+            const empMonth = currentPeriodRecords[emp.id] || { otHours: 0 };
+            const otHrs = Number(empMonth.otHours) || 0;
+            const hourlyRate = p.totalHrs > 0 ? (basic / p.totalHrs) : 0;
+            const otRate = hourlyRate * 1.25;
+            const otAmt = otHrs * otRate;
+            const net = basic + otAmt;
+
+            return [
+              `"${emp.empNum}"`,
+              `"${emp.name}"`,
+              `"${emp.designation}"`,
+              `"${p.periodStr}"`,
+              p.days,
+              p.totalHrs,
+              basic.toFixed(3),
+              hourlyRate.toFixed(3),
+              otRate.toFixed(3),
+              otHrs,
+              otAmt.toFixed(3),
+              net.toFixed(3)
+            ];
+          });
+
+          const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
+          const encodedUri = encodeURI(csvContent);
+          const link = document.createElement("a");
+          link.setAttribute("href", encodedUri);
+          link.setAttribute("download", `NorthStar_Payroll_${selectedPeriod}.csv`);
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        });
+      }
+
+      // JSON Backup & Reset
+      const backupJsonBtn = document.getElementById("backup-json-btn");
+      if (backupJsonBtn) {
+        backupJsonBtn.addEventListener("click", () => {
+          const payload = { employees, monthlyData };
+          const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(payload, null, 2));
+          const dlAnchor = document.createElement("a");
+          dlAnchor.setAttribute("href", dataStr);
+          dlAnchor.setAttribute("download", `NorthStar_Attendance_Backup_${new Date().toISOString().split("T")[0]}.json`);
+          document.body.appendChild(dlAnchor);
+          dlAnchor.click();
+          dlAnchor.remove();
+        });
+      }
+
+      const resetSampleBtn = document.getElementById("reset-sample-btn");
+      if (resetSampleBtn) {
+        resetSampleBtn.addEventListener("click", () => {
+          if (confirm("Reset to initial 4 employees? Current unsaved entries will be restored to default.")) {
+            employees = JSON.parse(JSON.stringify(INITIAL_EMPLOYEES));
+            saveData();
+            render();
+          }
+        });
+      }
+
+      const cloudSyncBtn = document.getElementById("cloud-sync-btn");
+      if (cloudSyncBtn) {
+        cloudSyncBtn.addEventListener("click", () => {
+          pullFromCloud();
+        });
+      }
+
+      // Boot
+      checkAuth();
+    </script>
+  </body>
+</html>

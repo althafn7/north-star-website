@@ -131,6 +131,101 @@ export default {
       }
     }
 
+    // Live Attendance & Payroll Cloud Sync API
+    if (url.pathname.startsWith("/api/attendance-sync")) {
+      if (request.method === "OPTIONS") {
+        return new Response(null, { status: 204, headers: CORS_HEADERS });
+      }
+
+      const token = getGithubToken(env);
+      const ATTENDANCE_GIST_FILE = "attendance_records.json";
+
+      if (request.method === "GET") {
+        try {
+          const res = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+            headers: {
+              "User-Agent": "NorthStar-AttendanceSync",
+              "Authorization": `Bearer ${token}`,
+              "Accept": "application/vnd.github+json"
+            }
+          });
+
+          if (res.ok) {
+            const data = await res.json();
+            const fileObj = data.files && data.files[ATTENDANCE_GIST_FILE];
+            if (fileObj && fileObj.content) {
+              const attData = JSON.parse(fileObj.content);
+              return new Response(JSON.stringify({
+                success: true,
+                data: attData,
+                updatedAt: data.updated_at
+              }), {
+                headers: { "Content-Type": "application/json", ...CORS_HEADERS }
+              });
+            }
+          }
+
+          return new Response(JSON.stringify({ success: true, data: null, message: "No data yet" }), {
+            headers: { "Content-Type": "application/json", ...CORS_HEADERS }
+          });
+        } catch (e) {
+          return new Response(JSON.stringify({ success: false, error: e.message }), {
+            status: 500,
+            headers: { "Content-Type": "application/json", ...CORS_HEADERS }
+          });
+        }
+      }
+
+      if (request.method === "POST") {
+        try {
+          const body = await request.json();
+          if (!body || !body.data) {
+            return new Response(JSON.stringify({ success: false, error: "'data' is required" }), {
+              status: 400,
+              headers: { "Content-Type": "application/json", ...CORS_HEADERS }
+            });
+          }
+
+          const patchRes = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+            method: "PATCH",
+            headers: {
+              "User-Agent": "NorthStar-AttendanceSync",
+              "Authorization": `Bearer ${token}`,
+              "Content-Type": "application/json",
+              "Accept": "application/vnd.github+json"
+            },
+            body: JSON.stringify({
+              description: "North Star Attendance & Payroll Live Sync",
+              files: {
+                [ATTENDANCE_GIST_FILE]: { content: JSON.stringify(body.data, null, 2) }
+              }
+            })
+          });
+
+          if (!patchRes.ok) {
+            const errText = await patchRes.text();
+            return new Response(JSON.stringify({ success: false, error: "Gist update failed", details: errText }), {
+              status: patchRes.status,
+              headers: { "Content-Type": "application/json", ...CORS_HEADERS }
+            });
+          }
+
+          const updated = await patchRes.json();
+          return new Response(JSON.stringify({
+            success: true,
+            updatedAt: updated.updated_at
+          }), {
+            headers: { "Content-Type": "application/json", ...CORS_HEADERS }
+          });
+        } catch (e) {
+          return new Response(JSON.stringify({ success: false, error: e.message }), {
+            status: 500,
+            headers: { "Content-Type": "application/json", ...CORS_HEADERS }
+          });
+        }
+      }
+    }
+
     // Pass through to static assets from ./dist
     if (env.ASSETS && env.ASSETS.fetch) {
       return env.ASSETS.fetch(request);
