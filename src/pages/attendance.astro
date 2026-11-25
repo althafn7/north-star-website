@@ -170,6 +170,16 @@ import "../styles/global.css";
             </button>
 
             <button
+              id="open-create-temp-btn"
+              type="button"
+              class="inline-flex items-center gap-1.5 rounded-xs border border-purple-500/40 bg-purple-600/25 px-3 py-1.5 text-xs font-semibold text-purple-200 shadow-md transition-colors hover:bg-purple-600/40 hover:border-purple-400"
+              title="Add Temporary Manpower (Hourly calculation e.g. T001)"
+            >
+              <svg class="h-4 w-4 text-purple-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <span>+ Add Temp (Hourly)</span>
+            </button>
+
+            <button
               id="logout-btn"
               type="button"
               title="Log out"
@@ -343,9 +353,9 @@ import "../styles/global.css";
           </div>
 
           <div class="flex items-center gap-3">
-            <span class="text-white/60">Total Normal: <strong id="ts-total-normal" class="text-white font-mono font-bold">0</strong> hrs</span>
+            <span class="text-white/60"><span id="ts-label-normal">Total Normal:</span> <strong id="ts-total-normal" class="text-white font-mono font-bold">0</strong> hrs</span>
             <span class="text-white/30">•</span>
-            <span class="text-amber-400">Total OT: <strong id="ts-total-ot" class="font-mono font-bold text-amber-300">0</strong> hrs</span>
+            <span class="text-amber-400"><span id="ts-label-ot">Total OT:</span> <strong id="ts-total-ot" class="font-mono font-bold text-amber-300">0</strong></span>
           </div>
         </div>
 
@@ -405,13 +415,34 @@ import "../styles/global.css";
         <form id="employee-form" class="mt-6 space-y-4">
           <input type="hidden" id="emp-internal-id" value="" />
 
+          <!-- Staff Category Selector -->
+          <div>
+            <label class="block text-[11px] font-semibold uppercase tracking-wider text-white/70">Staff Category</label>
+            <div class="mt-1.5 grid grid-cols-2 gap-2 text-xs">
+              <label class="flex items-center gap-2 p-2 rounded border border-white/20 bg-[#0f1115] cursor-pointer hover:border-white/40">
+                <input type="radio" name="emp-type" id="type-permanent" value="permanent" checked class="text-flare" />
+                <div>
+                  <div class="font-bold text-white text-[11.5px]">Permanent Staff</div>
+                  <div class="text-[10px] text-white/50">Monthly Basic (001...)</div>
+                </div>
+              </label>
+              <label class="flex items-center gap-2 p-2 rounded border border-purple-500/40 bg-purple-500/10 cursor-pointer hover:border-purple-500/60">
+                <input type="radio" name="emp-type" id="type-temporary" value="temporary" class="text-purple-400" />
+                <div>
+                  <div class="font-bold text-purple-300 text-[11.5px]">Temp Manpower</div>
+                  <div class="text-[10px] text-purple-200/60">Hourly Rate (T001...)</div>
+                </div>
+              </label>
+            </div>
+          </div>
+
           <div>
             <label for="form-emp-num" class="block text-[11px] font-semibold uppercase tracking-wider text-white/70">Employee Number / ID</label>
             <input
               type="text"
               id="form-emp-num"
               required
-              placeholder="e.g. 006"
+              placeholder="e.g. 008 or T001"
               class="mt-1 w-full border border-white/15 bg-[#0f1115] px-3 py-2 text-xs font-mono text-white placeholder-white/30 focus:border-flare focus:outline-none"
             />
           </div>
@@ -433,21 +464,27 @@ import "../styles/global.css";
               type="text"
               id="form-emp-designation"
               required
-              placeholder="e.g. Welder, Scaffolder, Fabrication, Helper, Rigger..."
+              placeholder="e.g. Helper, Welder, Fabrication, Electrician..."
               class="mt-1 w-full border border-white/15 bg-[#0f1115] px-3 py-2 text-xs text-white placeholder-white/30 focus:border-flare focus:outline-none"
             />
           </div>
 
           <div>
-            <label for="form-emp-basic" class="block text-[11px] font-semibold uppercase tracking-wider text-white/70">Basic Salary (OMR)</label>
+            <label for="form-emp-basic" id="label-form-basic" class="block text-[11px] font-semibold uppercase tracking-wider text-white/70">Basic Salary (OMR)</label>
             <input
               type="number"
               step="0.001"
               id="form-emp-basic"
               required
-              placeholder="e.g. 180.000"
+              placeholder="e.g. 180.000 or 1.000"
               class="mt-1 w-full border border-white/15 bg-[#0f1115] px-3 py-2 text-xs font-mono text-white placeholder-white/30 focus:border-flare focus:outline-none"
             />
+          </div>
+
+          <!-- Temporary Manpower Calculation Info Box -->
+          <div id="temp-info-box" class="rounded border border-purple-500/30 bg-purple-500/10 p-2.5 text-xs text-purple-200 hidden">
+            <span class="font-bold text-purple-300 block mb-0.5">⚡ Temporary Manpower Hourly Calculation:</span>
+            <span>Paid strictly per hour worked: <strong>Total Hours × Hourly Rate</strong>. (e.g. 10 hours @ OMR 1.000 = <strong>OMR 10.000</strong>).</span>
           </div>
 
           <!-- Salary Scope Options (Visible when editing) -->
@@ -514,7 +551,7 @@ import "../styles/global.css";
           <div class="border-b-2 border-black pb-4 text-center">
             <h1 class="font-display text-xl font-extrabold tracking-wide text-black uppercase sm:text-2xl">NORTH STAR TECHNICAL SERVICES LLC</h1>
             <p class="text-xs font-semibold uppercase tracking-wider text-gray-700 mt-0.5">Mechanical Engineering Contractors</p>
-            <h2 class="mt-2 text-sm font-bold tracking-widest uppercase bg-black text-white py-1 px-4 inline-block">Employee Pay Slip</h2>
+            <h2 id="slip-modal-doc-title" class="mt-2 text-sm font-bold tracking-widest uppercase bg-black text-white py-1 px-4 inline-block">Employee Pay Slip</h2>
           </div>
 
           <!-- Employee Header Details -->
@@ -543,8 +580,8 @@ import "../styles/global.css";
               <thead class="bg-gray-100 text-[11px] font-bold uppercase border-b border-black">
                 <tr>
                   <th class="border border-black p-2 w-12 text-center">Sl No</th>
-                  <th class="border border-black p-2">Description</th>
-                  <th class="border border-black p-2 text-right">Basic (OMR)</th>
+                  <th id="slip-desc-header" class="border border-black p-2">Description</th>
+                  <th id="slip-basic-header" class="border border-black p-2 text-right">Basic (OMR)</th>
                   <th class="border border-black p-2 text-center">Total Working Hrs</th>
                   <th class="border border-black p-2 text-center">Hrs Present / OT Hrs</th>
                   <th class="border border-black p-2 text-right">Amount Earning (OMR)</th>
@@ -553,13 +590,13 @@ import "../styles/global.css";
               <tbody class="divide-y divide-black/30 font-mono">
                 <tr>
                   <td class="border border-black p-2 text-center">1</td>
-                  <td class="border border-black p-2 font-sans font-bold">Salary (Basic)</td>
+                  <td id="slip-desc-col" class="border border-black p-2 font-sans font-bold">Salary (Basic)</td>
                   <td id="slip-basic-col" class="border border-black p-2 text-right font-bold">150.000</td>
                   <td id="slip-working-hrs" class="border border-black p-2 text-center">240</td>
                   <td id="slip-present-hrs" class="border border-black p-2 text-center">240</td>
                   <td id="slip-basic-earning" class="border border-black p-2 text-right font-bold">150.000</td>
                 </tr>
-                <tr>
+                <tr id="slip-ot-row">
                   <td class="border border-black p-2 text-center">2</td>
                   <td class="border border-black p-2 font-sans font-bold">OT (Overtime @ 125%)</td>
                   <td class="border border-black p-2 text-right text-gray-500">—</td>
@@ -570,7 +607,7 @@ import "../styles/global.css";
               </tbody>
               <tfoot class="border-t-2 border-black font-bold bg-gray-50">
                 <tr>
-                  <td colspan="5" class="border border-black p-2.5 text-right font-sans uppercase tracking-wider text-sm">
+                  <td id="slip-total-label" colspan="5" class="border border-black p-2.5 text-right font-sans uppercase tracking-wider text-sm">
                     Total Salary Payout:
                   </td>
                   <td id="slip-total-amount" class="border border-black p-2.5 text-right font-mono text-base font-extrabold text-black">
@@ -766,9 +803,37 @@ import "../styles/global.css";
       // Employee Modal
       const employeeModal = document.getElementById("employee-modal");
       const openCreateBtn = document.getElementById("open-create-employee-btn");
+      const openCreateTempBtn = document.getElementById("open-create-temp-btn");
       const modalCloseBtn = document.getElementById("modal-close-btn");
       const modalCancelBtn = document.getElementById("modal-cancel-btn");
       const employeeForm = document.getElementById("employee-form");
+      const labelFormBasic = document.getElementById("label-form-basic");
+      const tempInfoBox = document.getElementById("temp-info-box");
+      const typePermRadio = document.getElementById("type-permanent");
+      const typeTempRadio = document.getElementById("type-temporary");
+
+      function isTempEmp(emp) {
+        if (!emp) return false;
+        return emp.type === "temporary" || (emp.empNum && String(emp.empNum).trim().toUpperCase().startsWith("T"));
+      }
+
+      function getNextEmpNum(isTemp = false) {
+        if (isTemp) {
+          const tNums = employees
+            .map(e => e.empNum)
+            .filter(n => n && String(n).trim().toUpperCase().startsWith("T"))
+            .map(n => parseInt(String(n).replace(/\D/g, ""), 10) || 0);
+          const maxT = tNums.length > 0 ? Math.max(...tNums) : 0;
+          return "T" + String(maxT + 1).padStart(3, "0");
+        } else {
+          const regNums = employees
+            .map(e => e.empNum)
+            .filter(n => n && !String(n).trim().toUpperCase().startsWith("T"))
+            .map(n => parseInt(String(n).replace(/\D/g, ""), 10) || 0);
+          const maxReg = regNums.length > 0 ? Math.max(...regNums) : 0;
+          return String(maxReg + 1).padStart(3, "0");
+        }
+      }
 
       // Payslip Modal
       const payslipModal = document.getElementById("payslip-modal");
@@ -874,29 +939,61 @@ import "../styles/global.css";
         let sumOtAmt = 0;
         let sumOtHrs = 0;
         let sumNet = 0;
+        let permCount = 0;
+        let tempCount = 0;
 
         // Calculate metrics across all employees for this period
         employees.forEach(emp => {
           const empMonth = currentPeriodRecords[emp.id] || {};
-          const basic = (empMonth.basic !== undefined && empMonth.basic !== null && empMonth.basic !== "")
-            ? Number(empMonth.basic)
-            : (Number(emp.basic) || 0);
-          const otHrs = Number(empMonth.otHours) || 0;
-          const hourlyRate = p.totalHrs > 0 ? (basic / p.totalHrs) : 0;
-          const otRate = hourlyRate * 1.25;
-          const otAmt = otHrs * otRate;
-          const net = basic + otAmt;
+          const isTemp = isTempEmp(emp);
 
-          sumBasic += basic;
-          sumOtHrs += otHrs;
-          sumOtAmt += otAmt;
-          sumNet += net;
+          if (isTemp) {
+            tempCount++;
+            const hourlyRate = (empMonth.hourlyRate !== undefined && empMonth.hourlyRate !== null && empMonth.hourlyRate !== "")
+              ? Number(empMonth.hourlyRate)
+              : (Number(emp.hourlyRate) || Number(emp.basic) || 1.0);
+
+            let totalHours = 0;
+            if (empMonth.days) {
+              totalHours = Object.values(empMonth.days).reduce((s, d) => s + (Number(d.normal) || 0) + (Number(d.ot) || 0), 0);
+            } else if (empMonth.totalHours !== undefined) {
+              totalHours = Number(empMonth.totalHours);
+            } else {
+              totalHours = (Number(empMonth.normalHours) || 0) + (Number(empMonth.otHours) || 0);
+            }
+
+            const net = totalHours * hourlyRate;
+            sumNet += net;
+          } else {
+            permCount++;
+            const basic = (empMonth.basic !== undefined && empMonth.basic !== null && empMonth.basic !== "")
+              ? Number(empMonth.basic)
+              : (Number(emp.basic) || 0);
+            const otHrs = Number(empMonth.otHours) || 0;
+            const hourlyRate = p.totalHrs > 0 ? (basic / p.totalHrs) : 0;
+            const otRate = hourlyRate * 1.25;
+            const otAmt = otHrs * otRate;
+            const net = basic + otAmt;
+
+            sumBasic += basic;
+            sumOtHrs += otHrs;
+            sumOtAmt += otAmt;
+            sumNet += net;
+          }
         });
 
         if (metricBasicTotal) metricBasicTotal.textContent = fmtOmr(sumBasic);
         if (metricOtTotal) metricOtTotal.textContent = fmtOmr(sumOtAmt);
         if (metricOtHoursSub) metricOtHoursSub.textContent = `${sumOtHrs} hrs total (125% rate)`;
         if (metricNetTotal) metricNetTotal.textContent = fmtOmr(sumNet);
+        const metricStaffSub = document.getElementById("metric-staff-sub");
+        if (metricStaffSub) {
+          metricStaffSub.textContent = tempCount > 0 ? `${permCount} Staff • ${tempCount} Temp (Hourly)` : "Registered in company";
+        }
+        const metricNetSub = document.getElementById("metric-net-sub");
+        if (metricNetSub) {
+          metricNetSub.textContent = tempCount > 0 ? "Staff Payroll + Temp Manpower" : "Basic + Overtime";
+        }
 
         // Render Table Body
         if (filtered.length === 0) {
@@ -908,6 +1005,145 @@ import "../styles/global.css";
 
         tableBody.innerHTML = filtered.map(emp => {
           const empMonth = currentPeriodRecords[emp.id] || {};
+          const isTemp = isTempEmp(emp);
+
+          if (isTemp) {
+            const hourlyRate = (empMonth.hourlyRate !== undefined && empMonth.hourlyRate !== null && empMonth.hourlyRate !== "")
+              ? Number(empMonth.hourlyRate)
+              : (Number(emp.hourlyRate) || Number(emp.basic) || 1.0);
+
+            let totalHours = 0;
+            if (empMonth.days) {
+              totalHours = Object.values(empMonth.days).reduce((s, d) => s + (Number(d.normal) || 0) + (Number(d.ot) || 0), 0);
+            } else if (empMonth.totalHours !== undefined) {
+              totalHours = Number(empMonth.totalHours);
+            } else {
+              totalHours = (Number(empMonth.normalHours) || 0) + (Number(empMonth.otHours) || 0);
+            }
+            const net = totalHours * hourlyRate;
+
+            return `
+              <tr class="transition-colors hover:bg-purple-500/[0.04] bg-purple-500/[0.01]">
+                <!-- Emp # (Click to print voucher) -->
+                <td class="w-[75px] py-2.5 pl-2.5 pr-1">
+                  <button
+                    type="button"
+                    onclick="window._viewPaySlip('${emp.id}')"
+                    class="font-mono font-bold text-purple-400 transition-colors hover:underline text-[11px] inline-flex items-center gap-1"
+                    title="Click to view & print Temporary Manpower Voucher"
+                  >
+                    <span>${emp.empNum || "—"}</span>
+                    <span class="rounded bg-purple-500/25 px-1 py-0.2 text-[8px] font-sans font-bold text-purple-300 border border-purple-500/30">TEMP</span>
+                  </button>
+                </td>
+
+                <!-- Staff Name (Click to open Daily Timesheet) -->
+                <td class="w-[160px] px-2 py-2.5 font-bold text-white text-[11px]">
+                  <button
+                    type="button"
+                    onclick="window._openDailyTimesheet('${emp.id}')"
+                    class="text-left text-purple-200 hover:text-purple-300 hover:underline transition-colors flex items-center justify-between gap-1 w-full group cursor-pointer"
+                    title="Click to view & log daily hours"
+                  >
+                    <span class="truncate">${emp.name || "—"}</span>
+                    <span class="rounded bg-purple-500/20 border border-purple-500/40 px-1 py-0.5 text-[9px] font-mono text-purple-300 group-hover:bg-purple-500/35 shrink-0">Daily 📅</span>
+                  </button>
+                </td>
+
+                <!-- Designation -->
+                <td class="w-[110px] px-1.5 py-2.5 text-white/80 text-[11px]">
+                  <span class="rounded bg-purple-500/15 border border-purple-500/25 px-1.5 py-0.5 text-purple-200 text-[10px]">${emp.designation || "Temp Helper"}</span>
+                </td>
+
+                <!-- Basic / Hourly Rate -->
+                <td class="w-[125px] px-1.5 py-2.5">
+                  <div class="inline-flex items-center gap-1" title="Temporary Manpower Hourly Pay Rate">
+                    <input
+                      type="number"
+                      step="0.05"
+                      min="0"
+                      value="${hourlyRate}"
+                      onchange="window._updateTempHourlyRate('${emp.id}', this.value)"
+                      class="w-16 rounded border border-purple-500/40 bg-[#0f1115] px-1.5 py-0.5 text-center font-mono text-xs font-bold text-purple-300 focus:border-purple-400 focus:outline-none"
+                    />
+                    <span class="text-[10px] text-purple-300/70 font-mono">/hr</span>
+                  </div>
+                </td>
+
+                <!-- Std Hrs -->
+                <td class="w-[85px] px-1.5 py-2.5 font-mono text-purple-300/60 text-[10.5px]">
+                  Hourly
+                </td>
+
+                <!-- Rate / Hr -->
+                <td class="w-[95px] px-1.5 py-2.5 font-mono text-[10.5px] text-purple-300 font-bold">
+                  OMR ${fmtOmr(hourlyRate)}/h
+                </td>
+
+                <!-- OT Rate (Flat for temp) -->
+                <td class="w-[95px] px-1.5 py-2.5 font-mono text-[10px] text-white/30" title="Temporary staff paid flat hourly rate">
+                  —
+                </td>
+
+                <!-- Total Hours Input -->
+                <td class="w-[100px] px-1.5 py-2.5">
+                  <div class="inline-flex items-center gap-1">
+                    <input
+                      type="number"
+                      step="0.5"
+                      min="0"
+                      value="${totalHours}"
+                      onchange="window._updateTempHours('${emp.id}', this.value)"
+                      class="w-16 border border-purple-500/30 bg-[#0f1115] px-1.5 py-0.5 text-center font-mono text-xs font-bold text-white focus:border-purple-400 focus:outline-none"
+                      title="Total hours worked in ${p.periodStr} (or click staff name for daily log)"
+                    />
+                    <span class="text-[10px] text-white/40">hrs</span>
+                  </div>
+                </td>
+
+                <!-- OT Earning -->
+                <td class="w-[105px] px-1.5 py-2.5 font-mono text-white/30 text-[10px]">
+                  —
+                </td>
+
+                <!-- Net Pay (Hours x Hourly Rate) -->
+                <td class="w-[115px] px-1.5 py-2.5 font-mono font-bold text-emerald-400 text-[11.5px]">
+                  OMR ${fmtOmr(net)}
+                </td>
+
+                <!-- Actions -->
+                <td class="w-[110px] py-2.5 pl-1 pr-2 text-center">
+                  <div class="inline-flex items-center gap-1">
+                    <button
+                      type="button"
+                      onclick="window._viewPaySlip('${emp.id}')"
+                      class="rounded-xs border border-purple-500/40 bg-purple-500/10 px-1.5 py-0.5 text-[10.5px] font-medium text-purple-300 transition-colors hover:border-purple-500/70 hover:bg-purple-500/25"
+                      title="View & print payment voucher"
+                    >
+                      Slip
+                    </button>
+                    <button
+                      type="button"
+                      onclick="window._editEmployee('${emp.id}')"
+                      class="rounded-xs border border-white/20 bg-white/5 px-1.5 py-0.5 text-[10.5px] font-medium text-white transition-colors hover:border-white/50 hover:bg-white/15"
+                      title="Edit temporary employee"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      type="button"
+                      onclick="window._deleteEmployee('${emp.id}')"
+                      class="rounded-xs border border-red-500/30 bg-red-500/10 px-1 py-0.5 text-[10.5px] font-medium text-red-300 transition-colors hover:border-red-500/60 hover:bg-red-500/25"
+                      title="Delete temporary employee"
+                    >
+                      Del
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            `;
+          }
+
           const isCustomBasic = (empMonth.basic !== undefined && empMonth.basic !== null && empMonth.basic !== "");
           const basic = isCustomBasic ? Number(empMonth.basic) : (Number(emp.basic) || 0);
           const otHrs = Number(empMonth.otHours) || 0;
@@ -1096,6 +1332,33 @@ import "../styles/global.css";
         }
       };
 
+      // Update Temporary Hourly Rate
+      window._updateTempHourlyRate = function(empId, val) {
+        const rate = Math.max(0, parseFloat(val) || 0);
+        if (!monthlyData[selectedPeriod]) monthlyData[selectedPeriod] = {};
+        if (!monthlyData[selectedPeriod][empId]) monthlyData[selectedPeriod][empId] = {};
+        monthlyData[selectedPeriod][empId].hourlyRate = rate;
+
+        const emp = employees.find(e => e.id === empId);
+        if (emp) emp.hourlyRate = rate;
+
+        saveData();
+        render();
+      };
+
+      // Update Temporary Hours
+      window._updateTempHours = function(empId, val) {
+        const hrs = Math.max(0, parseFloat(val) || 0);
+        if (!monthlyData[selectedPeriod]) monthlyData[selectedPeriod] = {};
+        if (!monthlyData[selectedPeriod][empId]) monthlyData[selectedPeriod][empId] = {};
+        monthlyData[selectedPeriod][empId].totalHours = hrs;
+        monthlyData[selectedPeriod][empId].normalHours = hrs;
+        monthlyData[selectedPeriod][empId].otHours = 0;
+
+        saveData();
+        render();
+      };
+
       // ================= Daily Timesheet & Overtime Modal =================
       function closeTimesheetModal() {
         if (!timesheetModal) return;
@@ -1119,8 +1382,24 @@ import "../styles/global.css";
           totNorm += normVal;
           totOt += otVal;
         });
-        if (tsTotalNormal) tsTotalNormal.textContent = totNorm;
-        if (tsTotalOt) tsTotalOt.textContent = totOt;
+
+        const curEmp = currentTsEmpId ? employees.find(e => e.id === currentTsEmpId) : null;
+        const isTemp = curEmp && isTempEmp(curEmp);
+
+        if (isTemp) {
+          const empMonth = (monthlyData[selectedPeriod] && monthlyData[selectedPeriod][currentTsEmpId]) || {};
+          const hourlyRate = (empMonth.hourlyRate !== undefined && empMonth.hourlyRate !== null && empMonth.hourlyRate !== "")
+            ? Number(empMonth.hourlyRate)
+            : (Number(curEmp.hourlyRate) || Number(curEmp.basic) || 1.0);
+          const totalHours = totNorm + totOt;
+          const payout = totalHours * hourlyRate;
+
+          if (tsTotalNormal) tsTotalNormal.textContent = totalHours;
+          if (tsTotalOt) tsTotalOt.textContent = `OMR ${fmtOmr(payout)}`;
+        } else {
+          if (tsTotalNormal) tsTotalNormal.textContent = totNorm;
+          if (tsTotalOt) tsTotalOt.textContent = `${totOt} hrs`;
+        }
       }
 
       window._openDailyTimesheet = function(empId) {
@@ -1128,24 +1407,52 @@ import "../styles/global.css";
         if (!emp) return;
         currentTsEmpId = empId;
 
+        const isTemp = isTempEmp(emp);
         const p = getPeriodDetails(selectedPeriod);
         const monthNamesShort = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
         const monthShort = monthNamesShort[p.month - 1] || "MTH";
 
-        if (tsEmpBadge) tsEmpBadge.textContent = `Emp #${emp.empNum || "—"}`;
-        if (tsEmpName) tsEmpName.textContent = emp.name || "Staff";
-        if (tsPeriodInfo) {
-          tsPeriodInfo.innerHTML = `
-            <span class="font-bold text-white">${monthShort} ${p.year}</span> • 
-            <span>${p.days} Days in Month</span> • 
-            <span>Standard Working Hours: <strong class="text-amber-400 font-mono">${p.totalHrs}h</strong> (${p.days}d × 8h)</span>
-          `;
+        if (tsEmpBadge) {
+          tsEmpBadge.innerHTML = isTemp
+            ? `Emp #${emp.empNum || "—"} <span class="rounded bg-purple-500/20 border border-purple-500/30 text-purple-300 px-1 py-0.2 text-[9px]">TEMP MANPOWER</span>`
+            : `Emp #${emp.empNum || "—"}`;
         }
+        if (tsEmpName) tsEmpName.textContent = emp.name || "Staff";
 
         // Get existing logged days or defaults
         monthlyData[selectedPeriod] = monthlyData[selectedPeriod] || {};
         const empMonth = monthlyData[selectedPeriod][empId] || {};
         const savedDays = empMonth.days || {};
+
+        const toolbarLabelNormal = document.getElementById("ts-label-normal");
+        const toolbarLabelOt = document.getElementById("ts-label-ot");
+
+        if (isTemp) {
+          const hourlyRate = (empMonth.hourlyRate !== undefined && empMonth.hourlyRate !== null && empMonth.hourlyRate !== "")
+            ? Number(empMonth.hourlyRate)
+            : (Number(emp.hourlyRate) || Number(emp.basic) || 1.0);
+
+          if (tsPeriodInfo) {
+            tsPeriodInfo.innerHTML = `
+              <span class="font-bold text-purple-300">${monthShort} ${p.year}</span> • 
+              <span>Temporary Manpower</span> • 
+              <span>Hourly Rate: <strong class="text-purple-300 font-mono">OMR ${fmtOmr(hourlyRate)}/hr</strong></span> • 
+              <span class="text-emerald-400">Total Payout = Total Hours Worked × Rate</span>
+            `;
+          }
+          if (toolbarLabelNormal) toolbarLabelNormal.textContent = "Total Hours Worked:";
+          if (toolbarLabelOt) toolbarLabelOt.textContent = "Est. Total Payout:";
+        } else {
+          if (tsPeriodInfo) {
+            tsPeriodInfo.innerHTML = `
+              <span class="font-bold text-white">${monthShort} ${p.year}</span> • 
+              <span>${p.days} Days in Month</span> • 
+              <span>Standard Working Hours: <strong class="text-amber-400 font-mono">${p.totalHrs}h</strong> (${p.days}d × 8h)</span>
+            `;
+          }
+          if (toolbarLabelNormal) toolbarLabelNormal.textContent = "Total Normal:";
+          if (toolbarLabelOt) toolbarLabelOt.textContent = "Total Overtime:";
+        }
 
         let rowsHtml = "";
         const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -1155,13 +1462,16 @@ import "../styles/global.css";
           const dow = dayNames[dateObj.getDay()];
           const isFriday = (dateObj.getDay() === 5);
 
-          let normVal = 8;
+          let normVal = isTemp ? 0 : 8;
           let otVal = 0;
 
           if (savedDays[d] !== undefined) {
-            normVal = Number(savedDays[d].normal) >= 0 ? Number(savedDays[d].normal) : 8;
+            normVal = Number(savedDays[d].normal) >= 0 ? Number(savedDays[d].normal) : (isTemp ? 0 : 8);
             otVal = Number(savedDays[d].ot) >= 0 ? Number(savedDays[d].ot) : 0;
-          } else if (empMonth.otHours && d === 1 && Object.keys(savedDays).length === 0) {
+          } else if (isTemp && empMonth.totalHours && d === 1 && Object.keys(savedDays).length === 0) {
+            // Backward compat: if there was previous lump-sum hours entered
+            normVal = Number(empMonth.totalHours);
+          } else if (!isTemp && empMonth.otHours && d === 1 && Object.keys(savedDays).length === 0) {
             // Backward compat: if there was previous lump-sum OT
             otVal = Number(empMonth.otHours);
           }
@@ -1253,7 +1563,8 @@ import "../styles/global.css";
       if (tsSaveBtn) {
         tsSaveBtn.addEventListener("click", () => {
           if (!currentTsEmpId) return;
-          const p = getPeriodDetails(selectedPeriod);
+          const curEmp = employees.find(e => e.id === currentTsEmpId);
+          const isTemp = curEmp && isTempEmp(curEmp);
           const daysObj = {};
           let totalNorm = 0;
           let totalOt = 0;
@@ -1275,10 +1586,14 @@ import "../styles/global.css";
           }
 
           if (!monthlyData[selectedPeriod]) monthlyData[selectedPeriod] = {};
+          const existingEmpMonth = monthlyData[selectedPeriod][currentTsEmpId] || {};
+
           monthlyData[selectedPeriod][currentTsEmpId] = {
+            ...existingEmpMonth,
             days: daysObj,
             normalHours: totalNorm,
-            otHours: totalOt
+            otHours: totalOt,
+            totalHours: totalNorm + totalOt
           };
 
           saveData();
@@ -1287,8 +1602,38 @@ import "../styles/global.css";
         });
       }
 
+      // ================= Staff Category Radios & Employee Modal =================
+      if (typePermRadio && typeTempRadio) {
+        typePermRadio.addEventListener("change", () => {
+          if (typePermRadio.checked) {
+            if (labelFormBasic) labelFormBasic.textContent = "Basic Salary (OMR)";
+            if (tempInfoBox) tempInfoBox.classList.add("hidden");
+            const id = document.getElementById("emp-internal-id").value;
+            if (!id) {
+              document.getElementById("form-emp-num").value = getNextEmpNum(false);
+              document.getElementById("form-emp-basic").placeholder = "e.g. 180.000";
+              document.getElementById("form-emp-basic").value = "";
+              document.getElementById("form-emp-designation").placeholder = "e.g. Helper, Welder, Fabrication...";
+            }
+          }
+        });
+        typeTempRadio.addEventListener("change", () => {
+          if (typeTempRadio.checked) {
+            if (labelFormBasic) labelFormBasic.textContent = "Hourly Pay Rate (OMR / hr)";
+            if (tempInfoBox) tempInfoBox.classList.remove("hidden");
+            const id = document.getElementById("emp-internal-id").value;
+            if (!id) {
+              document.getElementById("form-emp-num").value = getNextEmpNum(true);
+              document.getElementById("form-emp-basic").placeholder = "e.g. 1.000";
+              document.getElementById("form-emp-basic").value = "1.000";
+              document.getElementById("form-emp-designation").value = document.getElementById("form-emp-designation").value || "Helper (Temp)";
+            }
+          }
+        });
+      }
+
       // Employee Modal Management
-      function openEmployeeModal(emp = null) {
+      function openEmployeeModal(emp = null, forceTemp = false) {
         const p = getPeriodDetails(selectedPeriod);
         const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
         const curMonthLabel = `${monthNames[p.month - 1]} ${p.year}`;
@@ -1297,33 +1642,63 @@ import "../styles/global.css";
         if (scopeMonthLabel) scopeMonthLabel.textContent = curMonthLabel;
 
         if (emp) {
-          document.getElementById("modal-eyebrow").textContent = "Edit Staff";
-          document.getElementById("modal-title").textContent = "Update Employee Details";
+          const isTemp = isTempEmp(emp);
+          document.getElementById("modal-eyebrow").textContent = isTemp ? "Edit Temp Staff" : "Edit Staff";
+          document.getElementById("modal-title").textContent = isTemp ? "Update Temporary Employee" : "Update Employee Details";
           document.getElementById("emp-internal-id").value = emp.id;
           document.getElementById("form-emp-num").value = emp.empNum || "";
           document.getElementById("form-emp-name").value = emp.name || "";
           document.getElementById("form-emp-designation").value = emp.designation || "";
 
-          // Show current month's effective basic
-          const empMonth = (monthlyData[selectedPeriod] && monthlyData[selectedPeriod][emp.id]) || {};
-          const currentBasic = (empMonth.basic !== undefined && empMonth.basic !== null && empMonth.basic !== "")
-            ? Number(empMonth.basic)
-            : (Number(emp.basic) || 0);
+          if (isTemp) {
+            if (typeTempRadio) typeTempRadio.checked = true;
+            if (labelFormBasic) labelFormBasic.textContent = "Hourly Pay Rate (OMR / hr)";
+            if (tempInfoBox) tempInfoBox.classList.remove("hidden");
+            const empMonth = (monthlyData[selectedPeriod] && monthlyData[selectedPeriod][emp.id]) || {};
+            const curRate = (empMonth.hourlyRate !== undefined && empMonth.hourlyRate !== null && empMonth.hourlyRate !== "")
+              ? Number(empMonth.hourlyRate)
+              : (Number(emp.hourlyRate) || Number(emp.basic) || 1.0);
+            document.getElementById("form-emp-basic").value = curRate;
+          } else {
+            if (typePermRadio) typePermRadio.checked = true;
+            if (labelFormBasic) labelFormBasic.textContent = "Basic Salary (OMR)";
+            if (tempInfoBox) tempInfoBox.classList.add("hidden");
+            const empMonth = (monthlyData[selectedPeriod] && monthlyData[selectedPeriod][emp.id]) || {};
+            const currentBasic = (empMonth.basic !== undefined && empMonth.basic !== null && empMonth.basic !== "")
+              ? Number(empMonth.basic)
+              : (Number(emp.basic) || 0);
+            document.getElementById("form-emp-basic").value = currentBasic;
+          }
 
-          document.getElementById("form-emp-basic").value = currentBasic;
           if (scopeContainer) scopeContainer.classList.remove("hidden");
           const defaultRadio = document.querySelector('input[name="salary-scope"][value="month_only"]');
           if (defaultRadio) defaultRadio.checked = true;
         } else {
-          document.getElementById("modal-eyebrow").textContent = "New Staff";
-          document.getElementById("modal-title").textContent = "Add New Employee";
           employeeForm.reset();
           document.getElementById("emp-internal-id").value = "";
-          // Auto-generate next number e.g. 008
-          const maxNum = employees.reduce((max, e) => Math.max(max, parseInt(e.empNum, 10) || 0), 0);
-          const nextNum = String(maxNum + 1).padStart(3, "0");
-          document.getElementById("form-emp-num").value = nextNum;
           if (scopeContainer) scopeContainer.classList.add("hidden");
+
+          if (forceTemp) {
+            if (typeTempRadio) typeTempRadio.checked = true;
+            document.getElementById("modal-eyebrow").textContent = "Temp Manpower";
+            document.getElementById("modal-title").textContent = "Add Temporary Employee";
+            if (labelFormBasic) labelFormBasic.textContent = "Hourly Pay Rate (OMR / hr)";
+            if (tempInfoBox) tempInfoBox.classList.remove("hidden");
+            document.getElementById("form-emp-num").value = getNextEmpNum(true);
+            document.getElementById("form-emp-basic").placeholder = "e.g. 1.000";
+            document.getElementById("form-emp-basic").value = "1.000";
+            document.getElementById("form-emp-designation").value = "Helper (Temp)";
+          } else {
+            if (typePermRadio) typePermRadio.checked = true;
+            document.getElementById("modal-eyebrow").textContent = "New Staff";
+            document.getElementById("modal-title").textContent = "Add New Employee";
+            if (labelFormBasic) labelFormBasic.textContent = "Basic Salary (OMR)";
+            if (tempInfoBox) tempInfoBox.classList.add("hidden");
+            document.getElementById("form-emp-num").value = getNextEmpNum(false);
+            document.getElementById("form-emp-basic").placeholder = "e.g. 180.000";
+            document.getElementById("form-emp-basic").value = "";
+            document.getElementById("form-emp-designation").value = "";
+          }
         }
         employeeModal.classList.remove("hidden");
         employeeModal.classList.add("flex");
@@ -1334,7 +1709,8 @@ import "../styles/global.css";
         employeeModal.classList.remove("flex");
       }
 
-      if (openCreateBtn) openCreateBtn.addEventListener("click", () => openEmployeeModal());
+      if (openCreateBtn) openCreateBtn.addEventListener("click", () => openEmployeeModal(null, false));
+      if (openCreateTempBtn) openCreateTempBtn.addEventListener("click", () => openEmployeeModal(null, true));
       if (modalCloseBtn) modalCloseBtn.addEventListener("click", closeEmployeeModal);
       if (modalCancelBtn) modalCancelBtn.addEventListener("click", closeEmployeeModal);
       if (employeeModal) {
@@ -1349,7 +1725,8 @@ import "../styles/global.css";
         const empNum = document.getElementById("form-emp-num").value.trim();
         const name = document.getElementById("form-emp-name").value.trim();
         const designation = document.getElementById("form-emp-designation").value.trim();
-        const basic = parseFloat(document.getElementById("form-emp-basic").value) || 0;
+        const valBasicOrRate = parseFloat(document.getElementById("form-emp-basic").value) || 0;
+        const isTemp = (typeTempRadio && typeTempRadio.checked) || (empNum.toUpperCase().startsWith("T"));
 
         const scopeRadios = document.getElementsByName("salary-scope");
         let scopeVal = "month_only";
@@ -1360,23 +1737,54 @@ import "../styles/global.css";
         if (id) {
           const idx = employees.findIndex(emp => emp.id === id);
           if (idx >= 0) {
-            if (scopeVal === "all_months") {
-              // Update permanent default for all months
-              employees[idx] = { ...employees[idx], empNum, name, designation, basic };
-              if (monthlyData[selectedPeriod] && monthlyData[selectedPeriod][id]) {
-                delete monthlyData[selectedPeriod][id].basic;
+            if (isTemp) {
+              if (scopeVal === "all_months") {
+                employees[idx] = { ...employees[idx], empNum, name, designation, type: "temporary", hourlyRate: valBasicOrRate, basic: 0 };
+                if (monthlyData[selectedPeriod] && monthlyData[selectedPeriod][id]) {
+                  delete monthlyData[selectedPeriod][id].hourlyRate;
+                }
+              } else {
+                employees[idx] = { ...employees[idx], empNum, name, designation, type: "temporary" };
+                if (!monthlyData[selectedPeriod]) monthlyData[selectedPeriod] = {};
+                if (!monthlyData[selectedPeriod][id]) monthlyData[selectedPeriod][id] = {};
+                monthlyData[selectedPeriod][id].hourlyRate = valBasicOrRate;
               }
             } else {
-              // Apply change only to current selected month!
-              employees[idx] = { ...employees[idx], empNum, name, designation };
-              if (!monthlyData[selectedPeriod]) monthlyData[selectedPeriod] = {};
-              if (!monthlyData[selectedPeriod][id]) monthlyData[selectedPeriod][id] = {};
-              monthlyData[selectedPeriod][id].basic = basic;
+              if (scopeVal === "all_months") {
+                employees[idx] = { ...employees[idx], empNum, name, designation, type: "permanent", basic: valBasicOrRate };
+                if (monthlyData[selectedPeriod] && monthlyData[selectedPeriod][id]) {
+                  delete monthlyData[selectedPeriod][id].basic;
+                }
+              } else {
+                employees[idx] = { ...employees[idx], empNum, name, designation, type: "permanent" };
+                if (!monthlyData[selectedPeriod]) monthlyData[selectedPeriod] = {};
+                if (!monthlyData[selectedPeriod][id]) monthlyData[selectedPeriod][id] = {};
+                monthlyData[selectedPeriod][id].basic = valBasicOrRate;
+              }
             }
           }
         } else {
           const newId = "emp_" + Date.now();
-          employees.push({ id: newId, empNum, name, designation, basic });
+          if (isTemp) {
+            employees.push({
+              id: newId,
+              empNum,
+              name,
+              designation: designation || "Helper (Temp)",
+              type: "temporary",
+              hourlyRate: valBasicOrRate,
+              basic: 0
+            });
+          } else {
+            employees.push({
+              id: newId,
+              empNum,
+              name,
+              designation,
+              type: "permanent",
+              basic: valBasicOrRate
+            });
+          }
         }
 
         saveData();
@@ -1398,39 +1806,88 @@ import "../styles/global.css";
         }
       };
 
-      // ================= View & Print Official Pay Slip =================
+      // ================= View & Print Official Pay Slip / Temp Voucher =================
       window._viewPaySlip = function(empId) {
         const emp = employees.find(e => e.id === empId);
         if (!emp) return;
 
         const p = getPeriodDetails(selectedPeriod);
-        const empMonth = (monthlyData[selectedPeriod] && monthlyData[selectedPeriod][empId]) || { otHours: 0 };
-        const otHrs = Number(empMonth.otHours) || 0;
-        const normalHrs = (empMonth.normalHours !== undefined) ? Number(empMonth.normalHours) : p.totalHrs;
-        const basic = (empMonth.basic !== undefined && empMonth.basic !== null && empMonth.basic !== "")
-          ? Number(empMonth.basic)
-          : (Number(emp.basic) || 0);
-        const hourlyRate = p.totalHrs > 0 ? (basic / p.totalHrs) : 0;
-        const otRate = hourlyRate * 1.25;
-        const otAmt = otHrs * otRate;
-        const net = basic + otAmt;
-
+        const empMonth = (monthlyData[selectedPeriod] && monthlyData[selectedPeriod][empId]) || {};
+        const isTemp = isTempEmp(emp);
         const monthNamesLong = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+        const slipTitle = document.getElementById("slip-modal-doc-title");
+        const slipCalcNote = document.getElementById("slip-days-calc");
+        const otRow = document.getElementById("slip-ot-row");
+        const slipDescCol = document.getElementById("slip-desc-col");
+        const slipBasicHeader = document.getElementById("slip-basic-header");
+        const slipTotalLabel = document.getElementById("slip-total-label");
+
         document.getElementById("slip-emp-num").textContent = emp.empNum || "—";
         document.getElementById("slip-period").textContent = `${monthNamesLong[p.month - 1]} ${p.year} (${p.year}-${String(p.month).padStart(2, "0")}-01)`;
         document.getElementById("slip-emp-name").textContent = emp.name || "—";
         document.getElementById("slip-designation").textContent = emp.designation || "—";
 
-        document.getElementById("slip-basic-col").textContent = fmtOmr(basic);
-        document.getElementById("slip-working-hrs").textContent = p.totalHrs;
-        document.getElementById("slip-present-hrs").textContent = normalHrs;
-        document.getElementById("slip-basic-earning").textContent = fmtOmr(basic);
+        if (isTemp) {
+          const hourlyRate = (empMonth.hourlyRate !== undefined && empMonth.hourlyRate !== null && empMonth.hourlyRate !== "")
+            ? Number(empMonth.hourlyRate)
+            : (Number(emp.hourlyRate) || Number(emp.basic) || 1.0);
 
-        document.getElementById("slip-ot-hrs").textContent = otHrs;
-        document.getElementById("slip-ot-earning").textContent = fmtOmr(otAmt);
+          let totalHours = 0;
+          if (empMonth.days) {
+            totalHours = Object.values(empMonth.days).reduce((s, d) => s + (Number(d.normal) || 0) + (Number(d.ot) || 0), 0);
+          } else if (empMonth.totalHours !== undefined) {
+            totalHours = Number(empMonth.totalHours);
+          } else {
+            totalHours = (Number(empMonth.normalHours) || 0) + (Number(empMonth.otHours) || 0);
+          }
+          const net = totalHours * hourlyRate;
 
-        document.getElementById("slip-total-amount").textContent = `OMR ${fmtOmr(net)}`;
-        document.getElementById("slip-days-calc").textContent = `${p.days} days × 8 hrs = ${p.totalHrs} hrs`;
+          if (slipTitle) slipTitle.textContent = "Temporary Manpower Payment Voucher";
+          if (slipBasicHeader) slipBasicHeader.textContent = "Rate / Hr (OMR)";
+          if (slipDescCol) slipDescCol.textContent = "Temporary Manpower Services (Hourly Payment)";
+          if (slipTotalLabel) slipTotalLabel.textContent = "Total Amount Due:";
+
+          document.getElementById("slip-basic-col").textContent = fmtOmr(hourlyRate);
+          document.getElementById("slip-working-hrs").textContent = "—";
+          document.getElementById("slip-present-hrs").textContent = `${totalHours} hrs`;
+          document.getElementById("slip-basic-earning").textContent = fmtOmr(net);
+
+          if (otRow) otRow.classList.add("hidden");
+          document.getElementById("slip-total-amount").textContent = `OMR ${fmtOmr(net)}`;
+          if (slipCalcNote) {
+            slipCalcNote.innerHTML = `<strong>Temporary Manpower Calculation:</strong> Total Hours Worked (<strong>${totalHours} hrs</strong>) × Agreed Rate (<strong>OMR ${fmtOmr(hourlyRate)}/hr</strong>) = <strong>OMR ${fmtOmr(net)}</strong>.`;
+          }
+        } else {
+          const otHrs = Number(empMonth.otHours) || 0;
+          const normalHrs = (empMonth.normalHours !== undefined) ? Number(empMonth.normalHours) : p.totalHrs;
+          const basic = (empMonth.basic !== undefined && empMonth.basic !== null && empMonth.basic !== "")
+            ? Number(empMonth.basic)
+            : (Number(emp.basic) || 0);
+          const hourlyRate = p.totalHrs > 0 ? (basic / p.totalHrs) : 0;
+          const otRate = hourlyRate * 1.25;
+          const otAmt = otHrs * otRate;
+          const net = basic + otAmt;
+
+          if (slipTitle) slipTitle.textContent = "Employee Pay Slip";
+          if (slipBasicHeader) slipBasicHeader.textContent = "Basic (OMR)";
+          if (slipDescCol) slipDescCol.textContent = "Salary (Basic)";
+          if (slipTotalLabel) slipTotalLabel.textContent = "Total Salary Payout:";
+
+          document.getElementById("slip-basic-col").textContent = fmtOmr(basic);
+          document.getElementById("slip-working-hrs").textContent = p.totalHrs;
+          document.getElementById("slip-present-hrs").textContent = normalHrs;
+          document.getElementById("slip-basic-earning").textContent = fmtOmr(basic);
+
+          if (otRow) otRow.classList.remove("hidden");
+          document.getElementById("slip-ot-hrs").textContent = otHrs;
+          document.getElementById("slip-ot-earning").textContent = fmtOmr(otAmt);
+
+          document.getElementById("slip-total-amount").textContent = `OMR ${fmtOmr(net)}`;
+          if (slipCalcNote) {
+            slipCalcNote.innerHTML = `<strong>Calculation Method:</strong> Total Working Hours = ${p.days} days × 8 hrs = ${p.totalHrs} hrs. Hourly Rate = Basic ÷ Total Hours. Overtime Hourly Rate = Hourly Rate × 1.25 (Oman Labor Law Standard 125%). Overtime Earning = OT Hours × OT Rate.`;
+          }
+        }
 
         payslipModal.classList.remove("hidden");
         payslipModal.classList.add("flex");
@@ -1477,12 +1934,13 @@ import "../styles/global.css";
 
           const headers = [
             "Emp Number",
+            "Staff Type",
             "Name",
             "Designation",
             "Salary Period",
             "Month Days",
             "Total Working Hours",
-            "Basic Salary (OMR)",
+            "Basic Salary / Rate (OMR)",
             "Hourly Rate (OMR)",
             "OT Rate (125% OMR)",
             "OT Hours",
@@ -1491,30 +1949,65 @@ import "../styles/global.css";
           ];
 
           const rows = employees.map(emp => {
-            const empMonth = currentPeriodRecords[emp.id] || { otHours: 0 };
-            const basic = (empMonth.basic !== undefined && empMonth.basic !== null && empMonth.basic !== "")
-              ? Number(empMonth.basic)
-              : (Number(emp.basic) || 0);
-            const otHrs = Number(empMonth.otHours) || 0;
-            const hourlyRate = p.totalHrs > 0 ? (basic / p.totalHrs) : 0;
-            const otRate = hourlyRate * 1.25;
-            const otAmt = otHrs * otRate;
-            const net = basic + otAmt;
+            const isTemp = isTempEmp(emp);
+            const empMonth = currentPeriodRecords[emp.id] || {};
 
-            return [
-              `"${emp.empNum}"`,
-              `"${emp.name}"`,
-              `"${emp.designation}"`,
-              `"${p.periodStr}"`,
-              p.days,
-              p.totalHrs,
-              basic.toFixed(3),
-              hourlyRate.toFixed(3),
-              otRate.toFixed(3),
-              otHrs,
-              otAmt.toFixed(3),
-              net.toFixed(3)
-            ];
+            if (isTemp) {
+              const hourlyRate = (empMonth.hourlyRate !== undefined && empMonth.hourlyRate !== null && empMonth.hourlyRate !== "")
+                ? Number(empMonth.hourlyRate)
+                : (Number(emp.hourlyRate) || Number(emp.basic) || 1.0);
+
+              let totalHours = 0;
+              if (empMonth.days) {
+                totalHours = Object.values(empMonth.days).reduce((s, d) => s + (Number(d.normal) || 0) + (Number(d.ot) || 0), 0);
+              } else if (empMonth.totalHours !== undefined) {
+                totalHours = Number(empMonth.totalHours);
+              } else {
+                totalHours = (Number(empMonth.normalHours) || 0) + (Number(empMonth.otHours) || 0);
+              }
+              const net = totalHours * hourlyRate;
+
+              return [
+                `"${emp.empNum}"`,
+                `"Temporary Manpower"`,
+                `"${emp.name}"`,
+                `"${emp.designation || 'Helper (Temp)'}"`,
+                `"${p.periodStr}"`,
+                p.days,
+                totalHours,
+                hourlyRate.toFixed(3),
+                hourlyRate.toFixed(3),
+                "—",
+                "—",
+                "—",
+                net.toFixed(3)
+              ];
+            } else {
+              const basic = (empMonth.basic !== undefined && empMonth.basic !== null && empMonth.basic !== "")
+                ? Number(empMonth.basic)
+                : (Number(emp.basic) || 0);
+              const otHrs = Number(empMonth.otHours) || 0;
+              const hourlyRate = p.totalHrs > 0 ? (basic / p.totalHrs) : 0;
+              const otRate = hourlyRate * 1.25;
+              const otAmt = otHrs * otRate;
+              const net = basic + otAmt;
+
+              return [
+                `"${emp.empNum}"`,
+                `"Permanent Staff"`,
+                `"${emp.name}"`,
+                `"${emp.designation}"`,
+                `"${p.periodStr}"`,
+                p.days,
+                p.totalHrs,
+                basic.toFixed(3),
+                hourlyRate.toFixed(3),
+                otRate.toFixed(3),
+                otHrs,
+                otAmt.toFixed(3),
+                net.toFixed(3)
+              ];
+            }
           });
 
           const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
