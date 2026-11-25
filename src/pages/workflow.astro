@@ -313,8 +313,8 @@ import "../styles/global.css";
           </select>
         </div>
 
-        <div class="text-right text-xs text-white/50">
-          Showing <span id="record-count" class="font-semibold text-white">0</span> records
+        <div class="text-right text-xs font-semibold text-red-400">
+          Showing <span id="record-count" class="font-bold text-red-300">0</span> records
         </div>
       </section>
 
@@ -352,14 +352,14 @@ import "../styles/global.css";
       </section>
 
       <!-- Bottom Utility Bar -->
-      <section class="mt-6 flex flex-wrap items-center justify-between gap-3 text-xs text-white/40">
-        <div>
+      <section class="mt-6 flex flex-wrap items-center justify-between gap-3 text-xs text-red-400">
+        <div class="font-medium text-red-400">
           Data is synchronized live across all your devices (<span id="footer-sync-status" class="font-semibold text-emerald-400">Live Cloud Active</span>).
         </div>
         <div class="flex items-center gap-3">
-          <button id="backup-json-btn" type="button" class="underline hover:text-white">Download JSON Backup</button>
-          <span>•</span>
-          <button id="reset-sample-btn" type="button" class="underline hover:text-white">Reload Sample Data</button>
+          <button id="backup-json-btn" type="button" class="font-medium text-red-400 underline transition-colors hover:text-red-300">Download JSON Backup</button>
+          <span class="font-bold text-red-400">•</span>
+          <button id="reset-sample-btn" type="button" class="font-medium text-red-400 underline transition-colors hover:text-red-300">Reload Sample Data</button>
         </div>
       </section>
     </main>
@@ -2183,12 +2183,18 @@ import "../styles/global.css";
         cloudSyncBtn.className = "inline-flex items-center gap-1.5 rounded-sm border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1.5 text-xs font-medium text-emerald-300 transition-colors hover:border-emerald-400 hover:bg-emerald-500/20";
         if (cloudSyncText) cloudSyncText.textContent = label || "Live Synced";
         if (cloudSyncIcon) cloudSyncIcon.classList.remove("animate-spin");
-        if (footerSyncStatus) footerSyncStatus.textContent = "Live Cloud Active";
+        if (footerSyncStatus) {
+          footerSyncStatus.textContent = "Live Cloud Active";
+          footerSyncStatus.className = "font-semibold text-emerald-400";
+        }
       } else if (status === "offline") {
         cloudSyncBtn.className = "inline-flex items-center gap-1.5 rounded-sm border border-white/20 bg-white/5 px-2.5 py-1.5 text-xs font-medium text-white/60 transition-colors";
         if (cloudSyncText) cloudSyncText.textContent = label || "Saved Locally";
         if (cloudSyncIcon) cloudSyncIcon.classList.remove("animate-spin");
-        if (footerSyncStatus) footerSyncStatus.textContent = "Saved Locally (Offline)";
+        if (footerSyncStatus) {
+          footerSyncStatus.textContent = "Saved Locally (Offline)";
+          footerSyncStatus.className = "font-semibold text-amber-400";
+        }
       }
     }
 
