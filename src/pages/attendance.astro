@@ -262,7 +262,7 @@ import "../styles/global.css";
                   <th class="sticky top-[60px] sm:top-[61px] z-30 bg-[#1a1e27] w-[75px] py-2.5 pl-2.5 pr-1">Emp #</th>
                   <th class="sticky top-[60px] sm:top-[61px] z-30 bg-[#1a1e27] w-[160px] px-2 py-2.5">Staff Name</th>
                   <th class="sticky top-[60px] sm:top-[61px] z-30 bg-[#1a1e27] w-[110px] px-1.5 py-2.5">Designation</th>
-                  <th class="sticky top-[60px] sm:top-[61px] z-30 bg-[#1a1e27] w-[95px] px-1.5 py-2.5">Basic (OMR)</th>
+                  <th class="sticky top-[60px] sm:top-[61px] z-30 bg-[#1a1e27] w-[125px] px-1.5 py-2.5" title="Month-specific basic salary (can be adjusted per month)">Basic (OMR) ✏️</th>
                   <th class="sticky top-[60px] sm:top-[61px] z-30 bg-[#1a1e27] w-[85px] px-1.5 py-2.5">Std Hrs</th>
                   <th class="sticky top-[60px] sm:top-[61px] z-30 bg-[#1a1e27] w-[95px] px-1.5 py-2.5">Rate / Hr</th>
                   <th class="sticky top-[60px] sm:top-[61px] z-30 bg-[#1a1e27] w-[95px] px-1.5 py-2.5">OT Rate (125%)</th>
@@ -448,6 +448,19 @@ import "../styles/global.css";
               placeholder="e.g. 180.000"
               class="mt-1 w-full border border-white/15 bg-[#0f1115] px-3 py-2 text-xs font-mono text-white placeholder-white/30 focus:border-flare focus:outline-none"
             />
+          </div>
+
+          <!-- Salary Scope Options (Visible when editing) -->
+          <div id="form-salary-scope-container" class="rounded border border-amber-500/20 bg-amber-500/5 p-3 text-xs space-y-2 hidden">
+            <span class="block text-[11px] font-semibold uppercase tracking-wider text-amber-300">Basic Salary Change Scope:</span>
+            <label class="flex items-center gap-2 text-white/90 cursor-pointer">
+              <input type="radio" name="salary-scope" value="month_only" checked class="text-flare" />
+              <span>Apply only to current month (<strong id="modal-current-period-name" class="text-amber-300">Current Month</strong>)</span>
+            </label>
+            <label class="flex items-center gap-2 text-white/70 cursor-pointer">
+              <input type="radio" name="salary-scope" value="all_months" class="text-flare" />
+              <span>Update permanent master salary (for all months)</span>
+            </label>
           </div>
 
           <div class="flex items-center justify-end gap-3 border-t border-white/10 pt-4">
@@ -864,8 +877,10 @@ import "../styles/global.css";
 
         // Calculate metrics across all employees for this period
         employees.forEach(emp => {
-          const basic = Number(emp.basic) || 0;
-          const empMonth = currentPeriodRecords[emp.id] || { otHours: 0 };
+          const empMonth = currentPeriodRecords[emp.id] || {};
+          const basic = (empMonth.basic !== undefined && empMonth.basic !== null && empMonth.basic !== "")
+            ? Number(empMonth.basic)
+            : (Number(emp.basic) || 0);
           const otHrs = Number(empMonth.otHours) || 0;
           const hourlyRate = p.totalHrs > 0 ? (basic / p.totalHrs) : 0;
           const otRate = hourlyRate * 1.25;
@@ -892,8 +907,9 @@ import "../styles/global.css";
         noStaffMsg.classList.add("hidden");
 
         tableBody.innerHTML = filtered.map(emp => {
-          const basic = Number(emp.basic) || 0;
-          const empMonth = currentPeriodRecords[emp.id] || { otHours: 0 };
+          const empMonth = currentPeriodRecords[emp.id] || {};
+          const isCustomBasic = (empMonth.basic !== undefined && empMonth.basic !== null && empMonth.basic !== "");
+          const basic = isCustomBasic ? Number(empMonth.basic) : (Number(emp.basic) || 0);
           const otHrs = Number(empMonth.otHours) || 0;
           const hourlyRate = p.totalHrs > 0 ? (basic / p.totalHrs) : 0;
           const otRate = hourlyRate * 1.25;
@@ -932,9 +948,29 @@ import "../styles/global.css";
                 <span class="rounded bg-white/5 px-1.5 py-0.5">${emp.designation || "—"}</span>
               </td>
 
-              <!-- Basic Salary -->
-              <td class="w-[95px] px-1.5 py-2.5 font-mono font-bold text-white text-[11px]">
-                OMR ${fmtOmr(basic)}
+              <!-- Basic Salary (Editable per Month) -->
+              <td class="w-[125px] px-1.5 py-2.5">
+                <div class="inline-flex items-center gap-1">
+                  <input
+                    type="number"
+                    step="1"
+                    min="0"
+                    value="${basic}"
+                    onchange="window._updateMonthBasic('${emp.id}', this.value)"
+                    class="w-20 rounded border ${isCustomBasic ? 'border-amber-400 bg-amber-500/15 text-amber-300' : 'border-white/20 bg-[#0f1115] text-white'} px-1.5 py-0.5 text-center font-mono text-xs font-bold focus:border-flare focus:outline-none"
+                    title="${isCustomBasic ? `Custom basic for ${p.periodStr} (Default is OMR ${fmtOmr(emp.basic)})` : `Click to change basic for ${p.periodStr} only`}"
+                  />
+                  ${isCustomBasic ? `
+                    <button
+                      type="button"
+                      onclick="window._resetMonthBasic('${emp.id}')"
+                      class="text-white/40 hover:text-amber-300 text-[11px] p-0.5"
+                      title="Reset to default OMR ${fmtOmr(emp.basic)}"
+                    >
+                      ↺
+                    </button>
+                  ` : ''}
+                </div>
               </td>
 
               <!-- Std Hrs -->
@@ -1031,6 +1067,33 @@ import "../styles/global.css";
         monthlyData[selectedPeriod][empId].otHours = hrs;
         saveData();
         render();
+      };
+
+      // Update Basic Salary for current month only (doesn't affect other months)
+      window._updateMonthBasic = function(empId, val) {
+        const emp = employees.find(e => e.id === empId);
+        const defaultBasic = emp ? Number(emp.basic) || 0 : 0;
+        const num = parseFloat(val);
+
+        if (!monthlyData[selectedPeriod]) monthlyData[selectedPeriod] = {};
+        if (!monthlyData[selectedPeriod][empId]) monthlyData[selectedPeriod][empId] = {};
+
+        if (isNaN(num) || num === defaultBasic) {
+          delete monthlyData[selectedPeriod][empId].basic;
+        } else {
+          monthlyData[selectedPeriod][empId].basic = Math.max(0, num);
+        }
+        saveData();
+        render();
+      };
+
+      // Reset Month Basic back to standard master default
+      window._resetMonthBasic = function(empId) {
+        if (monthlyData[selectedPeriod] && monthlyData[selectedPeriod][empId]) {
+          delete monthlyData[selectedPeriod][empId].basic;
+          saveData();
+          render();
+        }
       };
 
       // ================= Daily Timesheet & Overtime Modal =================
@@ -1226,6 +1289,13 @@ import "../styles/global.css";
 
       // Employee Modal Management
       function openEmployeeModal(emp = null) {
+        const p = getPeriodDetails(selectedPeriod);
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const curMonthLabel = `${monthNames[p.month - 1]} ${p.year}`;
+        const scopeContainer = document.getElementById("form-salary-scope-container");
+        const scopeMonthLabel = document.getElementById("modal-current-period-name");
+        if (scopeMonthLabel) scopeMonthLabel.textContent = curMonthLabel;
+
         if (emp) {
           document.getElementById("modal-eyebrow").textContent = "Edit Staff";
           document.getElementById("modal-title").textContent = "Update Employee Details";
@@ -1233,7 +1303,17 @@ import "../styles/global.css";
           document.getElementById("form-emp-num").value = emp.empNum || "";
           document.getElementById("form-emp-name").value = emp.name || "";
           document.getElementById("form-emp-designation").value = emp.designation || "";
-          document.getElementById("form-emp-basic").value = emp.basic || "";
+
+          // Show current month's effective basic
+          const empMonth = (monthlyData[selectedPeriod] && monthlyData[selectedPeriod][emp.id]) || {};
+          const currentBasic = (empMonth.basic !== undefined && empMonth.basic !== null && empMonth.basic !== "")
+            ? Number(empMonth.basic)
+            : (Number(emp.basic) || 0);
+
+          document.getElementById("form-emp-basic").value = currentBasic;
+          if (scopeContainer) scopeContainer.classList.remove("hidden");
+          const defaultRadio = document.querySelector('input[name="salary-scope"][value="month_only"]');
+          if (defaultRadio) defaultRadio.checked = true;
         } else {
           document.getElementById("modal-eyebrow").textContent = "New Staff";
           document.getElementById("modal-title").textContent = "Add New Employee";
@@ -1243,6 +1323,7 @@ import "../styles/global.css";
           const maxNum = employees.reduce((max, e) => Math.max(max, parseInt(e.empNum, 10) || 0), 0);
           const nextNum = String(maxNum + 1).padStart(3, "0");
           document.getElementById("form-emp-num").value = nextNum;
+          if (scopeContainer) scopeContainer.classList.add("hidden");
         }
         employeeModal.classList.remove("hidden");
         employeeModal.classList.add("flex");
@@ -1270,10 +1351,28 @@ import "../styles/global.css";
         const designation = document.getElementById("form-emp-designation").value.trim();
         const basic = parseFloat(document.getElementById("form-emp-basic").value) || 0;
 
+        const scopeRadios = document.getElementsByName("salary-scope");
+        let scopeVal = "month_only";
+        for (const r of scopeRadios) {
+          if (r.checked) { scopeVal = r.value; break; }
+        }
+
         if (id) {
           const idx = employees.findIndex(emp => emp.id === id);
           if (idx >= 0) {
-            employees[idx] = { ...employees[idx], empNum, name, designation, basic };
+            if (scopeVal === "all_months") {
+              // Update permanent default for all months
+              employees[idx] = { ...employees[idx], empNum, name, designation, basic };
+              if (monthlyData[selectedPeriod] && monthlyData[selectedPeriod][id]) {
+                delete monthlyData[selectedPeriod][id].basic;
+              }
+            } else {
+              // Apply change only to current selected month!
+              employees[idx] = { ...employees[idx], empNum, name, designation };
+              if (!monthlyData[selectedPeriod]) monthlyData[selectedPeriod] = {};
+              if (!monthlyData[selectedPeriod][id]) monthlyData[selectedPeriod][id] = {};
+              monthlyData[selectedPeriod][id].basic = basic;
+            }
           }
         } else {
           const newId = "emp_" + Date.now();
@@ -1308,7 +1407,9 @@ import "../styles/global.css";
         const empMonth = (monthlyData[selectedPeriod] && monthlyData[selectedPeriod][empId]) || { otHours: 0 };
         const otHrs = Number(empMonth.otHours) || 0;
         const normalHrs = (empMonth.normalHours !== undefined) ? Number(empMonth.normalHours) : p.totalHrs;
-        const basic = Number(emp.basic) || 0;
+        const basic = (empMonth.basic !== undefined && empMonth.basic !== null && empMonth.basic !== "")
+          ? Number(empMonth.basic)
+          : (Number(emp.basic) || 0);
         const hourlyRate = p.totalHrs > 0 ? (basic / p.totalHrs) : 0;
         const otRate = hourlyRate * 1.25;
         const otAmt = otHrs * otRate;
@@ -1390,8 +1491,10 @@ import "../styles/global.css";
           ];
 
           const rows = employees.map(emp => {
-            const basic = Number(emp.basic) || 0;
             const empMonth = currentPeriodRecords[emp.id] || { otHours: 0 };
+            const basic = (empMonth.basic !== undefined && empMonth.basic !== null && empMonth.basic !== "")
+              ? Number(empMonth.basic)
+              : (Number(emp.basic) || 0);
             const otHrs = Number(empMonth.otHours) || 0;
             const hourlyRate = p.totalHrs > 0 ? (basic / p.totalHrs) : 0;
             const otRate = hourlyRate * 1.25;
