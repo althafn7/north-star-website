@@ -318,6 +318,19 @@ import "../styles/global.css";
         </div>
       </section>
 
+      <!-- Year Category Filter Bar (Between Search Bar & Table) -->
+      <section class="mt-4 flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-3">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="text-[11px] font-bold uppercase tracking-wider text-white/50">Year Register:</span>
+          <div id="year-tabs-container" class="inline-flex flex-wrap items-center gap-1.5">
+            <!-- Dynamically populated buttons: All Years, 2025, 2026, 2027... -->
+          </div>
+        </div>
+        <div id="year-filter-badge" class="text-xs text-white/60">
+          <!-- Dynamically populated year summary -->
+        </div>
+      </section>
+
       <!-- Workflow Table -->
       <section class="mt-3 overflow-hidden border border-white/10 bg-[#161920] shadow-xl">
         <div class="overflow-x-auto">
@@ -1967,6 +1980,100 @@ import "../styles/global.css";
 
     // State
     let records = [];
+    let selectedYear = (function() {
+      try { return localStorage.getItem("nsts_workflow_selected_year") || "ALL"; } catch (e) { return "ALL"; }
+    })();
+
+    function getRecordYear(r) {
+      if (!r) return "";
+      if (r.ref && typeof r.ref === "string") {
+        const refMatch = r.ref.match(/20\d\d/);
+        if (refMatch) return refMatch[0];
+      }
+      if (r.quoteDate && typeof r.quoteDate === "string") {
+        const parts = r.quoteDate.split("-");
+        if (parts[0] && parts[0].length === 4) return parts[0];
+      }
+      return "";
+    }
+
+    function getAvailableYears() {
+      const currentCalYear = new Date().getFullYear();
+      const yearSet = new Set(["2025", "2026"]);
+
+      // Automatically include 2027 and future years once calendar reaches 2027
+      if (currentCalYear >= 2027) {
+        for (let y = 2026; y <= currentCalYear; y++) {
+          yearSet.add(String(y));
+        }
+      }
+
+      // Also scan all records for any year present
+      records.forEach((r) => {
+        const y = getRecordYear(r);
+        if (y && y.length === 4) yearSet.add(y);
+      });
+
+      return Array.from(yearSet).sort();
+    }
+
+    function renderYearTabs() {
+      const container = document.getElementById("year-tabs-container");
+      if (!container) return;
+
+      const years = getAvailableYears();
+      const allCounts = { ALL: records.length };
+      years.forEach((y) => {
+        allCounts[y] = records.filter((r) => getRecordYear(r) === y).length;
+      });
+
+      const tabs = ["ALL", ...years];
+      if (!tabs.includes(selectedYear)) {
+        selectedYear = "ALL";
+      }
+
+      container.innerHTML = tabs
+        .map((tab) => {
+          const isActive = selectedYear === tab;
+          const label = tab === "ALL" ? "All Years" : tab;
+          const count = allCounts[tab] || 0;
+          const activeClasses = "bg-flare text-white font-bold shadow-sm border-flare";
+          const inactiveClasses = "bg-[#161920] border-white/15 text-white/70 hover:border-white/30 hover:text-white";
+
+          return `
+            <button
+              type="button"
+              data-year="${tab}"
+              class="year-tab-btn inline-flex items-center gap-1.5 rounded-sm border px-3 py-1.5 text-xs transition-colors ${isActive ? activeClasses : inactiveClasses}"
+            >
+              <span>${label}</span>
+              <span class="rounded-full px-1.5 py-0.2 text-[10px] ${isActive ? 'bg-white/20 text-white' : 'bg-white/10 text-white/60'}">${count}</span>
+            </button>
+          `;
+        })
+        .join("");
+
+      container.querySelectorAll(".year-tab-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const y = btn.getAttribute("data-year");
+          if (y) {
+            selectedYear = y;
+            try { localStorage.setItem("nsts_workflow_selected_year", y); } catch (e) {}
+            render();
+          }
+        });
+      });
+
+      const badge = document.getElementById("year-filter-badge");
+      if (badge) {
+        if (selectedYear === "ALL") {
+          badge.innerHTML = `Viewing: <strong class="text-white">All Years (${records.length} quotes)</strong>`;
+        } else {
+          const yCount = allCounts[selectedYear] || 0;
+          badge.innerHTML = `Viewing: <strong class="text-flare">${selectedYear} Register</strong> <span class="text-white/50">(${yCount} quotes)</span>`;
+        }
+      }
+    }
 
     // Elements
     const loginGate = document.getElementById("login-gate");
@@ -2360,7 +2467,14 @@ import "../styles/global.css";
 
     // Render Metrics & Table
     function render() {
-      // 1. Calculate Metrics
+      // 0. Update Year Category Tabs
+      renderYearTabs();
+
+      // 1. Calculate Metrics (scoped to selected year)
+      const metricPool = selectedYear === "ALL" 
+        ? records 
+        : records.filter((r) => getRecordYear(r) === selectedYear);
+
       let totalQuoted = 0;
       let totalPo = 0;
       let poCount = 0;
@@ -2369,7 +2483,7 @@ import "../styles/global.css";
       let invoicedTotal = 0;
       let invoicedCount = 0;
 
-      records.forEach((r) => {
+      metricPool.forEach((r) => {
         const qTot = Number(r.totalAmt || r.quoteAmt) || 0;
         const pTot = Number(r.poTotalAmt || r.poAmt) || 0;
         totalQuoted += qTot;
@@ -2393,10 +2507,11 @@ import "../styles/global.css";
         }
       });
 
+      const currentScopeLabel = selectedYear === "ALL" ? "All" : selectedYear;
       metricQuotedTotal.textContent = fmtOmr(totalQuoted);
-      metricQuotedCount.textContent = `${records.length} quotes • incl. 5% VAT`;
+      metricQuotedCount.textContent = `${metricPool.length} quotes (${currentScopeLabel}) • incl. 5% VAT`;
       metricPoTotal.textContent = fmtOmr(totalPo);
-      metricPoCount.textContent = `${poCount} approved • incl. 5% VAT`;
+      metricPoCount.textContent = `${poCount} approved (${currentScopeLabel}) • incl. 5% VAT`;
       metricPendingCount.textContent = pendingCount;
       metricPendingVal.textContent = `OMR ${fmtOmr(pendingVal)} incl. VAT`;
       metricInvoicedTotal.textContent = fmtOmr(invoicedTotal);
@@ -2409,6 +2524,7 @@ import "../styles/global.css";
       const sortD = sortDate ? sortDate.value : "NEWEST";
 
       let filtered = records.filter((r) => {
+        const matchesYear = selectedYear === "ALL" || getRecordYear(r) === selectedYear;
         const matchesStatus = statusF === "ALL" || r.status === statusF;
         const matchesWork = workF === "ALL" || r.workStatus === workF;
         const matchesQuery =
@@ -2419,7 +2535,7 @@ import "../styles/global.css";
           (r.poNumber && r.poNumber.toLowerCase().includes(q)) ||
           (r.invoiceNum && r.invoiceNum.toLowerCase().includes(q));
 
-        return matchesStatus && matchesWork && matchesQuery;
+        return matchesYear && matchesStatus && matchesWork && matchesQuery;
       });
 
       // Sort by Quote Date (Newest to Oldest vs Oldest to Newest)
