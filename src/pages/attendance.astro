@@ -20,24 +20,123 @@ import "../styles/global.css";
     />
     <style>
       @media print {
-        body * {
-          visibility: hidden;
+        @page {
+          size: A4 portrait;
+          margin: 12mm 15mm;
         }
-        #printable-payslip, #printable-payslip * {
-          visibility: visible;
+
+        html, body {
+          background: #ffffff !important;
+          color: #000000 !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          width: 100% !important;
+          height: auto !important;
+          min-height: 0 !important;
+          overflow: visible !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
         }
-        #printable-payslip {
-          position: absolute;
-          left: 0;
-          top: 0;
-          width: 100%;
-          margin: 0;
-          padding: 24px;
-          background: white !important;
-          color: black !important;
-        }
-        .no-print {
+
+        /* 1. Completely remove all non-printable dashboard elements from layout */
+        #login-gate,
+        #admin-app,
+        #employee-modal,
+        #timesheet-modal,
+        .no-print,
+        header,
+        footer {
           display: none !important;
+        }
+
+        /* 2. Un-fix payslip modal so it flows as a normal top-level document */
+        #payslip-modal {
+          display: block !important;
+          position: static !important;
+          inset: auto !important;
+          width: 100% !important;
+          height: auto !important;
+          min-height: 0 !important;
+          max-height: none !important;
+          overflow: visible !important;
+          background: transparent !important;
+          padding: 0 !important;
+          margin: 0 !important;
+          border: none !important;
+          box-shadow: none !important;
+          backdrop-filter: none !important;
+          -webkit-backdrop-filter: none !important;
+          z-index: auto !important;
+        }
+
+        #payslip-modal > div {
+          display: block !important;
+          position: static !important;
+          width: 100% !important;
+          max-width: 100% !important;
+          height: auto !important;
+          min-height: 0 !important;
+          max-height: none !important;
+          overflow: visible !important;
+          background: transparent !important;
+          border: none !important;
+          box-shadow: none !important;
+          padding: 0 !important;
+          margin: 0 !important;
+        }
+
+        /* 3. Printable payslip document formatting */
+        #printable-payslip {
+          display: block !important;
+          position: static !important;
+          width: 100% !important;
+          max-width: 100% !important;
+          margin: 0 auto !important;
+          padding: 24px !important;
+          background: #ffffff !important;
+          color: #000000 !important;
+          border: 2px solid #000000 !important;
+          border-radius: 0 !important;
+          box-shadow: none !important;
+          page-break-inside: avoid !important;
+          break-inside: avoid !important;
+        }
+
+        #printable-payslip * {
+          visibility: visible !important;
+          color: #000000 !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+
+        #printable-payslip table {
+          width: 100% !important;
+          border-collapse: collapse !important;
+          border: 1.5px solid #000000 !important;
+          page-break-inside: avoid !important;
+          break-inside: avoid !important;
+          margin-top: 16px !important;
+        }
+
+        #printable-payslip th,
+        #printable-payslip td {
+          border: 1px solid #000000 !important;
+          padding: 8px 10px !important;
+        }
+
+        #printable-payslip thead,
+        #printable-payslip tfoot {
+          background-color: #f3f4f6 !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+
+        #slip-modal-doc-title {
+          background-color: #000000 !important;
+          color: #ffffff !important;
+          border: 1px solid #000000 !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
         }
       }
     </style>
@@ -619,10 +718,12 @@ import "../styles/global.css";
           </div>
 
           <!-- Formula Explanatory Note -->
-          <div class="mt-4 border border-dashed border-gray-400 p-2.5 text-[10px] text-gray-600 leading-relaxed">
-            <strong>Calculation Method:</strong> Total Working Hours = <span id="slip-days-calc">30 days × 8 hrs = 240 hrs</span>. 
-            Hourly Rate = Basic ÷ Total Hours. Overtime Hourly Rate = Hourly Rate × 1.25 (Oman Labor Law Standard 125%). 
-            Overtime Earning = OT Hours × OT Rate.
+          <div class="mt-4 border border-dashed border-gray-400 p-2.5 text-[10px] text-gray-700 leading-relaxed">
+            <span id="slip-days-calc">
+              <strong>Calculation Method:</strong> Total Working Hours = 30 days × 8 hrs = 240 hrs. 
+              Hourly Rate = Basic ÷ Total Hours. Overtime Hourly Rate = Hourly Rate × 1.25 (Oman Labor Law Standard 125%). 
+              Overtime Earning = OT Hours × OT Rate.
+            </span>
           </div>
         </div>
 
