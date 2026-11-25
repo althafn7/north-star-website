@@ -166,7 +166,7 @@ import "../styles/global.css";
               class="inline-flex items-center gap-1.5 bg-flare px-3.5 py-1.5 text-xs font-semibold text-white shadow-md transition-colors hover:bg-red-700"
             >
               <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              <span>+ Add Employee</span>
+              <span>Add Employee</span>
             </button>
 
             <button
@@ -996,8 +996,9 @@ import "../styles/global.css";
         const otAmt = otHrs * otRate;
         const net = basic + otAmt;
 
+        const monthNamesLong = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
         document.getElementById("slip-emp-num").textContent = emp.empNum || "—";
-        document.getElementById("slip-period").textContent = `${p.year}-${String(p.month).padStart(2, "0")}-01`;
+        document.getElementById("slip-period").textContent = `${monthNamesLong[p.month - 1]} ${p.year} (${p.year}-${String(p.month).padStart(2, "0")}-01)`;
         document.getElementById("slip-emp-name").textContent = emp.name || "—";
         document.getElementById("slip-designation").textContent = emp.designation || "—";
 
