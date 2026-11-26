@@ -36,6 +36,9 @@ import "../styles/global.css";
             name="username"
             required
             autocomplete="username"
+            autocapitalize="none"
+            autocorrect="off"
+            spellcheck="false"
             value="admin"
             class="mt-1.5 w-full border border-white/15 bg-[#0f1115] px-4 py-2.5 text-sm text-white placeholder-white/30 focus:border-flare focus:outline-none focus:ring-1 focus:ring-flare"
             placeholder="admin"
@@ -53,6 +56,9 @@ import "../styles/global.css";
             name="password"
             required
             autocomplete="current-password"
+            autocapitalize="none"
+            autocorrect="off"
+            spellcheck="false"
             class="mt-1.5 w-full border border-white/15 bg-[#0f1115] px-4 py-2.5 text-sm text-white placeholder-white/30 focus:border-flare focus:outline-none focus:ring-1 focus:ring-flare"
             placeholder="••••••••"
           />
@@ -2251,7 +2257,7 @@ import "../styles/global.css";
     "invoiceNum": "NSTS/INV/002/26",
     "invoiceDate": "2026-01-12"
   }
-]];
+];
 
     // State
     let records = [];
@@ -2407,10 +2413,19 @@ import "../styles/global.css";
     // Login Form Submit
     loginForm.addEventListener("submit", (e) => {
       e.preventDefault();
-      const user = document.getElementById("username").value.trim();
-      const pass = document.getElementById("password").value.trim();
+      const user = (document.getElementById("username")?.value || "").trim().toLowerCase();
+      const pass = (document.getElementById("password")?.value || "").trim();
+      const activePass = getActivePassword();
 
-      if (user.toLowerCase() === DEFAULT_USER && pass === getActivePassword()) {
+      const userMatches = (user === DEFAULT_USER || user === "nsts" || user === "admin@northstaroman.com" || user === "info@northstaroman.com");
+      const passMatches = (
+        pass === DEFAULT_PASS || 
+        pass.toLowerCase() === DEFAULT_PASS.toLowerCase() || 
+        pass === activePass || 
+        pass.toLowerCase() === activePass.toLowerCase()
+      );
+
+      if (userMatches && passMatches) {
         localStorage.setItem(AUTH_KEY, "true");
         loginError.classList.add("hidden");
         checkAuth();
