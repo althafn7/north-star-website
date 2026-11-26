@@ -1019,6 +1019,84 @@ import "../styles/global.css";
         }
       }
 
+      // Centralized Monthly Employee Payroll Calculator
+      function getEmployeeMonthCalc(emp, periodKey = selectedPeriod) {
+        const p = getPeriodDetails(periodKey);
+        const empMonth = (monthlyData[periodKey] && monthlyData[periodKey][emp.id]) || {};
+        const isTemp = isTempEmp(emp);
+
+        if (isTemp) {
+          const hourlyRate = (empMonth.hourlyRate !== undefined && empMonth.hourlyRate !== null && empMonth.hourlyRate !== "")
+            ? Number(empMonth.hourlyRate)
+            : (Number(emp.hourlyRate) || Number(emp.basic) || 1.0);
+
+          let totalHours = 0;
+          if (empMonth.days) {
+            totalHours = Object.values(empMonth.days).reduce((s, d) => s + (Number(d.normal) || 0) + (Number(d.ot) || 0), 0);
+          } else if (empMonth.totalHours !== undefined) {
+            totalHours = Number(empMonth.totalHours);
+          } else {
+            totalHours = (Number(empMonth.normalHours) || 0) + (Number(empMonth.otHours) || 0);
+          }
+
+          const net = totalHours * hourlyRate;
+          return {
+            isTemp: true,
+            isCustomBasic: false,
+            basic: 0,
+            hourlyRate,
+            otRate: hourlyRate,
+            normalHrs: totalHours,
+            otHrs: 0,
+            otAmt: 0,
+            earnedBasic: net,
+            netPay: net,
+            totalHours,
+            leaveHrs: 0
+          };
+        }
+
+        // Permanent staff
+        const isCustomBasic = (empMonth.basic !== undefined && empMonth.basic !== null && empMonth.basic !== "");
+        const basic = isCustomBasic ? Number(empMonth.basic) : (Number(emp.basic) || 0);
+
+        let normalHrs = p.totalHrs;
+        if (empMonth.days) {
+          normalHrs = Object.values(empMonth.days).reduce((s, d) => s + (Number(d.normal) || 0), 0);
+        } else if (empMonth.normalHours !== undefined) {
+          normalHrs = Number(empMonth.normalHours);
+        }
+
+        let otHrs = 0;
+        if (empMonth.otHours !== undefined && empMonth.otHours !== null && empMonth.otHours !== "") {
+          otHrs = Number(empMonth.otHours);
+        } else if (empMonth.days) {
+          otHrs = Object.values(empMonth.days).reduce((s, d) => s + (Number(d.ot) || 0), 0);
+        }
+
+        const hourlyRate = p.totalHrs > 0 ? (basic / p.totalHrs) : 0;
+        const earnedBasic = p.totalHrs > 0 ? (normalHrs / p.totalHrs) * basic : basic;
+        const otRate = hourlyRate * 1.25;
+        const otAmt = otHrs * otRate;
+        const net = earnedBasic + otAmt;
+        const leaveHrs = Math.max(0, p.totalHrs - normalHrs);
+
+        return {
+          isTemp: false,
+          isCustomBasic,
+          basic,
+          hourlyRate,
+          otRate,
+          normalHrs,
+          otHrs,
+          otAmt,
+          earnedBasic,
+          netPay: net,
+          leaveHrs,
+          totalHours: normalHrs + otHrs
+        };
+      }
+
       // Payslip Modal
       const payslipModal = document.getElementById("payslip-modal");
       const closePayslipBtn = document.getElementById("close-payslip-btn");
@@ -1128,41 +1206,17 @@ import "../styles/global.css";
 
         // Calculate metrics across all employees for this period
         employees.forEach(emp => {
-          const empMonth = currentPeriodRecords[emp.id] || {};
-          const isTemp = isTempEmp(emp);
+          const calc = getEmployeeMonthCalc(emp);
 
-          if (isTemp) {
+          if (calc.isTemp) {
             tempCount++;
-            const hourlyRate = (empMonth.hourlyRate !== undefined && empMonth.hourlyRate !== null && empMonth.hourlyRate !== "")
-              ? Number(empMonth.hourlyRate)
-              : (Number(emp.hourlyRate) || Number(emp.basic) || 1.0);
-
-            let totalHours = 0;
-            if (empMonth.days) {
-              totalHours = Object.values(empMonth.days).reduce((s, d) => s + (Number(d.normal) || 0) + (Number(d.ot) || 0), 0);
-            } else if (empMonth.totalHours !== undefined) {
-              totalHours = Number(empMonth.totalHours);
-            } else {
-              totalHours = (Number(empMonth.normalHours) || 0) + (Number(empMonth.otHours) || 0);
-            }
-
-            const net = totalHours * hourlyRate;
-            sumNet += net;
+            sumNet += calc.netPay;
           } else {
             permCount++;
-            const basic = (empMonth.basic !== undefined && empMonth.basic !== null && empMonth.basic !== "")
-              ? Number(empMonth.basic)
-              : (Number(emp.basic) || 0);
-            const otHrs = Number(empMonth.otHours) || 0;
-            const hourlyRate = p.totalHrs > 0 ? (basic / p.totalHrs) : 0;
-            const otRate = hourlyRate * 1.25;
-            const otAmt = otHrs * otRate;
-            const net = basic + otAmt;
-
-            sumBasic += basic;
-            sumOtHrs += otHrs;
-            sumOtAmt += otAmt;
-            sumNet += net;
+            sumBasic += calc.earnedBasic;
+            sumOtHrs += calc.otHrs;
+            sumOtAmt += calc.otAmt;
+            sumNet += calc.netPay;
           }
         });
 
@@ -1328,13 +1382,7 @@ import "../styles/global.css";
             `;
           }
 
-          const isCustomBasic = (empMonth.basic !== undefined && empMonth.basic !== null && empMonth.basic !== "");
-          const basic = isCustomBasic ? Number(empMonth.basic) : (Number(emp.basic) || 0);
-          const otHrs = Number(empMonth.otHours) || 0;
-          const hourlyRate = p.totalHrs > 0 ? (basic / p.totalHrs) : 0;
-          const otRate = hourlyRate * 1.25;
-          const otAmt = otHrs * otRate;
-          const net = basic + otAmt;
+          const calc = getEmployeeMonthCalc(emp);
 
           return `
             <tr class="transition-colors hover:bg-white/[0.03]">
@@ -1375,12 +1423,12 @@ import "../styles/global.css";
                     type="number"
                     step="1"
                     min="0"
-                    value="${basic}"
+                    value="${calc.basic}"
                     onchange="window._updateMonthBasic('${emp.id}', this.value)"
-                    class="w-20 rounded border ${isCustomBasic ? 'border-amber-400 bg-amber-500/15 text-amber-300' : 'border-white/20 bg-[#0f1115] text-white'} px-1.5 py-0.5 text-center font-mono text-xs font-bold focus:border-flare focus:outline-none"
-                    title="${isCustomBasic ? `Custom basic for ${p.periodStr} (Default is OMR ${fmtOmr(emp.basic)})` : `Click to change basic for ${p.periodStr} only`}"
+                    class="w-20 rounded border ${calc.isCustomBasic ? 'border-amber-400 bg-amber-500/15 text-amber-300' : 'border-white/20 bg-[#0f1115] text-white'} px-1.5 py-0.5 text-center font-mono text-xs font-bold focus:border-flare focus:outline-none"
+                    title="${calc.isCustomBasic ? `Custom basic for ${p.periodStr} (Default is OMR ${fmtOmr(emp.basic)})` : `Click to change basic for ${p.periodStr} only`}"
                   />
-                  ${isCustomBasic ? `
+                  ${calc.isCustomBasic ? `
                     <button
                       type="button"
                       onclick="window._resetMonthBasic('${emp.id}')"
@@ -1393,19 +1441,21 @@ import "../styles/global.css";
                 </div>
               </td>
 
-              <!-- Std Hrs -->
-              <td class="w-[85px] px-1.5 py-2.5 font-mono text-white/60 text-[11px]">
-                ${p.totalHrs}h
+              <!-- Std / Worked Hrs -->
+              <td class="w-[85px] px-1.5 py-2.5 font-mono text-[11px]">
+                ${calc.leaveHrs > 0
+                  ? `<span class="font-bold text-amber-400" title="Worked ${calc.normalHrs} hrs out of ${p.totalHrs} standard hours (${calc.leaveHrs}h leave)">${calc.normalHrs}h</span><span class="text-white/30 text-[10px]">/${p.totalHrs}h</span>`
+                  : `<span class="text-white/60">${p.totalHrs}h</span>`}
               </td>
 
               <!-- Normal Rate / Hr -->
               <td class="w-[95px] px-1.5 py-2.5 font-mono text-[10px] text-white/50">
-                ${fmtOmr(hourlyRate)}/h
+                ${fmtOmr(calc.hourlyRate)}/h
               </td>
 
               <!-- OT Rate (125%) -->
               <td class="w-[95px] px-1.5 py-2.5 font-mono text-[10px] text-amber-300">
-                ${fmtOmr(otRate)}/h
+                ${fmtOmr(calc.otRate)}/h
               </td>
 
               <!-- OT Hours Input -->
@@ -1415,7 +1465,7 @@ import "../styles/global.css";
                     type="number"
                     step="0.5"
                     min="0"
-                    value="${otHrs}"
+                    value="${calc.otHrs}"
                     onchange="window._updateOt('${emp.id}', this.value)"
                     class="w-16 border border-white/20 bg-[#0f1115] px-1.5 py-0.5 text-center font-mono text-xs font-bold text-amber-300 focus:border-flare focus:outline-none"
                     title="Enter overtime hours"
@@ -1426,12 +1476,13 @@ import "../styles/global.css";
 
               <!-- OT Earning -->
               <td class="w-[105px] px-1.5 py-2.5 font-mono font-bold text-amber-300 text-[11px]">
-                OMR ${fmtOmr(otAmt)}
+                OMR ${fmtOmr(calc.otAmt)}
               </td>
 
               <!-- Net Pay -->
               <td class="w-[115px] px-1.5 py-2.5 font-mono font-bold text-emerald-400 text-[11.5px]">
-                OMR ${fmtOmr(net)}
+                OMR ${fmtOmr(calc.netPay)}
+                ${calc.leaveHrs > 0 ? `<div class="text-[9.5px] font-normal text-amber-400/80">Basic: ${fmtOmr(calc.earnedBasic)}</div>` : ''}
               </td>
 
               <!-- Actions -->
@@ -2067,33 +2118,30 @@ import "../styles/global.css";
             slipCalcNote.innerHTML = `<strong>Temporary Manpower Calculation:</strong> Total Hours Worked (<strong>${totalHours} hrs</strong>) × Agreed Rate (<strong>OMR ${fmtOmr(hourlyRate)}/hr</strong>) = <strong>OMR ${fmtOmr(net)}</strong>.`;
           }
         } else {
-          const otHrs = Number(empMonth.otHours) || 0;
-          const normalHrs = (empMonth.normalHours !== undefined) ? Number(empMonth.normalHours) : p.totalHrs;
-          const basic = (empMonth.basic !== undefined && empMonth.basic !== null && empMonth.basic !== "")
-            ? Number(empMonth.basic)
-            : (Number(emp.basic) || 0);
-          const hourlyRate = p.totalHrs > 0 ? (basic / p.totalHrs) : 0;
-          const otRate = hourlyRate * 1.25;
-          const otAmt = otHrs * otRate;
-          const net = basic + otAmt;
+          const calc = getEmployeeMonthCalc(emp);
 
           if (slipTitle) slipTitle.textContent = "Employee Pay Slip";
           if (slipBasicHeader) slipBasicHeader.textContent = "Basic (OMR)";
           if (slipDescCol) slipDescCol.textContent = "Salary (Basic)";
           if (slipTotalLabel) slipTotalLabel.textContent = "Total Salary Payout:";
 
-          document.getElementById("slip-basic-col").textContent = fmtOmr(basic);
+          document.getElementById("slip-basic-col").textContent = fmtOmr(calc.basic);
           document.getElementById("slip-working-hrs").textContent = p.totalHrs;
-          document.getElementById("slip-present-hrs").textContent = normalHrs;
-          document.getElementById("slip-basic-earning").textContent = fmtOmr(basic);
+          document.getElementById("slip-present-hrs").textContent = `${calc.normalHrs} hrs`;
+          document.getElementById("slip-basic-earning").textContent = fmtOmr(calc.earnedBasic);
 
           if (otRow) otRow.classList.remove("hidden");
-          document.getElementById("slip-ot-hrs").textContent = otHrs;
-          document.getElementById("slip-ot-earning").textContent = fmtOmr(otAmt);
+          document.getElementById("slip-ot-hrs").textContent = calc.otHrs;
+          document.getElementById("slip-ot-earning").textContent = fmtOmr(calc.otAmt);
 
-          document.getElementById("slip-total-amount").textContent = `OMR ${fmtOmr(net)}`;
+          document.getElementById("slip-total-amount").textContent = `OMR ${fmtOmr(calc.netPay)}`;
           if (slipCalcNote) {
-            slipCalcNote.innerHTML = `<strong>Calculation Method:</strong> Total Working Hours = ${p.days} days × 8 hrs = ${p.totalHrs} hrs. Hourly Rate = Basic ÷ Total Hours. Overtime Hourly Rate = Hourly Rate × 1.25 (Oman Labor Law Standard 125%). Overtime Earning = OT Hours × OT Rate.`;
+            if (calc.leaveHrs > 0) {
+              const leaveDeduct = calc.leaveHrs * calc.hourlyRate;
+              slipCalcNote.innerHTML = `<strong>Calculation Method:</strong> Standard Working Hours = ${p.days} days × 8 hrs = ${p.totalHrs} hrs. Normal Hours Worked = <strong>${calc.normalHrs} hrs</strong> (${calc.leaveHrs} hrs leave deducted = <strong>-OMR ${fmtOmr(leaveDeduct)}</strong>). Earned Basic Salary = <strong>OMR ${fmtOmr(calc.earnedBasic)}</strong>. Overtime = ${calc.otHrs} hrs × OMR ${fmtOmr(calc.otRate)}/hr (125%) = <strong>OMR ${fmtOmr(calc.otAmt)}</strong>. <strong>Total Net Salary Payout = OMR ${fmtOmr(calc.netPay)}</strong>.`;
+            } else {
+              slipCalcNote.innerHTML = `<strong>Calculation Method:</strong> Total Working Hours = ${p.days} days × 8 hrs = ${p.totalHrs} hrs. Hourly Rate = Basic ÷ Total Hours = OMR ${fmtOmr(calc.hourlyRate)}/hr. Overtime Hourly Rate = Hourly Rate × 1.25 (Oman Labor Law Standard 125%). Overtime Earning = ${calc.otHrs} hrs × OT Rate = OMR ${fmtOmr(calc.otAmt)}. Total Net Payout = OMR ${fmtOmr(calc.netPay)}.`;
+            }
           }
         }
 
@@ -2189,14 +2237,7 @@ import "../styles/global.css";
                 net.toFixed(3)
               ];
             } else {
-              const basic = (empMonth.basic !== undefined && empMonth.basic !== null && empMonth.basic !== "")
-                ? Number(empMonth.basic)
-                : (Number(emp.basic) || 0);
-              const otHrs = Number(empMonth.otHours) || 0;
-              const hourlyRate = p.totalHrs > 0 ? (basic / p.totalHrs) : 0;
-              const otRate = hourlyRate * 1.25;
-              const otAmt = otHrs * otRate;
-              const net = basic + otAmt;
+              const calc = getEmployeeMonthCalc(emp);
 
               return [
                 `"${emp.empNum}"`,
@@ -2205,13 +2246,13 @@ import "../styles/global.css";
                 `"${emp.designation}"`,
                 `"${p.periodStr}"`,
                 p.days,
-                p.totalHrs,
-                basic.toFixed(3),
-                hourlyRate.toFixed(3),
-                otRate.toFixed(3),
-                otHrs,
-                otAmt.toFixed(3),
-                net.toFixed(3)
+                calc.normalHrs,
+                calc.basic.toFixed(3),
+                calc.hourlyRate.toFixed(3),
+                calc.otRate.toFixed(3),
+                calc.otHrs,
+                calc.otAmt.toFixed(3),
+                calc.netPay.toFixed(3)
               ];
             }
           });
