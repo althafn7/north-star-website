@@ -665,7 +665,10 @@ import "../styles/global.css";
         
         <!-- Modal Controls (Hidden in print) -->
         <div class="no-print flex items-center justify-between border-b border-white/10 pb-4">
-          <span class="text-xs font-semibold uppercase tracking-wider text-flare">Pay Slip Preview</span>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-semibold uppercase tracking-wider text-flare">Pay Slip Preview</span>
+            <span id="slip-file-name-badge" class="hidden sm:inline-block font-mono text-[11px] text-white/50 bg-white/5 px-2 py-0.5 rounded border border-white/10" title="PDF File Name"></span>
+          </div>
           <div class="flex items-center gap-2">
             <button
               type="button"
@@ -1988,6 +1991,16 @@ import "../styles/global.css";
       };
 
       // ================= View & Print Official Pay Slip / Temp Voucher =================
+      const DEFAULT_PORTAL_TITLE = "Staff Attendance & Payroll Portal | North Star Technical Services LLC";
+      let activePayslipFileName = "";
+
+      function closePayslip() {
+        if (!payslipModal) return;
+        payslipModal.classList.add("hidden");
+        payslipModal.classList.remove("flex");
+        document.title = DEFAULT_PORTAL_TITLE;
+      }
+
       window._viewPaySlip = function(empId) {
         const emp = employees.find(e => e.id === empId);
         if (!emp) return;
@@ -1996,6 +2009,20 @@ import "../styles/global.css";
         const empMonth = (monthlyData[selectedPeriod] && monthlyData[selectedPeriod][empId]) || {};
         const isTemp = isTempEmp(emp);
         const monthNamesLong = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        const monthNamesShort = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+        // Clean custom PDF file name: e.g. Nizamudeen_Nov_2026
+        const mAbbr = monthNamesShort[p.month - 1] || "Period";
+        let cleanName = (emp.name || emp.empNum || "Staff").trim();
+        cleanName = cleanName.replace(/\s+[A-Za-z]$/, "");
+        cleanName = cleanName.replace(/[^a-zA-Z0-9_-]/g, "_").replace(/_+/g, "_");
+        activePayslipFileName = `${cleanName}_${mAbbr}_${p.year}`;
+        document.title = activePayslipFileName;
+
+        const slipFileNameBadge = document.getElementById("slip-file-name-badge");
+        if (slipFileNameBadge) {
+          slipFileNameBadge.textContent = `${activePayslipFileName}.pdf`;
+        }
 
         const slipTitle = document.getElementById("slip-modal-doc-title");
         const slipCalcNote = document.getElementById("slip-days-calc");
@@ -2075,21 +2102,20 @@ import "../styles/global.css";
       };
 
       if (closePayslipBtn) {
-        closePayslipBtn.addEventListener("click", () => {
-          payslipModal.classList.add("hidden");
-          payslipModal.classList.remove("flex");
-        });
+        closePayslipBtn.addEventListener("click", closePayslip);
       }
       if (printPayslipBtn) {
         printPayslipBtn.addEventListener("click", () => {
+          if (activePayslipFileName) {
+            document.title = activePayslipFileName;
+          }
           window.print();
         });
       }
       if (payslipModal) {
         payslipModal.addEventListener("click", (e) => {
           if (e.target === payslipModal) {
-            payslipModal.classList.add("hidden");
-            payslipModal.classList.remove("flex");
+            closePayslip();
           }
         });
       }
@@ -2099,9 +2125,8 @@ import "../styles/global.css";
         if (e.key === "Escape") {
           closeTimesheetModal();
           closeEmployeeModal();
-          if (payslipModal) {
-            payslipModal.classList.add("hidden");
-            payslipModal.classList.remove("flex");
+          if (payslipModal && !payslipModal.classList.contains("hidden")) {
+            closePayslip();
           }
         }
       });
