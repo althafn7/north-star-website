@@ -1,0 +1,1554 @@
+---
+import "../styles/global.css";
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Accounts &amp; Cash Book Register | North Star Technical Services LLC</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" type="image/png" href="/logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body class="min-h-screen bg-[#0f1115] font-sans text-white antialiased">
+
+  <!-- ================= AUTH GATE (LOGIN SCREEN) ================= -->
+  <div id="login-gate" class="fixed inset-0 z-50 flex items-center justify-center bg-[#0b0d11] p-4">
+    <div class="relative w-full max-w-md border border-white/10 border-t-4 border-t-amber-500 bg-[#161920] p-8 shadow-2xl sm:p-10">
+      <div class="flex flex-col items-center text-center">
+        <div class="flex h-16 w-16 items-center justify-center rounded-full bg-white p-2.5 shadow-md">
+          <img src="/logo.png" alt="North Star logo" class="h-full w-auto object-contain" />
+        </div>
+        <span class="mt-4 text-xs font-semibold uppercase tracking-[0.25em] text-amber-400">North Star Financials</span>
+        <h1 class="mt-1 font-display text-4xl font-extrabold tracking-tight text-white">Accounts Portal</h1>
+        <p class="mt-2 text-xs text-white/60">Daily Cash Book â€¢ Company Expenses â€¢ 2017â€“2026 Register</p>
+      </div>
+
+      <form id="login-form" class="mt-8 space-y-4">
+        <div>
+          <label for="username" class="block text-xs font-semibold uppercase tracking-wider text-white/70">Username</label>
+          <input
+            type="text"
+            id="username"
+            name="username"
+            required
+            autocomplete="username"
+            autocapitalize="none"
+            autocorrect="off"
+            spellcheck="false"
+            value="admin"
+            class="mt-1.5 w-full border border-white/15 bg-[#0f1115] px-4 py-2.5 text-sm text-white placeholder-white/30 focus:border-amber-400 focus:outline-none focus:ring-1 focus:ring-amber-400"
+            placeholder="admin"
+          />
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between">
+            <label for="password" class="block text-xs font-semibold uppercase tracking-wider text-white/70">Password</label>
+            <button type="button" id="open-forgot-modal-btn" class="text-[11px] font-medium text-amber-400 hover:underline">Forgot Password?</button>
+          </div>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            required
+            autocomplete="current-password"
+            autocapitalize="none"
+            autocorrect="off"
+            spellcheck="false"
+            class="mt-1.5 w-full border border-white/15 bg-[#0f1115] px-4 py-2.5 text-sm text-white placeholder-white/30 focus:border-amber-400 focus:outline-none focus:ring-1 focus:ring-amber-400"
+            placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
+          />
+        </div>
+
+        <div id="login-error" class="hidden rounded-sm bg-red-900/40 p-2.5 text-xs font-medium text-red-300">
+          Invalid username or password. Please try again.
+        </div>
+
+        <button
+          type="submit"
+          class="w-full bg-amber-500 py-3 text-sm font-semibold tracking-wider text-black shadow-lg transition-colors hover:bg-amber-400"
+        >
+          Sign In to Accounts
+        </button>
+      </form>
+
+      <div class="mt-6 border-t border-white/10 pt-4 text-center">
+        <a href="/" class="text-xs text-white/50 transition-colors hover:text-white">â†  Back to public website</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= FORGOT PASSWORD MODAL ================= -->
+  <div id="forgot-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+    <div class="relative w-full max-w-md border border-white/10 border-t-4 border-t-amber-400 bg-[#161920] p-6 shadow-2xl sm:p-8">
+      <button
+        type="button"
+        id="forgot-modal-close-btn"
+        class="absolute right-4 top-4 text-white/50 transition-colors hover:text-white"
+      >
+        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+
+      <span class="text-xs font-semibold uppercase tracking-[0.2em] text-amber-400">Security Recovery</span>
+      <h3 class="mt-1 font-display text-2xl font-bold text-white">Reset Password</h3>
+      <p class="mt-2 text-xs text-white/60">Enter your designated master recovery PIN to reset the portal credentials.</p>
+
+      <form id="forgot-form" class="mt-6 space-y-4">
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-white/70">Master Recovery PIN</label>
+          <input
+            type="password"
+            id="recovery-pin"
+            required
+            class="mt-1.5 w-full border border-white/15 bg-[#0f1115] px-4 py-2.5 text-sm text-white focus:border-amber-400 focus:outline-none"
+            placeholder="Enter recovery PIN"
+          />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-white/70">New Password</label>
+          <input
+            type="password"
+            id="new-password"
+            required
+            minlength="6"
+            class="mt-1.5 w-full border border-white/15 bg-[#0f1115] px-4 py-2.5 text-sm text-white focus:border-amber-400 focus:outline-none"
+            placeholder="At least 6 characters"
+          />
+        </div>
+        <div id="forgot-error" class="hidden rounded-sm bg-red-900/40 p-2.5 text-xs text-red-300"></div>
+        <div id="forgot-success" class="hidden rounded-sm bg-emerald-900/40 p-2.5 text-xs text-emerald-300">
+          Password reset successfully! Redirecting...
+        </div>
+        <button
+          type="submit"
+          class="w-full bg-amber-500 py-2.5 text-xs font-semibold text-black transition-colors hover:bg-amber-400"
+        >
+          Update Password
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= CHANGE PASSWORD MODAL ================= -->
+  <div id="change-pass-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+    <div class="relative w-full max-w-md border border-white/10 border-t-4 border-t-amber-400 bg-[#161920] p-6 shadow-2xl sm:p-8">
+      <button
+        type="button"
+        id="change-pass-close-btn"
+        class="absolute right-4 top-4 text-white/50 transition-colors hover:text-white"
+      >
+        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+
+      <span class="text-xs font-semibold uppercase tracking-[0.2em] text-amber-400">Settings</span>
+      <h3 class="mt-1 font-display text-2xl font-bold text-white">Change Password</h3>
+
+      <form id="change-pass-form" class="mt-6 space-y-4">
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-white/70">Current Password</label>
+          <input
+            type="password"
+            id="curr-pass"
+            required
+            class="mt-1.5 w-full border border-white/15 bg-[#0f1115] px-4 py-2.5 text-sm text-white focus:border-amber-400 focus:outline-none"
+          />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-white/70">New Password</label>
+          <input
+            type="password"
+            id="next-pass"
+            required
+            minlength="6"
+            class="mt-1.5 w-full border border-white/15 bg-[#0f1115] px-4 py-2.5 text-sm text-white focus:border-amber-400 focus:outline-none"
+          />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-white/70">Confirm New Password</label>
+          <input
+            type="password"
+            id="confirm-next-pass"
+            required
+            class="mt-1.5 w-full border border-white/15 bg-[#0f1115] px-4 py-2.5 text-sm text-white focus:border-amber-400 focus:outline-none"
+          />
+        </div>
+        <div id="change-pass-error" class="hidden rounded-sm bg-red-900/40 p-2.5 text-xs text-red-300"></div>
+        <div id="change-pass-success" class="hidden rounded-sm bg-emerald-900/40 p-2.5 text-xs text-emerald-300">
+          Password updated successfully!
+        </div>
+        <button
+          type="submit"
+          class="w-full bg-amber-500 py-2.5 text-xs font-semibold text-black transition-colors hover:bg-amber-400"
+        >
+          Save New Password
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= MAIN APP (AUTHENTICATED) ================= -->
+  <div id="admin-app" class="hidden min-h-screen flex-col">
+    <!-- Top Navigation Header -->
+    <header class="border-b border-white/10 bg-[#161920]/90 backdrop-blur sticky top-0 z-40">
+      <div class="mx-auto flex w-full max-w-[1440px] items-center justify-between px-3 py-2.5 sm:px-6">
+        <!-- Brand -->
+        <div class="flex items-center gap-3">
+          <a href="/" class="flex items-center gap-2.5">
+            <div class="flex h-9 w-9 items-center justify-center rounded-sm bg-white p-1">
+              <img src="/logo.png" alt="North Star logo" class="h-full w-auto object-contain" />
+            </div>
+            <div>
+              <span class="block font-display text-lg font-extrabold leading-none tracking-wide text-white">NORTH STAR</span>
+              <span class="block text-[10px] font-semibold uppercase tracking-wider text-amber-400">Accounts &amp; Cash Book</span>
+            </div>
+          </a>
+        </div>
+
+        <!-- Action tools -->
+        <div class="flex flex-wrap items-center gap-1.5 sm:gap-3">
+          <a
+            href="/workflow"
+            class="inline-flex items-center gap-1.5 rounded-sm border border-white/15 px-2.5 py-1.5 text-xs font-medium text-white/80 transition-colors hover:border-white/40 hover:text-white"
+            title="Switch to Operations Workflow Portal"
+          >
+            <span class="hidden sm:inline">Operations Workflow</span>
+            <span class="sm:hidden">Ops</span>
+            <svg class="h-3.5 w-3.5 text-flare" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          </a>
+
+          <a
+            href="/attendance"
+            class="inline-flex items-center gap-1.5 rounded-sm border border-white/15 px-2.5 py-1.5 text-xs font-medium text-white/80 transition-colors hover:border-white/40 hover:text-white"
+            title="Switch to Staff Attendance & Payroll Portal"
+          >
+            <span class="hidden sm:inline">Attendance &amp; Payroll</span>
+            <span class="sm:hidden">Staff</span>
+            <svg class="h-3.5 w-3.5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </a>
+
+          <button
+            id="export-csv-btn"
+            type="button"
+            class="inline-flex items-center gap-1.5 rounded-sm border border-white/20 bg-white/5 px-2.5 py-1.5 text-xs font-medium text-white transition-colors hover:bg-white/15"
+            title="Export filtered records to CSV"
+          >
+            <svg class="h-3.5 w-3.5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span class="hidden sm:inline">Export Excel/CSV</span>
+            <span class="sm:hidden">CSV</span>
+          </button>
+
+          <button
+            id="cloud-sync-btn"
+            type="button"
+            title="Live Cloud Sync: Click to refresh and sync with cloud database"
+            class="inline-flex items-center gap-1.5 rounded-sm border border-emerald-500/30 bg-emerald-500/10 px-2 py-1.5 text-xs font-medium text-emerald-300 transition-colors hover:border-emerald-400 hover:bg-emerald-500/20"
+          >
+            <span class="inline-block h-2 w-2 rounded-full bg-emerald-400"></span>
+            <span id="cloud-sync-text" class="hidden sm:inline">Live Synced</span>
+            <svg id="cloud-sync-icon" class="h-3.5 w-3.5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+          </button>
+
+          <button
+            id="open-create-modal-btn"
+            type="button"
+            class="inline-flex items-center gap-1 bg-amber-500 px-2.5 py-1.5 text-xs font-semibold text-black shadow-md transition-colors hover:bg-amber-400"
+          >
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span class="hidden sm:inline">+ New Voucher</span>
+            <span class="sm:hidden">+ Entry</span>
+          </button>
+
+          <button
+            id="change-pass-btn"
+            type="button"
+            title="Change Password"
+            class="hidden sm:inline-flex rounded-sm border border-white/15 px-2.5 py-1.5 text-xs text-white/70 transition-colors hover:border-white/40 hover:text-white"
+          >
+            Password
+          </button>
+
+          <button
+            id="logout-btn"
+            type="button"
+            title="Log out"
+            class="rounded-sm border border-white/15 p-1.5 text-white/60 transition-colors hover:border-red-500 hover:text-red-400"
+          >
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Page Content -->
+    <main class="mx-auto w-full max-w-[1440px] flex-1 px-2.5 py-4 sm:px-4 lg:px-6">
+      
+      <!-- Summary Metric Cards -->
+      <section class="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+        <div class="border border-white/10 bg-[#161920] p-4 shadow-sm border-l-4 border-l-amber-500">
+          <span class="text-[11px] font-semibold uppercase tracking-wider text-white/50">Total Cash Outflow</span>
+          <div class="mt-1.5 flex items-baseline gap-1">
+            <span class="text-xs font-semibold text-amber-400">OMR</span>
+            <span id="metric-total-amount" class="font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">0</span>
+          </div>
+          <span id="metric-total-count" class="mt-1 block text-[11px] text-white/40">0 transactions</span>
+        </div>
+
+        <div class="border border-white/10 border-l-4 border-l-emerald-500 bg-[#161920] p-4 shadow-sm">
+          <span class="text-[11px] font-semibold uppercase tracking-wider text-emerald-400">Active View Value</span>
+          <div class="mt-1.5 flex items-baseline gap-1">
+            <span class="text-xs font-semibold text-emerald-400">OMR</span>
+            <span id="metric-active-amount" class="font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">0</span>
+          </div>
+          <span id="metric-active-sub" class="mt-1 block text-[11px] text-white/40">Filtered records sum</span>
+        </div>
+
+        <div class="border border-white/10 border-l-4 border-l-blue-500 bg-[#161920] p-4 shadow-sm">
+          <span class="text-[11px] font-semibold uppercase tracking-wider text-blue-400">Top Expense Category</span>
+          <div class="mt-1.5 flex items-baseline gap-1 truncate">
+            <span id="metric-top-category" class="font-display text-xl font-bold tracking-tight text-white sm:text-2xl truncate">—</span>
+          </div>
+          <span id="metric-top-val" class="mt-1 block text-[11px] text-white/40">OMR 0</span>
+        </div>
+
+        <div class="border border-white/10 border-l-4 border-l-purple-500 bg-[#161920] p-4 shadow-sm">
+          <span class="text-[11px] font-semibold uppercase tracking-wider text-purple-400">Total Entries / Years</span>
+          <div class="mt-1.5 flex items-baseline gap-1">
+            <span id="metric-entry-count" class="font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">0</span>
+            <span class="text-xs font-medium text-white/50">vouchers</span>
+          </div>
+          <span id="metric-year-range" class="mt-1 block text-[11px] text-white/40">2017 â€“ 2026 Registers</span>
+        </div>
+      </section>
+
+      <!-- Table Toolbar (Search & Filters) -->
+      <section class="mt-6 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+        <div class="flex flex-1 flex-wrap items-center gap-2.5">
+          <div class="relative min-w-[220px] flex-1 sm:max-w-xs">
+            <input
+              type="text"
+              id="search-input"
+              placeholder="Search category, payee, description, voucher #..."
+              class="w-full border border-white/15 bg-[#161920] py-2 pl-9 pr-3 text-xs text-white placeholder-white/40 focus:border-amber-400 focus:outline-none"
+            />
+            <svg class="absolute left-3 top-2.5 h-4 w-4 text-white/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </div>
+
+          <select
+            id="filter-category"
+            class="border border-white/15 bg-[#161920] px-3 py-2 text-xs text-white/80 focus:border-amber-400 focus:outline-none max-w-[180px]"
+          >
+            <option value="ALL">All Categories</option>
+          </select>
+
+          <select
+            id="filter-project"
+            class="border border-white/15 bg-[#161920] px-3 py-2 text-xs text-white/80 focus:border-amber-400 focus:outline-none max-w-[160px]"
+          >
+            <option value="ALL">All Projects</option>
+          </select>
+
+          <select
+            id="sort-date"
+            class="border border-white/15 bg-[#161920] px-3 py-2 text-xs text-white/80 focus:border-amber-400 focus:outline-none"
+            title="Sort records by date"
+          >
+            <option value="NEWEST">Date: Newest to Oldest</option>
+            <option value="OLDEST">Date: Oldest to Newest</option>
+            <option value="AMOUNT_HIGH">Amount: Highest First</option>
+            <option value="AMOUNT_LOW">Amount: Lowest First</option>
+          </select>
+
+          <select
+            id="page-size"
+            class="border border-white/15 bg-[#161920] px-3 py-2 text-xs text-white/80 focus:border-amber-400 focus:outline-none"
+            title="Rows per page"
+          >
+            <option value="100">100 rows / page</option>
+            <option value="50">50 rows / page</option>
+            <option value="250">250 rows / page</option>
+            <option value="500">500 rows / page</option>
+            <option value="ALL">All rows (No Pagination)</option>
+          </select>
+        </div>
+
+        <div class="text-right text-xs font-semibold text-amber-400">
+          Showing <span id="record-count" class="font-bold text-amber-300">0</span> records
+        </div>
+      </section>
+
+      <!-- Year Category Filter Bar (Between Search Bar & Table) -->
+      <section class="mt-4 flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-3">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="text-[11px] font-bold uppercase tracking-wider text-amber-400">Year Register:</span>
+          <div id="year-tabs-container" class="inline-flex flex-wrap items-center gap-1.5">
+            <!-- Dynamically populated buttons: All Years, 2026, 2025, 2024 ... 2017 -->
+          </div>
+        </div>
+        <div id="year-filter-badge" class="text-xs font-semibold text-amber-400">
+          <!-- Dynamically populated year summary -->
+        </div>
+      </section>
+
+      <!-- Accounts Table -->
+      <section class="mt-3 border border-white/10 bg-[#161920] shadow-xl">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="border-b border-white/15 bg-[#1a1e27] text-[10.5px] font-bold uppercase tracking-wider text-white/70 shadow-sm">
+              <tr>
+                <th class="w-[95px] cursor-pointer select-none py-2.5 pl-3 pr-1 transition-colors hover:text-amber-400" id="th-sort-date" title="Click to sort by date">
+                  <span class="inline-flex items-center gap-1">
+                    <span>Date</span>
+                    <span id="sort-indicator" class="text-xs text-amber-400 font-bold">▼</span>
+                  </span>
+                </th>
+                <th class="w-[140px] px-2 py-2.5">Category / Head</th>
+                <th class="w-[180px] px-2 py-2.5">Paid To</th>
+                <th class="min-w-[220px] px-2 py-2.5">Description / Narration</th>
+                <th class="w-[110px] px-1.5 py-2.5">Project</th>
+                <th class="w-[100px] px-1.5 py-2.5">Doc No / Type</th>
+                <th class="w-[100px] px-1.5 py-2.5">Tax / Inv #</th>
+                <th class="w-[115px] px-2 py-2.5 text-right font-bold text-amber-300">Amount (OMR)</th>
+                <th class="w-[70px] py-2.5 pr-3 text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody id="accounts-table-body" class="divide-y divide-white/5 font-sans">
+              <!-- Dynamically populated rows -->
+            </tbody>
+          </table>
+        </div>
+
+        <div id="no-records-msg" class="hidden py-12 text-center text-sm text-white/40">
+          No records match your filter criteria.
+        </div>
+
+        <!-- Pagination Controls -->
+        <div id="pagination-bar" class="flex flex-wrap items-center justify-between border-t border-white/10 bg-[#14171d] px-3 py-2 text-xs text-white/70">
+          <div id="pagination-info">
+            Showing 0 to 0 of 0 records
+          </div>
+          <div class="flex items-center gap-1">
+            <button id="pg-first-btn" type="button" class="rounded border border-white/15 px-2 py-1 text-[11px] font-medium hover:border-white/30 hover:text-white disabled:opacity-30 disabled:pointer-events-none">« First</button>
+            <button id="pg-prev-btn" type="button" class="rounded border border-white/15 px-2.5 py-1 text-[11px] font-medium hover:border-white/30 hover:text-white disabled:opacity-30 disabled:pointer-events-none">‹ Prev</button>
+            <span id="pg-page-label" class="px-2 text-[11px] font-semibold text-amber-400">Page 1 of 1</span>
+            <button id="pg-next-btn" type="button" class="rounded border border-white/15 px-2.5 py-1 text-[11px] font-medium hover:border-white/30 hover:text-white disabled:opacity-30 disabled:pointer-events-none">Next ›</button>
+            <button id="pg-last-btn" type="button" class="rounded border border-white/15 px-2 py-1 text-[11px] font-medium hover:border-white/30 hover:text-white disabled:opacity-30 disabled:pointer-events-none">Last »</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Bottom Status Bar -->
+      <section class="mt-4 flex flex-wrap items-center justify-between gap-3 text-xs text-white/50">
+        <div>
+          Official Cash Book Registers (2017 – 2026) • <span id="footer-sync-status" class="font-semibold text-emerald-400">Live Cloud Active</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <button id="backup-json-btn" type="button" class="font-medium text-amber-400 underline hover:text-amber-300">Download Full JSON Backup</button>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ================= TRANSACTION DETAIL / EDIT / CREATE MODAL ================= -->
+  <div id="txn-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/85 p-4 backdrop-blur-sm">
+    <div class="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto border border-white/15 border-t-4 border-t-amber-500 bg-[#161920] p-6 shadow-2xl sm:p-8">
+      <button
+        type="button"
+        id="txn-modal-close-btn"
+        class="absolute right-4 top-4 text-white/50 transition-colors hover:text-white"
+      >
+        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+
+      <span id="modal-eyebrow" class="text-xs font-semibold uppercase tracking-[0.2em] text-amber-400">Cash Voucher Record</span>
+      <h2 id="modal-title" class="font-display text-2xl font-extrabold text-white">Expense Details</h2>
+
+      <form id="txn-form" class="mt-6 space-y-4">
+        <input type="hidden" id="form-txn-id" value="" />
+
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-white/70">Date</label>
+            <input
+              type="text"
+              id="form-txn-date"
+              required
+              placeholder="DD.MM.YYYY"
+              class="mt-1 w-full border border-white/15 bg-[#0f1115] px-3 py-2 text-xs text-white focus:border-amber-400 focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-white/70">Year Register</label>
+            <input
+              type="number"
+              id="form-txn-year"
+              required
+              min="2017"
+              max="2030"
+              class="mt-1 w-full border border-white/15 bg-[#0f1115] px-3 py-2 text-xs text-white focus:border-amber-400 focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-white/70">Amount (OMR)</label>
+            <input
+              type="number"
+              step="0.001"
+              id="form-txn-amount"
+              required
+              class="mt-1 w-full border border-white/15 bg-[#0f1115] px-3 py-2 text-xs text-amber-300 font-bold focus:border-amber-400 focus:outline-none"
+              placeholder="0.000"
+            />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-white/70">Category / Head</label>
+            <input
+              type="text"
+              id="form-txn-category"
+              required
+              placeholder="e.g. Material Purchase, Salary, Rent"
+              class="mt-1 w-full border border-white/15 bg-[#0f1115] px-3 py-2 text-xs text-white focus:border-amber-400 focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-white/70">Paid To (Beneficiary / Vendor)</label>
+            <input
+              type="text"
+              id="form-txn-paidto"
+              required
+              placeholder="e.g. Western Oasis, Ooredoo, Restaurant"
+              class="mt-1 w-full border border-white/15 bg-[#0f1115] px-3 py-2 text-xs text-white focus:border-amber-400 focus:outline-none"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-white/70">Description / Narration</label>
+          <textarea
+            id="form-txn-description"
+            rows="2"
+            class="mt-1 w-full border border-white/15 bg-[#0f1115] px-3 py-2 text-xs text-white focus:border-amber-400 focus:outline-none"
+            placeholder="Items or scope of expense"
+          ></textarea>
+        </div>
+
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-white/70">Project</label>
+            <input
+              type="text"
+              id="form-txn-project"
+              placeholder="e.g. ALSIG, OMC, W/Shop"
+              class="mt-1 w-full border border-white/15 bg-[#0f1115] px-3 py-2 text-xs text-white focus:border-amber-400 focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-white/70">Voucher / Doc No</label>
+            <input
+              type="text"
+              id="form-txn-docno"
+              placeholder="e.g. 2026/PV/01"
+              class="mt-1 w-full border border-white/15 bg-[#0f1115] px-3 py-2 text-xs text-white focus:border-amber-400 focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-white/70">Payment Type / From</label>
+            <input
+              type="text"
+              id="form-txn-cashfrom"
+              placeholder="e.g. Cash, Company, Shop, Bank"
+              class="mt-1 w-full border border-white/15 bg-[#0f1115] px-3 py-2 text-xs text-white focus:border-amber-400 focus:outline-none"
+            />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-white/70">Tax Inv #</label>
+            <input
+              type="text"
+              id="form-txn-taxinv"
+              placeholder="Invoice reference"
+              class="mt-1 w-full border border-white/15 bg-[#0f1115] px-3 py-2 text-xs text-white focus:border-amber-400 focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-white/70">VAT #</label>
+            <input
+              type="text"
+              id="form-txn-vatno"
+              placeholder="e.g. OM1100004395"
+              class="mt-1 w-full border border-white/15 bg-[#0f1115] px-3 py-2 text-xs text-white focus:border-amber-400 focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-white/70">Tax Amount (OMR)</label>
+            <input
+              type="number"
+              step="0.001"
+              id="form-txn-taxamt"
+              placeholder="0.000"
+              class="mt-1 w-full border border-white/15 bg-[#0f1115] px-3 py-2 text-xs text-white focus:border-amber-400 focus:outline-none"
+            />
+          </div>
+        </div>
+
+        <div class="mt-6 flex justify-end gap-3 border-t border-white/10 pt-4">
+          <button
+            type="button"
+            id="txn-modal-cancel-btn"
+            class="border border-white/15 px-4 py-2 text-xs font-medium text-white/70 transition-colors hover:border-white/30 hover:text-white"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            class="bg-amber-500 px-6 py-2 text-xs font-semibold text-black shadow-md transition-colors hover:bg-amber-400"
+          >
+            Save Voucher
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- SCRIPT -->
+  <script is:inline>
+    const STORAGE_KEY_ACCOUNTS = "nsts_accounts_records_v1";
+    const AUTH_KEY = "nsts_workflow_auth";
+    const PASS_STORAGE_KEY = "nsts_workflow_admin_password";
+    const DEFAULT_USER = "admin";
+    const DEFAULT_PASS = "nsts2026";
+    const MASTER_RECOVERY_PIN = "0000";
+
+    function getActivePassword() {
+      return localStorage.getItem(PASS_STORAGE_KEY) || DEFAULT_PASS;
+    }
+
+    let records = [];
+    let selectedYear = "ALL";
+    let selectedCategory = "ALL";
+    let selectedProject = "ALL";
+    let searchQuery = "";
+    let sortMode = "NEWEST";
+    let pageSize = 100;
+    let currentPage = 1;
+
+    // Load Data: Try localStorage, then fallback to /data/cashbook_records.json
+    async function loadData() {
+      const cached = localStorage.getItem(STORAGE_KEY_ACCOUNTS);
+      if (cached) {
+        try {
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            records = parsed;
+            onDataLoaded();
+            pullFromCloud();
+            return;
+          }
+        } catch (e) {
+          console.warn("Failed to parse cached accounts data:", e);
+        }
+      }
+
+      // Fetch static seed from /data/cashbook_records.json
+      try {
+        const res = await fetch("/data/cashbook_records.json");
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0) {
+            records = data;
+            saveLocal();
+            onDataLoaded();
+            pullFromCloud();
+            return;
+          }
+        }
+      } catch (err) {
+        console.warn("Failed to load /data/cashbook_records.json:", err);
+      }
+
+      onDataLoaded();
+      pullFromCloud();
+    }
+
+    function saveLocal() {
+      try {
+        localStorage.setItem(STORAGE_KEY_ACCOUNTS, JSON.stringify(records));
+      } catch (e) {
+        console.warn("Local storage quota notice, data remains in memory");
+      }
+    }
+
+    async function pushToCloud() {
+      const syncText = document.getElementById("cloud-sync-text");
+      const syncIcon = document.getElementById("cloud-sync-icon");
+      if (syncIcon) syncIcon.classList.add("animate-spin");
+      if (syncText) syncText.textContent = "Syncing...";
+
+      try {
+        const res = await fetch("/api/accounts-sync", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ records })
+        });
+        if (res.ok) {
+          if (syncText) syncText.textContent = "Live Synced";
+        } else {
+          if (syncText) syncText.textContent = "Local Saved";
+        }
+      } catch (e) {
+        if (syncText) syncText.textContent = "Local Saved";
+      } finally {
+        if (syncIcon) syncIcon.classList.remove("animate-spin");
+      }
+    }
+
+    async function pullFromCloud() {
+      const syncText = document.getElementById("cloud-sync-text");
+      const syncIcon = document.getElementById("cloud-sync-icon");
+      if (syncIcon) syncIcon.classList.add("animate-spin");
+
+      try {
+        const res = await fetch("/api/accounts-sync?cb=" + Date.now());
+        if (res.ok) {
+          const result = await res.json();
+          if (result && Array.isArray(result.records) && result.records.length > 0) {
+            records = result.records;
+            saveLocal();
+            render();
+            if (syncText) syncText.textContent = "Live Synced";
+          }
+        }
+      } catch (e) {
+        console.log("Using cached records");
+      } finally {
+        if (syncIcon) syncIcon.classList.remove("animate-spin");
+      }
+    }
+
+    function onDataLoaded() {
+      populateFilterDropdowns();
+      renderYearTabs();
+      render();
+    }
+
+    function getAvailableYears() {
+      const set = new Set();
+      records.forEach(r => {
+        if (r.year) set.add(parseInt(r.year, 10));
+      });
+      return Array.from(set).sort((a, b) => b - a); // 2026 -> 2017
+    }
+
+    function renderYearTabs() {
+      const container = document.getElementById("year-tabs-container");
+      if (!container) return;
+
+      const years = getAvailableYears();
+      const allCounts = { ALL: records.length };
+      years.forEach(y => {
+        allCounts[y] = records.filter(r => parseInt(r.year, 10) === y).length;
+      });
+
+      const tabs = ["ALL", ...years.map(String)];
+      if (!tabs.includes(String(selectedYear))) {
+        selectedYear = "ALL";
+      }
+
+      container.innerHTML = tabs
+        .map(tab => {
+          const isActive = String(selectedYear) === String(tab);
+          const count = allCounts[tab] || 0;
+          const label = tab === "ALL" ? "All Years" : tab;
+          const activeClass = isActive
+            ? "bg-amber-500 text-black font-bold shadow-md"
+            : "bg-white/5 text-white/70 hover:bg-white/10 hover:text-white border border-white/10";
+          const countBadgeClass = isActive
+            ? "bg-black/30 text-black font-bold"
+            : "bg-white/15 text-white/60";
+
+          return `
+            <button
+              type="button"
+              class="year-tab-btn inline-flex items-center gap-1.5 rounded-sm px-2.5 py-1 text-xs transition-all ${activeClass}"
+              data-year="${tab}"
+            >
+              <span>${label}</span>
+              <span class="rounded-full px-1.5 py-0.2 text-[10px] ${countBadgeClass}">${count.toLocaleString()}</span>
+            </button>
+          `;
+        })
+        .join("");
+
+      container.querySelectorAll(".year-tab-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          selectedYear = btn.dataset.year;
+          currentPage = 1;
+          renderYearTabs();
+          render();
+        });
+      });
+    }
+
+    function populateFilterDropdowns() {
+      const catSelect = document.getElementById("filter-category");
+      const projSelect = document.getElementById("filter-project");
+
+      const catSet = new Set();
+      const projSet = new Set();
+
+      records.forEach(r => {
+        if (r.category) catSet.add(r.category.trim());
+        if (r.project) projSet.add(r.project.trim());
+      });
+
+      if (catSelect) {
+        const sortedCats = Array.from(catSet).sort();
+        catSelect.innerHTML = `<option value="ALL">All Categories (${sortedCats.length})</option>` +
+          sortedCats.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join("");
+      }
+
+      if (projSelect) {
+        const sortedProjs = Array.from(projSet).sort();
+        projSelect.innerHTML = `<option value="ALL">All Projects (${sortedProjs.length})</option>` +
+          sortedProjs.map(p => `<option value="${escapeHtml(p)}">${escapeHtml(p)}</option>`).join("");
+      }
+    }
+
+    function filterRecords() {
+      let filtered = [...records];
+
+      // Year filter
+      if (selectedYear !== "ALL") {
+        const yNum = parseInt(selectedYear, 10);
+        filtered = filtered.filter(r => parseInt(r.year, 10) === yNum);
+      }
+
+      // Category filter
+      if (selectedCategory !== "ALL") {
+        filtered = filtered.filter(r => (r.category || "").trim().toLowerCase() === selectedCategory.toLowerCase());
+      }
+
+      // Project filter
+      if (selectedProject !== "ALL") {
+        filtered = filtered.filter(r => (r.project || "").trim().toLowerCase() === selectedProject.toLowerCase());
+      }
+
+      // Search query
+      if (searchQuery.trim()) {
+        const q = searchQuery.trim().toLowerCase();
+        filtered = filtered.filter(r => {
+          return (
+            (r.category && r.category.toLowerCase().includes(q)) ||
+            (r.paidTo && r.paidTo.toLowerCase().includes(q)) ||
+            (r.description && r.description.toLowerCase().includes(q)) ||
+            (r.docNo && r.docNo.toLowerCase().includes(q)) ||
+            (r.project && r.project.toLowerCase().includes(q)) ||
+            (r.taxInvNo && r.taxInvNo.toLowerCase().includes(q)) ||
+            (r.date && r.date.toLowerCase().includes(q))
+          );
+        });
+      }
+
+      // Sort
+      if (sortMode === "AMOUNT_HIGH") {
+        filtered.sort((a, b) => (b.amount || 0) - (a.amount || 0));
+      } else if (sortMode === "AMOUNT_LOW") {
+        filtered.sort((a, b) => (a.amount || 0) - (b.amount || 0));
+      } else if (sortMode === "OLDEST") {
+        filtered.sort((a, b) => parseDateSortKey(a.date, a.year) - parseDateSortKey(b.date, b.year));
+      } else {
+        // NEWEST default
+        filtered.sort((a, b) => parseDateSortKey(b.date, b.year) - parseDateSortKey(a.date, a.year));
+      }
+
+      return filtered;
+    }
+
+    function parseDateSortKey(dStr, yearFallback) {
+      if (!dStr) return (yearFallback || 2000) * 10000;
+      const parts = dStr.split(/[./-]/);
+      if (parts.length === 3) {
+        let day = parseInt(parts[0], 10) || 1;
+        let month = parseInt(parts[1], 10) || 1;
+        let yr = parseInt(parts[2], 10) || yearFallback || 2000;
+        if (yr < 100) yr += 2000;
+        return yr * 10000 + month * 100 + day;
+      }
+      return (yearFallback || 2000) * 10000;
+    }
+
+    function renderMetrics(filtered) {
+      // Total amount across all records
+      const grandTotal = records.reduce((sum, r) => sum + (r.amount || 0), 0);
+      const filteredTotal = filtered.reduce((sum, r) => sum + (r.amount || 0), 0);
+
+      const totalAmtEl = document.getElementById("metric-total-amount");
+      const totalCountEl = document.getElementById("metric-total-count");
+      const activeAmtEl = document.getElementById("metric-active-amount");
+      const activeSubEl = document.getElementById("metric-active-sub");
+      const topCatEl = document.getElementById("metric-top-category");
+      const topValEl = document.getElementById("metric-top-val");
+      const entryCountEl = document.getElementById("metric-entry-count");
+      const yearBadge = document.getElementById("year-filter-badge");
+
+      if (totalAmtEl) totalAmtEl.textContent = grandTotal.toLocaleString("en-US", { minimumFractionDigits: 3, maximumFractionDigits: 3 });
+      if (totalCountEl) totalCountEl.textContent = records.length.toLocaleString() + " all-time records";
+
+      if (activeAmtEl) activeAmtEl.textContent = filteredTotal.toLocaleString("en-US", { minimumFractionDigits: 3, maximumFractionDigits: 3 });
+      if (activeSubEl) {
+        const pct = grandTotal > 0 ? ((filteredTotal / grandTotal) * 100).toFixed(1) : 0;
+        activeSubEl.textContent = `${filtered.length.toLocaleString()} records (${pct}% of all cash outflow)`;
+      }
+
+      // Top category in filtered
+      const catTotals = {};
+      filtered.forEach(r => {
+        const c = (r.category || "Uncategorized").trim();
+        catTotals[c] = (catTotals[c] || 0) + (r.amount || 0);
+      });
+      let topCategory = "—";
+      let topCategoryVal = 0;
+      Object.entries(catTotals).forEach(([c, val]) => {
+        if (val > topCategoryVal) {
+          topCategory = c;
+          topCategoryVal = val;
+        }
+      });
+      if (topCatEl) topCatEl.textContent = topCategory;
+      if (topValEl) topValEl.textContent = "OMR " + topCategoryVal.toLocaleString("en-US", { minimumFractionDigits: 3, maximumFractionDigits: 3 });
+
+      if (entryCountEl) entryCountEl.textContent = filtered.length.toLocaleString();
+
+      if (yearBadge) {
+        const yText = selectedYear === "ALL" ? "All Years" : selectedYear;
+        yearBadge.textContent = `Viewing: ${yText} (${filtered.length.toLocaleString()} records • OMR ${filteredTotal.toLocaleString("en-US", { minimumFractionDigits: 3, maximumFractionDigits: 3 })})`;
+      }
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById("accounts-table-body");
+      const recordCountEl = document.getElementById("record-count");
+      const noRecordsMsg = document.getElementById("no-records-msg");
+      if (!tbody) return;
+
+      const filtered = filterRecords();
+      renderMetrics(filtered);
+
+      if (recordCountEl) recordCountEl.textContent = filtered.length.toLocaleString();
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = "";
+        if (noRecordsMsg) noRecordsMsg.classList.remove("hidden");
+        updatePagination(0, 0, 0);
+        return;
+      }
+      if (noRecordsMsg) noRecordsMsg.classList.add("hidden");
+
+      // Pagination slice
+      let pagedRecords = filtered;
+      let totalPages = 1;
+      const effectivePageSize = pageSize === "ALL" ? filtered.length : parseInt(pageSize, 10);
+
+      if (pageSize !== "ALL") {
+        totalPages = Math.ceil(filtered.length / effectivePageSize) || 1;
+        if (currentPage > totalPages) currentPage = totalPages;
+        if (currentPage < 1) currentPage = 1;
+        const startIdx = (currentPage - 1) * effectivePageSize;
+        pagedRecords = filtered.slice(startIdx, startIdx + effectivePageSize);
+      }
+
+      updatePagination(filtered.length, pagedRecords.length, totalPages);
+
+      tbody.innerHTML = pagedRecords.map((r, idx) => {
+        const amtStr = (r.amount || 0).toLocaleString("en-US", { minimumFractionDigits: 3, maximumFractionDigits: 3 });
+        const catBadgeColor = getCategoryColor(r.category);
+
+        return `
+          <tr class="transition-colors hover:bg-white/[0.03]">
+            <td class="whitespace-nowrap py-2.5 pl-3 pr-1 text-white/90">
+              <div class="font-medium">${escapeHtml(r.date || "—")}</div>
+              <div class="text-[10px] text-amber-400 font-mono">${escapeHtml(String(r.year || ""))}</div>
+            </td>
+            <td class="px-2 py-2.5">
+              <span class="inline-block rounded-xs px-2 py-0.5 text-[10px] font-semibold tracking-wider ${catBadgeColor}">
+                ${escapeHtml(r.category || "—")}
+              </span>
+            </td>
+            <td class="px-2 py-2.5 font-medium text-white/95">
+              <div class="max-w-[180px] truncate" title="${escapeHtml(r.paidTo || "")}">${escapeHtml(r.paidTo || "—")}</div>
+            </td>
+            <td class="px-2 py-2.5 text-white/80">
+              <div class="max-w-[280px] sm:max-w-md line-clamp-2" title="${escapeHtml(r.description || "")}">${escapeHtml(r.description || "—")}</div>
+            </td>
+            <td class="whitespace-nowrap px-1.5 py-2.5">
+              ${r.project ? `<span class="inline-block rounded bg-white/10 px-1.5 py-0.5 text-[10px] font-medium text-white/80">${escapeHtml(r.project)}</span>` : '<span class="text-white/30">—</span>'}
+            </td>
+            <td class="whitespace-nowrap px-1.5 py-2.5 font-mono text-[11px] text-white/70">
+              <div>${escapeHtml(r.docNo || "—")}</div>
+              ${r.docType ? `<div class="text-[9.5px] text-white/40">${escapeHtml(r.docType)}</div>` : ''}
+            </td>
+            <td class="whitespace-nowrap px-1.5 py-2.5 text-[10px] text-white/60">
+              ${r.taxInvNo ? `<div>Inv: ${escapeHtml(r.taxInvNo)}</div>` : ''}
+              ${r.vatNo ? `<div class="font-mono text-emerald-400/80">${escapeHtml(r.vatNo)}</div>` : ''}
+              ${!r.taxInvNo && !r.vatNo ? '<span class="text-white/30">—</span>' : ''}
+            </td>
+            <td class="whitespace-nowrap px-2 py-2.5 text-right font-mono font-bold text-white">
+              <span class="text-[11px] text-amber-400 font-normal">OMR</span> ${amtStr}
+            </td>
+            <td class="whitespace-nowrap py-2.5 pr-3 text-center">
+              <button
+                type="button"
+                class="edit-txn-btn rounded border border-white/15 px-2 py-1 text-[10.5px] font-medium text-white/70 transition-colors hover:border-amber-400 hover:text-amber-300"
+                data-id="${escapeHtml(r.id)}"
+                title="View & Edit Transaction"
+              >
+                Edit
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join("");
+
+      // Wire edit buttons
+      tbody.querySelectorAll(".edit-txn-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          openEditModal(btn.dataset.id);
+        });
+      });
+    }
+
+    function updatePagination(totalFiltered, currentCount, totalPages) {
+      const infoEl = document.getElementById("pagination-info");
+      const labelEl = document.getElementById("pg-page-label");
+      const firstBtn = document.getElementById("pg-first-btn");
+      const prevBtn = document.getElementById("pg-prev-btn");
+      const nextBtn = document.getElementById("pg-next-btn");
+      const lastBtn = document.getElementById("pg-last-btn");
+
+      if (pageSize === "ALL") {
+        if (infoEl) infoEl.textContent = `Showing all ${totalFiltered.toLocaleString()} records`;
+        if (labelEl) labelEl.textContent = `All Records`;
+        if (firstBtn) firstBtn.disabled = true;
+        if (prevBtn) prevBtn.disabled = true;
+        if (nextBtn) nextBtn.disabled = true;
+        if (lastBtn) lastBtn.disabled = true;
+        return;
+      }
+
+      const pSize = parseInt(pageSize, 10);
+      const start = totalFiltered === 0 ? 0 : (currentPage - 1) * pSize + 1;
+      const end = Math.min(start + currentCount - 1, totalFiltered);
+
+      if (infoEl) infoEl.textContent = `Showing ${start.toLocaleString()} to ${end.toLocaleString()} of ${totalFiltered.toLocaleString()} records`;
+      if (labelEl) labelEl.textContent = `Page ${currentPage} of ${totalPages}`;
+
+      if (firstBtn) firstBtn.disabled = currentPage <= 1;
+      if (prevBtn) prevBtn.disabled = currentPage <= 1;
+      if (nextBtn) nextBtn.disabled = currentPage >= totalPages;
+      if (lastBtn) lastBtn.disabled = currentPage >= totalPages;
+    }
+
+    function render() {
+      renderTable();
+    }
+
+    function getCategoryColor(cat) {
+      if (!cat) return "bg-white/10 text-white/70";
+      const c = cat.toLowerCase();
+      if (c.includes("material")) return "bg-blue-500/15 text-blue-300 border border-blue-500/30";
+      if (c.includes("salary")) return "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30";
+      if (c.includes("rent") || c.includes("hire")) return "bg-amber-500/15 text-amber-300 border border-amber-500/30";
+      if (c.includes("food")) return "bg-orange-500/15 text-orange-300 border border-orange-500/30";
+      if (c.includes("vehicle") || c.includes("fuel")) return "bg-cyan-500/15 text-cyan-300 border border-cyan-500/30";
+      if (c.includes("office") || c.includes("stationary")) return "bg-purple-500/15 text-purple-300 border border-purple-500/30";
+      if (c.includes("tele") || c.includes("internet") || c.includes("electric") || c.includes("water") || c.includes("gas")) return "bg-indigo-500/15 text-indigo-300 border border-indigo-500/30";
+      if (c.includes("treatment") || c.includes("medical")) return "bg-pink-500/15 text-pink-300 border border-pink-500/30";
+      if (c.includes("govt") || c.includes("visa") || c.includes("insurance")) return "bg-rose-500/15 text-rose-300 border border-rose-500/30";
+      return "bg-white/10 text-white/80 border border-white/15";
+    }
+
+    function escapeHtml(str) {
+      if (!str) return "";
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    // Modal Operations
+    function openCreateModal() {
+      document.getElementById("modal-eyebrow").textContent = "New Cash Voucher";
+      document.getElementById("modal-title").textContent = "Add Expense Entry";
+      document.getElementById("form-txn-id").value = "";
+      
+      const now = new Date();
+      const dd = String(now.getDate()).padStart(2, '0');
+      const mm = String(now.getMonth() + 1).padStart(2, '0');
+      const yyyy = now.getFullYear();
+
+      document.getElementById("form-txn-date").value = `${dd}.${mm}.${yyyy}`;
+      document.getElementById("form-txn-year").value = selectedYear !== "ALL" ? selectedYear : yyyy;
+      document.getElementById("form-txn-amount").value = "";
+      document.getElementById("form-txn-category").value = "";
+      document.getElementById("form-txn-paidto").value = "";
+      document.getElementById("form-txn-description").value = "";
+      document.getElementById("form-txn-project").value = "";
+      document.getElementById("form-txn-docno").value = "";
+      document.getElementById("form-txn-cashfrom").value = "Company";
+      document.getElementById("form-txn-taxinv").value = "";
+      document.getElementById("form-txn-vatno").value = "";
+      document.getElementById("form-txn-taxamt").value = "";
+
+      const modal = document.getElementById("txn-modal");
+      if (modal) {
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+      }
+    }
+
+    function openEditModal(id) {
+      const r = records.find(x => x.id === id);
+      if (!r) return;
+
+      document.getElementById("modal-eyebrow").textContent = `Voucher ${r.docNo || r.id}`;
+      document.getElementById("modal-title").textContent = "Edit Expense Entry";
+      document.getElementById("form-txn-id").value = r.id;
+      document.getElementById("form-txn-date").value = r.date || "";
+      document.getElementById("form-txn-year").value = r.year || new Date().getFullYear();
+      document.getElementById("form-txn-amount").value = r.amount || 0;
+      document.getElementById("form-txn-category").value = r.category || "";
+      document.getElementById("form-txn-paidto").value = r.paidTo || "";
+      document.getElementById("form-txn-description").value = r.description || "";
+      document.getElementById("form-txn-project").value = r.project || "";
+      document.getElementById("form-txn-docno").value = r.docNo || "";
+      document.getElementById("form-txn-cashfrom").value = r.cashFrom || r.docType || "";
+      document.getElementById("form-txn-taxinv").value = r.taxInvNo || "";
+      document.getElementById("form-txn-vatno").value = r.vatNo || "";
+      document.getElementById("form-txn-taxamt").value = r.taxAmount || "";
+
+      const modal = document.getElementById("txn-modal");
+      if (modal) {
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+      }
+    }
+
+    function closeTxnModal() {
+      const modal = document.getElementById("txn-modal");
+      if (modal) {
+        modal.classList.add("hidden");
+        modal.classList.remove("flex");
+      }
+    }
+
+    // CSV Export
+    function exportToCsv() {
+      const filtered = filterRecords();
+      if (filtered.length === 0) {
+        alert("No records to export.");
+        return;
+      }
+
+      const headers = [
+        "Year",
+        "Date",
+        "Category",
+        "Paid To",
+        "Description",
+        "Project",
+        "Doc No",
+        "Doc Type",
+        "Cash From",
+        "Tax Inv No",
+        "VAT No",
+        "Tax Amount OMR",
+        "Amount OMR"
+      ];
+
+      const csvRows = [headers.join(",")];
+
+      filtered.forEach(r => {
+        const row = [
+          r.year || "",
+          r.date || "",
+          escapeCsv(r.category || ""),
+          escapeCsv(r.paidTo || ""),
+          escapeCsv(r.description || ""),
+          escapeCsv(r.project || ""),
+          escapeCsv(r.docNo || ""),
+          escapeCsv(r.docType || ""),
+          escapeCsv(r.cashFrom || ""),
+          escapeCsv(r.taxInvNo || ""),
+          escapeCsv(r.vatNo || ""),
+          (r.taxAmount || 0).toFixed(3),
+          (r.amount || 0).toFixed(3)
+        ];
+        csvRows.push(row.join(","));
+      });
+
+      const blob = new Blob([csvRows.join("\n")], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      const yLabel = selectedYear === "ALL" ? "All_Years" : selectedYear;
+      a.download = `NorthStar_Accounts_${yLabel}_${Date.now()}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function escapeCsv(str) {
+      if (str === null || str === undefined) return '""';
+      const s = String(str).replace(/"/g, '""');
+      return `"${s}"`;
+    }
+
+    // Download JSON Backup
+    function downloadBackupJson() {
+      const blob = new Blob([JSON.stringify(records, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `NorthStar_CashBook_Master_${Date.now()}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // Auth & Boot
+    function checkAuth() {
+      const isAuth = localStorage.getItem(AUTH_KEY) === "true";
+      const loginGate = document.getElementById("login-gate");
+      const adminApp = document.getElementById("admin-app");
+
+      if (isAuth) {
+        if (loginGate) loginGate.classList.add("hidden");
+        if (adminApp) {
+          adminApp.classList.remove("hidden");
+          adminApp.classList.add("flex");
+        }
+        loadData();
+      } else {
+        if (loginGate) loginGate.classList.remove("hidden");
+        if (adminApp) {
+          adminApp.classList.add("hidden");
+          adminApp.classList.remove("flex");
+        }
+      }
+    }
+
+    // Wire Event Listeners
+    document.addEventListener("DOMContentLoaded", () => {
+      // Login Form
+      const loginForm = document.getElementById("login-form");
+      const loginError = document.getElementById("login-error");
+      if (loginForm) {
+        loginForm.addEventListener("submit", (e) => {
+          e.preventDefault();
+          const u = document.getElementById("username").value.trim().toLowerCase();
+          const p = document.getElementById("password").value.trim();
+          if (u === DEFAULT_USER && p === getActivePassword()) {
+            localStorage.setItem(AUTH_KEY, "true");
+            if (loginError) loginError.classList.add("hidden");
+            checkAuth();
+          } else {
+            if (loginError) loginError.classList.remove("hidden");
+          }
+        });
+      }
+
+      // Logout
+      const logoutBtn = document.getElementById("logout-btn");
+      if (logoutBtn) {
+        logoutBtn.addEventListener("click", () => {
+          localStorage.removeItem(AUTH_KEY);
+          checkAuth();
+        });
+      }
+
+      // Change Password
+      const changePassBtn = document.getElementById("change-pass-btn");
+      const changePassModal = document.getElementById("change-pass-modal");
+      const changePassClose = document.getElementById("change-pass-close-btn");
+      const changePassForm = document.getElementById("change-pass-form");
+      const changePassErr = document.getElementById("change-pass-error");
+      const changePassSuccess = document.getElementById("change-pass-success");
+
+      if (changePassBtn && changePassModal) {
+        changePassBtn.addEventListener("click", () => {
+          changePassModal.classList.remove("hidden");
+          changePassModal.classList.add("flex");
+        });
+      }
+      if (changePassClose && changePassModal) {
+        changePassClose.addEventListener("click", () => {
+          changePassModal.classList.add("hidden");
+          changePassModal.classList.remove("flex");
+        });
+      }
+      if (changePassForm) {
+        changePassForm.addEventListener("submit", (e) => {
+          e.preventDefault();
+          const curr = document.getElementById("curr-pass").value;
+          const next = document.getElementById("next-pass").value;
+          const conf = document.getElementById("confirm-next-pass").value;
+          if (curr !== getActivePassword()) {
+            changePassErr.textContent = "Current password is incorrect.";
+            changePassErr.classList.remove("hidden");
+            return;
+          }
+          if (next !== conf) {
+            changePassErr.textContent = "New passwords do not match.";
+            changePassErr.classList.remove("hidden");
+            return;
+          }
+          localStorage.setItem(PASS_STORAGE_KEY, next);
+          changePassErr.classList.add("hidden");
+          changePassSuccess.classList.remove("hidden");
+          setTimeout(() => {
+            changePassModal.classList.add("hidden");
+            changePassModal.classList.remove("flex");
+            changePassSuccess.classList.add("hidden");
+          }, 1200);
+        });
+      }
+
+      // Forgot Password
+      const openForgotBtn = document.getElementById("open-forgot-modal-btn");
+      const forgotModal = document.getElementById("forgot-modal");
+      const forgotClose = document.getElementById("forgot-modal-close-btn");
+      const forgotForm = document.getElementById("forgot-form");
+      const forgotErr = document.getElementById("forgot-error");
+      const forgotSuccess = document.getElementById("forgot-success");
+
+      if (openForgotBtn && forgotModal) {
+        openForgotBtn.addEventListener("click", () => {
+          forgotModal.classList.remove("hidden");
+          forgotModal.classList.add("flex");
+        });
+      }
+      if (forgotClose && forgotModal) {
+        forgotClose.addEventListener("click", () => {
+          forgotModal.classList.add("hidden");
+          forgotModal.classList.remove("flex");
+        });
+      }
+      if (forgotForm) {
+        forgotForm.addEventListener("submit", (e) => {
+          e.preventDefault();
+          const pin = document.getElementById("recovery-pin").value.trim();
+          const np = document.getElementById("new-password").value.trim();
+          if (pin !== MASTER_RECOVERY_PIN) {
+            forgotErr.textContent = "Invalid Master Recovery PIN.";
+            forgotErr.classList.remove("hidden");
+            return;
+          }
+          localStorage.setItem(PASS_STORAGE_KEY, np);
+          forgotErr.classList.add("hidden");
+          forgotSuccess.classList.remove("hidden");
+          setTimeout(() => {
+            forgotModal.classList.add("hidden");
+            forgotModal.classList.remove("flex");
+            forgotSuccess.classList.add("hidden");
+          }, 1200);
+        });
+      }
+
+      // Search input
+      const searchInput = document.getElementById("search-input");
+      if (searchInput) {
+        searchInput.addEventListener("input", (e) => {
+          searchQuery = e.target.value;
+          currentPage = 1;
+          renderTable();
+        });
+      }
+
+      // Category filter
+      const filterCat = document.getElementById("filter-category");
+      if (filterCat) {
+        filterCat.addEventListener("change", (e) => {
+          selectedCategory = e.target.value;
+          currentPage = 1;
+          renderTable();
+        });
+      }
+
+      // Project filter
+      const filterProj = document.getElementById("filter-project");
+      if (filterProj) {
+        filterProj.addEventListener("change", (e) => {
+          selectedProject = e.target.value;
+          currentPage = 1;
+          renderTable();
+        });
+      }
+
+      // Sort Date
+      const sortSelect = document.getElementById("sort-date");
+      if (sortSelect) {
+        sortSelect.addEventListener("change", (e) => {
+          sortMode = e.target.value;
+          const sortInd = document.getElementById("sort-indicator");
+          if (sortInd) {
+            sortInd.textContent = sortMode === "OLDEST" ? "▲" : "▼";
+          }
+          renderTable();
+        });
+      }
+
+      // Table Header click sort
+      const thSortDate = document.getElementById("th-sort-date");
+      if (thSortDate) {
+        thSortDate.addEventListener("click", () => {
+          sortMode = sortMode === "NEWEST" ? "OLDEST" : "NEWEST";
+          if (sortSelect) sortSelect.value = sortMode;
+          const sortInd = document.getElementById("sort-indicator");
+          if (sortInd) {
+            sortInd.textContent = sortMode === "OLDEST" ? "▲" : "▼";
+          }
+          renderTable();
+        });
+      }
+
+      // Page size
+      const pageSizeSelect = document.getElementById("page-size");
+      if (pageSizeSelect) {
+        pageSizeSelect.addEventListener("change", (e) => {
+          pageSize = e.target.value;
+          currentPage = 1;
+          renderTable();
+        });
+      }
+
+      // Pagination Buttons
+      const pgFirst = document.getElementById("pg-first-btn");
+      const pgPrev = document.getElementById("pg-prev-btn");
+      const pgNext = document.getElementById("pg-next-btn");
+      const pgLast = document.getElementById("pg-last-btn");
+
+      if (pgFirst) pgFirst.addEventListener("click", () => { currentPage = 1; renderTable(); });
+      if (pgPrev) pgPrev.addEventListener("click", () => { if (currentPage > 1) { currentPage--; renderTable(); } });
+      if (pgNext) pgNext.addEventListener("click", () => { currentPage++; renderTable(); });
+      if (pgLast) pgLast.addEventListener("click", () => {
+        const filtered = filterRecords();
+        const pSize = parseInt(pageSize, 10) || 100;
+        currentPage = Math.ceil(filtered.length / pSize) || 1;
+        renderTable();
+      });
+
+      // Export CSV
+      const exportBtn = document.getElementById("export-csv-btn");
+      if (exportBtn) exportBtn.addEventListener("click", exportToCsv);
+
+      // Backup JSON
+      const backupBtn = document.getElementById("backup-json-btn");
+      if (backupBtn) backupBtn.addEventListener("click", downloadBackupJson);
+
+      // Cloud Sync Button
+      const cloudSyncBtn = document.getElementById("cloud-sync-btn");
+      if (cloudSyncBtn) cloudSyncBtn.addEventListener("click", pullFromCloud);
+
+      // New Voucher / Transaction Modal
+      const openCreateBtn = document.getElementById("open-create-modal-btn");
+      if (openCreateBtn) openCreateBtn.addEventListener("click", openCreateModal);
+
+      const closeTxnBtn = document.getElementById("txn-modal-close-btn");
+      if (closeTxnBtn) closeTxnBtn.addEventListener("click", closeTxnModal);
+
+      const cancelTxnBtn = document.getElementById("txn-modal-cancel-btn");
+      if (cancelTxnBtn) cancelTxnBtn.addEventListener("click", closeTxnModal);
+
+      // Form Submit (Add / Edit)
+      const txnForm = document.getElementById("txn-form");
+      if (txnForm) {
+        txnForm.addEventListener("submit", (e) => {
+          e.preventDefault();
+          const id = document.getElementById("form-txn-id").value;
+          const dStr = document.getElementById("form-txn-date").value.trim();
+          const yr = parseInt(document.getElementById("form-txn-year").value, 10) || new Date().getFullYear();
+          const amt = parseFloat(document.getElementById("form-txn-amount").value) || 0;
+          const cat = document.getElementById("form-txn-category").value.trim();
+          const paidTo = document.getElementById("form-txn-paidto").value.trim();
+          const desc = document.getElementById("form-txn-description").value.trim();
+          const proj = document.getElementById("form-txn-project").value.trim();
+          const docNo = document.getElementById("form-txn-docno").value.trim();
+          const cashFrom = document.getElementById("form-txn-cashfrom").value.trim();
+          const taxInv = document.getElementById("form-txn-taxinv").value.trim();
+          const vatNo = document.getElementById("form-txn-vatno").value.trim();
+          const taxAmt = parseFloat(document.getElementById("form-txn-taxamt").value) || 0;
+
+          if (id) {
+            // Edit existing
+            const targetIdx = records.findIndex(x => x.id === id);
+            if (targetIdx !== -1) {
+              records[targetIdx] = {
+                ...records[targetIdx],
+                date: dStr,
+                year: yr,
+                amount: Math.round(amt * 1000) / 1000,
+                category: cat,
+                paidTo,
+                description: desc,
+                project: proj,
+                docNo,
+                cashFrom,
+                taxInvNo: taxInv,
+                vatNo,
+                taxAmount: Math.round(taxAmt * 1000) / 1000
+              };
+            }
+          } else {
+            // Add new
+            const newId = `rec_${yr}_${Date.now().toString().slice(-4)}`;
+            records.unshift({
+              id: newId,
+              year: yr,
+              date: dStr,
+              category: cat,
+              paidTo,
+              description: desc,
+              docType: "Cash",
+              docNo,
+              project: proj,
+              amount: Math.round(amt * 1000) / 1000,
+              taxInvNo: taxInv,
+              vatNo,
+              taxAmount: Math.round(taxAmt * 1000) / 1000,
+              cashFrom
+            });
+          }
+
+          saveLocal();
+          pushToCloud();
+          closeTxnModal();
+          populateFilterDropdowns();
+          renderYearTabs();
+          render();
+        });
+      }
+
+      checkAuth();
+    });
+  </script>
+</body>
+</html>
