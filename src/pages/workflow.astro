@@ -267,8 +267,11 @@ import "../styles/global.css";
           <span id="metric-pending-val" class="mt-1 block text-[11px] text-white/40">OMR 0 in review</span>
         </div>
 
-        <div class="border border-white/10 border-l-4 border-l-blue-500 bg-[#161920] p-4 shadow-sm">
-          <span class="text-[11px] font-semibold uppercase tracking-wider text-blue-400">Invoiced / Completed</span>
+        <div id="metric-card-invoiced" class="border border-white/10 border-l-4 border-l-blue-500 bg-[#161920] p-4 shadow-sm cursor-pointer transition-colors hover:border-blue-400 hover:bg-[#1a1f28]" title="Click to view all invoiced jobs">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-semibold uppercase tracking-wider text-blue-400">Invoiced / Completed</span>
+            <span class="rounded bg-blue-500/20 px-1.5 py-0.5 text-[9px] font-bold text-blue-300">View Invoices</span>
+          </div>
           <div class="mt-1.5 flex items-baseline gap-1">
             <span class="text-xs font-semibold text-blue-400">OMR</span>
             <span id="metric-invoiced-total" class="font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">0</span>
@@ -295,6 +298,7 @@ import "../styles/global.css";
             class="border border-white/15 bg-[#161920] px-3 py-2 text-xs text-white/80 focus:border-flare focus:outline-none"
           >
             <option value="ALL">All Approval Statuses</option>
+            <option value="INVOICED">Invoiced Jobs Only (24)</option>
             <option value="Pending">Pending Approval</option>
             <option value="Approved">PO Received / Approved</option>
             <option value="Under Revision">Under Revision</option>
@@ -676,11 +680,11 @@ import "../styles/global.css";
     "ref": "NSTS/QUOTE/001/2026",
     "quoteDate": "2026-01-04",
     "client": "ALSIG",
-    "scope": "Re routing of Fire water line",
     "basicAmt": 1130,
     "vatAmt": 56.5,
     "totalAmt": 1186.5,
     "quoteAmt": 1186.5,
+    "scope": "Re routing of Fire water line",
     "status": "Approved",
     "poNumber": "P26PO000068",
     "poBasicAmt": 1130,
@@ -688,10 +692,17 @@ import "../styles/global.css";
     "poTotalAmt": 1186.5,
     "poAmt": 1186.5,
     "workStatus": "Completed",
-    "completionDate": "",
-    "invoiceNum": "",
-    "invoiceDate": "",
-    "invoices": []
+    "completionDate": "2026-06-10",
+    "invoices": [
+      {
+        "invNum": "NSTS/INV/026/26",
+        "invDate": "2026-06-15",
+        "invAmt": 1186.5,
+        "remarks": "Part 1"
+      }
+    ],
+    "invoiceNum": "NSTS/INV/026/26",
+    "invoiceDate": "2026-06-15"
   },
   {
     "id": "rec_q002",
@@ -732,10 +743,17 @@ import "../styles/global.css";
     "poTotalAmt": 131.25,
     "poAmt": 131.25,
     "workStatus": "Completed",
-    "completionDate": "",
-    "invoiceNum": "",
-    "invoiceDate": "",
-    "invoices": []
+    "completionDate": "2026-06-01",
+    "invoices": [
+      {
+        "invNum": "NSTS/INV/023/26",
+        "invDate": "2026-06-01",
+        "invAmt": 131.25,
+        "remarks": "Part 1"
+      }
+    ],
+    "invoiceNum": "NSTS/INV/023/26",
+    "invoiceDate": "2026-06-01"
   },
   {
     "id": "rec_q004",
@@ -784,24 +802,31 @@ import "../styles/global.css";
   {
     "id": "rec_q006",
     "ref": "NSTS/QUOTE/006/2026",
-    "quoteDate": "2026-02-04",
+    "quoteDate": "2026-01-19",
     "client": "MHT",
-    "basicAmt": 3100,
-    "vatAmt": 155,
-    "totalAmt": 3255,
-    "quoteAmt": 3255,
+    "basicAmt": 1300,
+    "vatAmt": 65,
+    "totalAmt": 1365,
+    "quoteAmt": 1365,
     "scope": "Road Hump",
-    "status": "Lost",
-    "poNumber": "PO3001-MHT-NSTS-2026",
-    "poBasicAmt": 3100,
-    "poVatAmt": 155,
-    "poTotalAmt": 3255,
-    "poAmt": 3255,
-    "workStatus": "Not Started",
-    "completionDate": "",
-    "invoiceNum": "",
-    "invoiceDate": "",
-    "invoices": []
+    "status": "Approved",
+    "poNumber": "PO-3001-MHT-NTS-2026",
+    "poBasicAmt": 1300,
+    "poVatAmt": 65,
+    "poTotalAmt": 1365,
+    "poAmt": 1365,
+    "workStatus": "Completed",
+    "completionDate": "2026-01-19",
+    "invoices": [
+      {
+        "invNum": "NSTS/INV/004/2026",
+        "invDate": "2026-01-19",
+        "invAmt": 1365,
+        "remarks": "100%"
+      }
+    ],
+    "invoiceNum": "NSTS/INV/004/2026",
+    "invoiceDate": "2026-01-19"
   },
   {
     "id": "rec_q007",
@@ -820,10 +845,17 @@ import "../styles/global.css";
     "poTotalAmt": 464.1,
     "poAmt": 464.1,
     "workStatus": "Completed",
-    "completionDate": "",
-    "invoiceNum": "",
-    "invoiceDate": "",
-    "invoices": []
+    "completionDate": "2026-04-27",
+    "invoices": [
+      {
+        "invNum": "NSTS/INV/016/2026",
+        "invDate": "2026-04-27",
+        "invAmt": 464.1,
+        "remarks": "100%"
+      }
+    ],
+    "invoiceNum": "NSTS/INV/016/2026",
+    "invoiceDate": "2026-04-27"
   },
   {
     "id": "rec_q008",
@@ -842,10 +874,17 @@ import "../styles/global.css";
     "poTotalAmt": 147,
     "poAmt": 147,
     "workStatus": "Completed",
-    "completionDate": "",
-    "invoiceNum": "",
-    "invoiceDate": "",
-    "invoices": []
+    "completionDate": "2026-03-16",
+    "invoices": [
+      {
+        "invNum": "NSTS/INV/008/2026",
+        "invDate": "2026-03-16",
+        "invAmt": 147,
+        "remarks": "100%"
+      }
+    ],
+    "invoiceNum": "NSTS/INV/008/2026",
+    "invoiceDate": "2026-03-16"
   },
   {
     "id": "rec_q009",
@@ -874,22 +913,29 @@ import "../styles/global.css";
     "ref": "NSTS/QUOTE/010/2026",
     "quoteDate": "2026-03-07",
     "client": "ALSIG",
-    "scope": "Replacement of tube lights",
     "basicAmt": 498,
-    "vatAmt": 24.900000000000002,
+    "vatAmt": 24.9,
     "totalAmt": 522.9,
     "quoteAmt": 522.9,
+    "scope": "Replacement of tube lights",
     "status": "Approved",
     "poNumber": "P26PO000067",
     "poBasicAmt": 498,
-    "poVatAmt": 24.900000000000002,
+    "poVatAmt": 24.9,
     "poTotalAmt": 522.9,
     "poAmt": 522.9,
     "workStatus": "Completed",
-    "completionDate": "",
-    "invoiceNum": "",
-    "invoiceDate": "",
-    "invoices": []
+    "completionDate": "2026-05-21",
+    "invoices": [
+      {
+        "invNum": "NSTS/INV/022/2026",
+        "invDate": "2026-05-21",
+        "invAmt": 522.9,
+        "remarks": "100%"
+      }
+    ],
+    "invoiceNum": "NSTS/INV/022/2026",
+    "invoiceDate": "2026-05-21"
   },
   {
     "id": "rec_q011",
@@ -908,21 +954,28 @@ import "../styles/global.css";
     "poTotalAmt": 2717.295,
     "poAmt": 2717.295,
     "workStatus": "Completed",
-    "completionDate": "",
-    "invoiceNum": "",
-    "invoiceDate": "",
-    "invoices": []
+    "completionDate": "2026-03-17",
+    "invoices": [
+      {
+        "invNum": "NSTS/INV/009/2026",
+        "invDate": "2026-03-17",
+        "invAmt": 2717.295,
+        "remarks": "100%"
+      }
+    ],
+    "invoiceNum": "NSTS/INV/009/2026",
+    "invoiceDate": "2026-03-17"
   },
   {
     "id": "rec_q012",
     "ref": "NSTS/QUOTE/012/2026",
     "quoteDate": "2026-03-07",
     "client": "ALSIG",
-    "scope": "Cable repairing",
     "basicAmt": 862,
     "vatAmt": 43.1,
     "totalAmt": 905.1,
     "quoteAmt": 905.1,
+    "scope": "Cable repairing",
     "status": "Approved",
     "poNumber": "P26PO000076",
     "poBasicAmt": 862,
@@ -930,10 +983,17 @@ import "../styles/global.css";
     "poTotalAmt": 905.1,
     "poAmt": 905.1,
     "workStatus": "Completed",
-    "completionDate": "",
-    "invoiceNum": "",
-    "invoiceDate": "",
-    "invoices": []
+    "completionDate": "2026-03-23",
+    "invoices": [
+      {
+        "invNum": "P26PO000076",
+        "invDate": "2026-03-23",
+        "invAmt": 905.1,
+        "remarks": "100%"
+      }
+    ],
+    "invoiceNum": "P26PO000076",
+    "invoiceDate": "2026-03-23"
   },
   {
     "id": "rec_q013",
@@ -1006,22 +1066,29 @@ import "../styles/global.css";
     "ref": "NSTS/QUOTE/016/2026",
     "quoteDate": "2026-04-02",
     "client": "ALSIG",
-    "basicAmt": 580,
-    "vatAmt": 29,
-    "totalAmt": 609,
-    "quoteAmt": 609,
+    "basicAmt": 560,
+    "vatAmt": 28,
+    "totalAmt": 588,
+    "quoteAmt": 588,
     "scope": "Catalyst refilling",
     "status": "Approved",
     "poNumber": "P26PO000107",
-    "poBasicAmt": 580,
-    "poVatAmt": 29,
-    "poTotalAmt": 609,
-    "poAmt": 609,
+    "poBasicAmt": 560,
+    "poVatAmt": 28,
+    "poTotalAmt": 588,
+    "poAmt": 588,
     "workStatus": "Completed",
     "completionDate": "2026-05-04",
-    "invoiceNum": "",
-    "invoiceDate": "",
-    "invoices": []
+    "invoices": [
+      {
+        "invNum": "NSTS/INV/017/2026",
+        "invDate": "2026-05-04",
+        "invAmt": 588,
+        "remarks": "100%"
+      }
+    ],
+    "invoiceNum": "NSTS/INV/017/2026",
+    "invoiceDate": "2026-05-04"
   },
   {
     "id": "rec_q017",
@@ -1040,10 +1107,17 @@ import "../styles/global.css";
     "poTotalAmt": 2663.85,
     "poAmt": 2663.85,
     "workStatus": "Completed",
-    "completionDate": "",
-    "invoiceNum": "",
-    "invoiceDate": "",
-    "invoices": []
+    "completionDate": "2026-06-30",
+    "invoices": [
+      {
+        "invNum": "NSTS/INV/029/2026",
+        "invDate": "2026-06-30",
+        "invAmt": 2663.85,
+        "remarks": "100%"
+      }
+    ],
+    "invoiceNum": "NSTS/INV/029/2026",
+    "invoiceDate": "2026-06-30"
   },
   {
     "id": "rec_q018",
@@ -1128,10 +1202,17 @@ import "../styles/global.css";
     "poTotalAmt": 189,
     "poAmt": 189,
     "workStatus": "Completed",
-    "completionDate": "",
-    "invoiceNum": "",
-    "invoiceDate": "",
-    "invoices": []
+    "completionDate": "2026-05-13",
+    "invoices": [
+      {
+        "invNum": "NSTS/INV/019/2026",
+        "invDate": "2026-05-13",
+        "invAmt": 189,
+        "remarks": "100%"
+      }
+    ],
+    "invoiceNum": "NSTS/INV/019/2026",
+    "invoiceDate": "2026-05-13"
   },
   {
     "id": "rec_q022",
@@ -1151,9 +1232,16 @@ import "../styles/global.css";
     "poAmt": 5446.35,
     "workStatus": "Completed",
     "completionDate": "2026-09-13",
-    "invoiceNum": "",
-    "invoiceDate": "",
-    "invoices": []
+    "invoices": [
+      {
+        "invNum": "NSTS/INV/039/2026",
+        "invDate": "2026-09-14",
+        "invAmt": 5446.35,
+        "remarks": "100%"
+      }
+    ],
+    "invoiceNum": "NSTS/INV/039/2026",
+    "invoiceDate": "2026-09-14"
   },
   {
     "id": "rec_q023",
@@ -1173,9 +1261,16 @@ import "../styles/global.css";
     "poAmt": 745.92,
     "workStatus": "Completed",
     "completionDate": "2026-05-06",
-    "invoiceNum": "",
-    "invoiceDate": "",
-    "invoices": []
+    "invoices": [
+      {
+        "invNum": "NSTS/INV/018/2026",
+        "invDate": "2026-05-07",
+        "invAmt": 745.92,
+        "remarks": "100%"
+      }
+    ],
+    "invoiceNum": "NSTS/INV/018/2026",
+    "invoiceDate": "2026-05-07"
   },
   {
     "id": "rec_q024",
@@ -1283,9 +1378,16 @@ import "../styles/global.css";
     "poAmt": 3112.2,
     "workStatus": "In Progress",
     "completionDate": "",
-    "invoiceNum": "",
-    "invoiceDate": "",
-    "invoices": []
+    "invoices": [
+      {
+        "invNum": "NSTS/INV/034/2026",
+        "invDate": "2026-08-05",
+        "invAmt": 778.05,
+        "remarks": "1/4"
+      }
+    ],
+    "invoiceNum": "NSTS/INV/034/2026",
+    "invoiceDate": "2026-08-05"
   },
   {
     "id": "rec_q029",
@@ -1380,11 +1482,11 @@ import "../styles/global.css";
     "ref": "NSTS/QUOTE/033/2026",
     "quoteDate": "2026-06-25",
     "client": "ALSIG",
-    "scope": "Back up area drain pit and line",
     "basicAmt": 12477,
     "vatAmt": 623.85,
     "totalAmt": 13100.85,
     "quoteAmt": 13100.85,
+    "scope": "Back up area drain pit and line",
     "status": "Approved",
     "poNumber": "P26PO000170",
     "poBasicAmt": 12477,
@@ -1393,9 +1495,16 @@ import "../styles/global.css";
     "poAmt": 13100.85,
     "workStatus": "Completed",
     "completionDate": "2026-09-08",
-    "invoiceNum": "",
-    "invoiceDate": "",
-    "invoices": []
+    "invoices": [
+      {
+        "invNum": "NSTS/INV/038/2026",
+        "invDate": "2026-09-10",
+        "invAmt": 13100.85,
+        "remarks": "100%"
+      }
+    ],
+    "invoiceNum": "NSTS/INV/038/2026",
+    "invoiceDate": "2026-09-10"
   },
   {
     "id": "rec_q034",
@@ -1424,11 +1533,11 @@ import "../styles/global.css";
     "ref": "NSTS/QUOTE/035/2026",
     "quoteDate": "2026-07-06",
     "client": "ALSIG",
-    "scope": "Cold box thickness test",
     "basicAmt": 481,
     "vatAmt": 24.05,
     "totalAmt": 505.05,
     "quoteAmt": 505.05,
+    "scope": "Cold box thickness test",
     "status": "Approved",
     "poNumber": "P26PO000186",
     "poBasicAmt": 481,
@@ -1437,9 +1546,16 @@ import "../styles/global.css";
     "poAmt": 505.05,
     "workStatus": "Completed",
     "completionDate": "2026-07-28",
-    "invoiceNum": "",
-    "invoiceDate": "",
-    "invoices": []
+    "invoices": [
+      {
+        "invNum": "NSTS/INV/033/2026",
+        "invDate": "2026-07-29",
+        "invAmt": 505.05,
+        "remarks": "100%"
+      }
+    ],
+    "invoiceNum": "NSTS/INV/033/2026",
+    "invoiceDate": "2026-07-29"
   },
   {
     "id": "rec_q036",
@@ -1568,10 +1684,17 @@ import "../styles/global.css";
     "poTotalAmt": 1645.35,
     "poAmt": 1645.35,
     "workStatus": "Completed",
-    "completionDate": "",
-    "invoiceNum": "",
-    "invoiceDate": "",
-    "invoices": []
+    "completionDate": "2026-08-19",
+    "invoices": [
+      {
+        "invNum": "NSTS/INV/035/2026",
+        "invDate": "2026-08-20",
+        "invAmt": 1645.35,
+        "remarks": "100%"
+      }
+    ],
+    "invoiceNum": "NSTS/INV/035/2026",
+    "invoiceDate": "2026-08-20"
   },
   {
     "id": "rec_q042",
@@ -1634,10 +1757,17 @@ import "../styles/global.css";
     "poTotalAmt": 13020,
     "poAmt": 13020,
     "workStatus": "Completed",
-    "completionDate": "",
-    "invoiceNum": "",
-    "invoiceDate": "",
-    "invoices": []
+    "completionDate": "2026-10-30",
+    "invoices": [
+      {
+        "invNum": "NSTS/INV/047/2026",
+        "invDate": "2026-11-01",
+        "invAmt": 13020,
+        "remarks": "100%"
+      }
+    ],
+    "invoiceNum": "NSTS/INV/047/2026",
+    "invoiceDate": "2026-11-01"
   },
   {
     "id": "rec_q045",
@@ -1656,10 +1786,17 @@ import "../styles/global.css";
     "poTotalAmt": 1218,
     "poAmt": 1218,
     "workStatus": "Completed",
-    "completionDate": "",
-    "invoiceNum": "",
-    "invoiceDate": "",
-    "invoices": []
+    "completionDate": "2026-11-16",
+    "invoices": [
+      {
+        "invNum": "NSTS/INV/051/2026",
+        "invDate": "2026-11-18",
+        "invAmt": 1218,
+        "remarks": "100%"
+      }
+    ],
+    "invoiceNum": "NSTS/INV/051/2026",
+    "invoiceDate": "2026-11-18"
   },
   {
     "id": "rec_q046",
@@ -1700,10 +1837,17 @@ import "../styles/global.css";
     "poTotalAmt": 577.5,
     "poAmt": 577.5,
     "workStatus": "Completed",
-    "completionDate": "",
-    "invoiceNum": "",
-    "invoiceDate": "",
-    "invoices": []
+    "completionDate": "2026-11-07",
+    "invoices": [
+      {
+        "invNum": "NSTS/INV/050/2026",
+        "invDate": "2026-11-08",
+        "invAmt": 577.5,
+        "remarks": "100%"
+      }
+    ],
+    "invoiceNum": "NSTS/INV/050/2026",
+    "invoiceDate": "2026-11-08"
   },
   {
     "id": "rec_q048",
@@ -1789,9 +1933,16 @@ import "../styles/global.css";
     "poAmt": 1864.8,
     "workStatus": "In Progress",
     "completionDate": "",
-    "invoiceNum": "",
-    "invoiceDate": "",
-    "invoices": []
+    "invoices": [
+      {
+        "invNum": "NSTS/INV/048/26",
+        "invDate": "2026-11-01",
+        "invAmt": 300.51,
+        "remarks": "Part 1"
+      }
+    ],
+    "invoiceNum": "NSTS/INV/048/26",
+    "invoiceDate": "2026-11-01"
   },
   {
     "id": "rec_q052",
@@ -1811,9 +1962,16 @@ import "../styles/global.css";
     "poAmt": 7329,
     "workStatus": "In Progress",
     "completionDate": "",
-    "invoiceNum": "",
-    "invoiceDate": "",
-    "invoices": []
+    "invoices": [
+      {
+        "invNum": "NSTS/INV/046/26",
+        "invDate": "2026-10-25",
+        "invAmt": 1832.25,
+        "remarks": "Part 1"
+      }
+    ],
+    "invoiceNum": "NSTS/INV/046/26",
+    "invoiceDate": "2026-10-25"
   },
   {
     "id": "rec_q053",
@@ -1854,10 +2012,17 @@ import "../styles/global.css";
     "poTotalAmt": 1344,
     "poAmt": 1344,
     "workStatus": "Completed",
-    "completionDate": "",
-    "invoiceNum": "",
-    "invoiceDate": "",
-    "invoices": []
+    "completionDate": "2026-11-02",
+    "invoices": [
+      {
+        "invNum": "NSTS/INV/049/2026",
+        "invDate": "2026-11-03",
+        "invAmt": 1344,
+        "remarks": "100%"
+      }
+    ],
+    "invoiceNum": "NSTS/INV/049/2026",
+    "invoiceDate": "2026-11-03"
   },
   {
     "id": "rec_q055",
@@ -2060,7 +2225,7 @@ import "../styles/global.css";
   {
     "id": "rec_lpo001",
     "ref": "NSTS/QUOT/0078/2025",
-    "quoteDate": "2026-01-04",
+    "quoteDate": "2025-12-31",
     "client": "ALSIG",
     "basicAmt": 405,
     "vatAmt": 20.25,
@@ -2074,12 +2239,19 @@ import "../styles/global.css";
     "poTotalAmt": 425.25,
     "poAmt": 425.25,
     "workStatus": "Completed",
-    "completionDate": "",
-    "invoiceNum": "",
-    "invoiceDate": "",
-    "invoices": []
+    "completionDate": "2026-01-10",
+    "invoices": [
+      {
+        "invNum": "NSTS/INV/002/26",
+        "invDate": "2026-01-12",
+        "invAmt": 425.25,
+        "remarks": "Part 1"
+      }
+    ],
+    "invoiceNum": "NSTS/INV/002/26",
+    "invoiceDate": "2026-01-12"
   }
-];
+]];
 
     // State
     let records = [];
@@ -2490,18 +2662,16 @@ import "../styles/global.css";
             records = parsed;
           } else {
             records = REGISTER_2026_RECORDS;
-            saveRecords();
           }
         } catch (e) {
           records = REGISTER_2026_RECORDS;
-          saveRecords();
         }
       } else {
         records = REGISTER_2026_RECORDS;
-        saveRecords();
       }
+      render();
 
-      // Check cloud live updates across all devices
+      // Check cloud live updates across all devices (pulls latest from cloud)
       fetchFromCloud(true);
     }
 
@@ -2628,7 +2798,11 @@ import "../styles/global.css";
 
       let filtered = records.filter((r) => {
         const matchesYear = selectedYear === "ALL" || getRecordYear(r) === selectedYear;
-        const matchesStatus = statusF === "ALL" || r.status === statusF;
+        const matchesStatus = statusF === "ALL" 
+          ? true 
+          : (statusF === "INVOICED" 
+              ? ((Array.isArray(r.invoices) && r.invoices.length > 0) || !!r.invoiceNum)
+              : r.status === statusF);
         const matchesWork = workF === "ALL" || r.workStatus === workF;
         const matchesQuery =
           !q ||
@@ -2636,7 +2810,8 @@ import "../styles/global.css";
           (r.ref && r.ref.toLowerCase().includes(q)) ||
           (r.scope && r.scope.toLowerCase().includes(q)) ||
           (r.poNumber && r.poNumber.toLowerCase().includes(q)) ||
-          (r.invoiceNum && r.invoiceNum.toLowerCase().includes(q));
+          (r.invoiceNum && r.invoiceNum.toLowerCase().includes(q)) ||
+          (Array.isArray(r.invoices) && r.invoices.some(i => (i.invNum && i.invNum.toLowerCase().includes(q)) || (i.remarks && i.remarks.toLowerCase().includes(q))));
 
         return matchesYear && matchesStatus && matchesWork && matchesQuery;
       });
@@ -3242,6 +3417,16 @@ import "../styles/global.css";
     };
 
     // Filter & Sort Listeners
+    const metricCardInvoiced = document.getElementById("metric-card-invoiced");
+    if (metricCardInvoiced) {
+      metricCardInvoiced.addEventListener("click", () => {
+        if (filterStatus) {
+          filterStatus.value = filterStatus.value === "INVOICED" ? "ALL" : "INVOICED";
+          render();
+        }
+      });
+    }
+
     searchInput.addEventListener("input", render);
     filterStatus.addEventListener("change", render);
     filterWork.addEventListener("change", render);
