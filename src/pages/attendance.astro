@@ -414,8 +414,8 @@ import "../styles/global.css";
                   <th class="w-[110px] px-1.5 py-2.5">Designation</th>
                   <th class="w-[125px] px-1.5 py-2.5" title="Month-specific basic salary (can be adjusted per month)">Basic (OMR) ✏️</th>
                   <th class="w-[85px] px-1.5 py-2.5">Std Hrs</th>
-                  <th class="w-[95px] px-1.5 py-2.5">Rate / Hr</th>
-                  <th class="w-[95px] px-1.5 py-2.5">OT Rate (125%)</th>
+                  <th class="w-[105px] px-1.5 py-2.5" title="Mess Allowance (OMR) (can be adjusted per month)">Mess (OMR) ✏️</th>
+                  <th class="w-[110px] px-1.5 py-2.5" title="Rent Allowance (OMR) (can be adjusted per month)">Rent (OMR) ✏️</th>
                   <th class="w-[100px] px-1.5 py-2.5">OT Hours</th>
                   <th class="w-[105px] px-1.5 py-2.5">OT Earning</th>
                   <th class="w-[115px] px-1.5 py-2.5">Net Pay (OMR)</th>
@@ -621,6 +621,34 @@ import "../styles/global.css";
             />
           </div>
 
+          <!-- Allowances: Mess & Rent (Only for Permanent Staff) -->
+          <div id="form-allowances-group" class="grid grid-cols-2 gap-3">
+            <div>
+              <label for="form-emp-mess" class="block text-[11px] font-semibold uppercase tracking-wider text-white/70">Mess Allowance (OMR)</label>
+              <input
+                type="number"
+                step="0.001"
+                min="0"
+                id="form-emp-mess"
+                placeholder="e.g. 30.000"
+                value="0"
+                class="mt-1 w-full border border-white/15 bg-[#0f1115] px-3 py-2 text-xs font-mono text-white placeholder-white/30 focus:border-flare focus:outline-none"
+              />
+            </div>
+            <div>
+              <label for="form-emp-rent" class="block text-[11px] font-semibold uppercase tracking-wider text-white/70">Rent Allowance (OMR)</label>
+              <input
+                type="number"
+                step="0.001"
+                min="0"
+                id="form-emp-rent"
+                placeholder="e.g. 40.000"
+                value="0"
+                class="mt-1 w-full border border-white/15 bg-[#0f1115] px-3 py-2 text-xs font-mono text-white placeholder-white/30 focus:border-flare focus:outline-none"
+              />
+            </div>
+          </div>
+
           <!-- Temporary Manpower Calculation Info Box -->
           <div id="temp-info-box" class="rounded border border-purple-500/30 bg-purple-500/10 p-2.5 text-xs text-purple-200 hidden">
             <span class="font-bold text-purple-300 block mb-0.5">⚡ Temporary Manpower Hourly Calculation:</span>
@@ -629,14 +657,14 @@ import "../styles/global.css";
 
           <!-- Salary Scope Options (Visible when editing) -->
           <div id="form-salary-scope-container" class="rounded border border-amber-500/20 bg-amber-500/5 p-3 text-xs space-y-2 hidden">
-            <span class="block text-[11px] font-semibold uppercase tracking-wider text-amber-300">Basic Salary Change Scope:</span>
+            <span class="block text-[11px] font-semibold uppercase tracking-wider text-amber-300">Salary &amp; Allowances Change Scope:</span>
             <label class="flex items-center gap-2 text-white/90 cursor-pointer">
               <input type="radio" name="salary-scope" value="month_only" checked class="text-flare" />
               <span>Apply only to current month (<strong id="modal-current-period-name" class="text-amber-300">Current Month</strong>)</span>
             </label>
             <label class="flex items-center gap-2 text-white/70 cursor-pointer">
               <input type="radio" name="salary-scope" value="all_months" class="text-flare" />
-              <span>Update permanent master salary (for all months)</span>
+              <span>Update permanent master record (for all months)</span>
             </label>
           </div>
 
@@ -746,6 +774,22 @@ import "../styles/global.css";
                   <td class="border border-black p-2 text-center text-gray-500">—</td>
                   <td id="slip-ot-hrs" class="border border-black p-2 text-center font-bold">17</td>
                   <td id="slip-ot-earning" class="border border-black p-2 text-right font-bold">13.281</td>
+                </tr>
+                <tr id="slip-mess-row" class="hidden">
+                  <td class="border border-black p-2 text-center">3</td>
+                  <td class="border border-black p-2 font-sans font-bold">Mess Allowance</td>
+                  <td class="border border-black p-2 text-right text-gray-500">—</td>
+                  <td class="border border-black p-2 text-center text-gray-500">—</td>
+                  <td class="border border-black p-2 text-center text-gray-500">—</td>
+                  <td id="slip-mess-earning" class="border border-black p-2 text-right font-bold">0.000</td>
+                </tr>
+                <tr id="slip-rent-row" class="hidden">
+                  <td class="border border-black p-2 text-center">4</td>
+                  <td class="border border-black p-2 font-sans font-bold">Rent Allowance</td>
+                  <td class="border border-black p-2 text-right text-gray-500">—</td>
+                  <td class="border border-black p-2 text-center text-gray-500">—</td>
+                  <td class="border border-black p-2 text-center text-gray-500">—</td>
+                  <td id="slip-rent-earning" class="border border-black p-2 text-right font-bold">0.000</td>
                 </tr>
               </tbody>
               <tfoot class="border-t-2 border-black font-bold bg-gray-50">
@@ -1043,7 +1087,12 @@ import "../styles/global.css";
           return {
             isTemp: true,
             isCustomBasic: false,
+            isCustomMess: false,
+            isCustomRent: false,
             basic: 0,
+            mess: 0,
+            rent: 0,
+            totalAllowances: 0,
             hourlyRate,
             otRate: hourlyRate,
             normalHrs: totalHours,
@@ -1059,6 +1108,12 @@ import "../styles/global.css";
         // Permanent staff
         const isCustomBasic = (empMonth.basic !== undefined && empMonth.basic !== null && empMonth.basic !== "");
         const basic = isCustomBasic ? Number(empMonth.basic) : (Number(emp.basic) || 0);
+
+        const isCustomMess = (empMonth.mess !== undefined && empMonth.mess !== null && empMonth.mess !== "");
+        const mess = isCustomMess ? Number(empMonth.mess) : (Number(emp.mess) || 0);
+
+        const isCustomRent = (empMonth.rent !== undefined && empMonth.rent !== null && empMonth.rent !== "");
+        const rent = isCustomRent ? Number(empMonth.rent) : (Number(emp.rent) || 0);
 
         let normalHrs = p.totalHrs;
         if (empMonth.days) {
@@ -1078,13 +1133,19 @@ import "../styles/global.css";
         const earnedBasic = p.totalHrs > 0 ? (normalHrs / p.totalHrs) * basic : basic;
         const otRate = hourlyRate * 1.25;
         const otAmt = otHrs * otRate;
-        const net = earnedBasic + otAmt;
+        const totalAllowances = mess + rent;
+        const net = earnedBasic + otAmt + totalAllowances;
         const leaveHrs = Math.max(0, p.totalHrs - normalHrs);
 
         return {
           isTemp: false,
           isCustomBasic,
+          isCustomMess,
+          isCustomRent,
           basic,
+          mess,
+          rent,
+          totalAllowances,
           hourlyRate,
           otRate,
           normalHrs,
@@ -1313,13 +1374,13 @@ import "../styles/global.css";
                   Hourly
                 </td>
 
-                <!-- Rate / Hr -->
-                <td class="w-[95px] px-1.5 py-2.5 font-mono text-[10.5px] text-purple-300 font-bold">
-                  OMR ${fmtOmr(hourlyRate)}/h
+                <!-- Mess (OMR) -->
+                <td class="w-[105px] px-1.5 py-2.5 font-mono text-white/30 text-[10px] text-center">
+                  —
                 </td>
 
-                <!-- OT Rate (Flat for temp) -->
-                <td class="w-[95px] px-1.5 py-2.5 font-mono text-[10px] text-white/30" title="Temporary staff paid flat hourly rate">
+                <!-- Rent Allowance (OMR) -->
+                <td class="w-[110px] px-1.5 py-2.5 font-mono text-white/30 text-[10px] text-center">
                   —
                 </td>
 
@@ -1448,14 +1509,54 @@ import "../styles/global.css";
                   : `<span class="text-white/60">${p.totalHrs}h</span>`}
               </td>
 
-              <!-- Normal Rate / Hr -->
-              <td class="w-[95px] px-1.5 py-2.5 font-mono text-[10px] text-white/50">
-                ${fmtOmr(calc.hourlyRate)}/h
+              <!-- Mess (OMR) (Editable per Month) -->
+              <td class="w-[105px] px-1.5 py-2.5">
+                <div class="inline-flex items-center gap-1">
+                  <input
+                    type="number"
+                    step="1"
+                    min="0"
+                    value="${calc.mess}"
+                    onchange="window._updateMonthMess('${emp.id}', this.value)"
+                    class="w-16 rounded border ${calc.isCustomMess ? 'border-amber-400 bg-amber-500/15 text-amber-300' : 'border-white/20 bg-[#0f1115] text-white'} px-1 py-0.5 text-center font-mono text-xs font-bold focus:border-flare focus:outline-none"
+                    title="${calc.isCustomMess ? `Custom Mess for ${p.periodStr} (Default is OMR ${fmtOmr(emp.mess || 0)})` : `Click to change Mess for ${p.periodStr} only`}"
+                  />
+                  ${calc.isCustomMess ? `
+                    <button
+                      type="button"
+                      onclick="window._resetMonthMess('${emp.id}')"
+                      class="text-white/40 hover:text-amber-300 text-[10px] p-0.5"
+                      title="Reset to default OMR ${fmtOmr(emp.mess || 0)}"
+                    >
+                      ↺
+                    </button>
+                  ` : ''}
+                </div>
               </td>
 
-              <!-- OT Rate (125%) -->
-              <td class="w-[95px] px-1.5 py-2.5 font-mono text-[10px] text-amber-300">
-                ${fmtOmr(calc.otRate)}/h
+              <!-- Rent Allowance (OMR) (Editable per Month) -->
+              <td class="w-[110px] px-1.5 py-2.5">
+                <div class="inline-flex items-center gap-1">
+                  <input
+                    type="number"
+                    step="1"
+                    min="0"
+                    value="${calc.rent}"
+                    onchange="window._updateMonthRent('${emp.id}', this.value)"
+                    class="w-16 rounded border ${calc.isCustomRent ? 'border-amber-400 bg-amber-500/15 text-amber-300' : 'border-white/20 bg-[#0f1115] text-white'} px-1 py-0.5 text-center font-mono text-xs font-bold focus:border-flare focus:outline-none"
+                    title="${calc.isCustomRent ? `Custom Rent for ${p.periodStr} (Default is OMR ${fmtOmr(emp.rent || 0)})` : `Click to change Rent for ${p.periodStr} only`}"
+                  />
+                  ${calc.isCustomRent ? `
+                    <button
+                      type="button"
+                      onclick="window._resetMonthRent('${emp.id}')"
+                      class="text-white/40 hover:text-amber-300 text-[10px] p-0.5"
+                      title="Reset to default OMR ${fmtOmr(emp.rent || 0)}"
+                    >
+                      ↺
+                    </button>
+                  ` : ''}
+                </div>
               </td>
 
               <!-- OT Hours Input -->
@@ -1483,6 +1584,7 @@ import "../styles/global.css";
               <td class="w-[115px] px-1.5 py-2.5 font-mono font-bold text-emerald-400 text-[11.5px]">
                 OMR ${fmtOmr(calc.netPay)}
                 ${calc.leaveHrs > 0 ? `<div class="text-[9.5px] font-normal text-amber-400/80">Basic: ${fmtOmr(calc.earnedBasic)}</div>` : ''}
+                ${calc.totalAllowances > 0 ? `<div class="text-[9px] font-normal text-purple-300/80">+Allow: ${fmtOmr(calc.totalAllowances)}</div>` : ''}
               </td>
 
               <!-- Actions -->
@@ -1562,6 +1664,60 @@ import "../styles/global.css";
       window._resetMonthBasic = function(empId) {
         if (monthlyData[selectedPeriod] && monthlyData[selectedPeriod][empId]) {
           delete monthlyData[selectedPeriod][empId].basic;
+          saveData();
+          render();
+        }
+      };
+
+      // Update Mess Allowance for current month only
+      window._updateMonthMess = function(empId, val) {
+        const emp = employees.find(e => e.id === empId);
+        const defaultMess = emp ? Number(emp.mess) || 0 : 0;
+        const num = parseFloat(val);
+
+        if (!monthlyData[selectedPeriod]) monthlyData[selectedPeriod] = {};
+        if (!monthlyData[selectedPeriod][empId]) monthlyData[selectedPeriod][empId] = {};
+
+        if (isNaN(num) || num === defaultMess) {
+          delete monthlyData[selectedPeriod][empId].mess;
+        } else {
+          monthlyData[selectedPeriod][empId].mess = Math.max(0, num);
+        }
+        saveData();
+        render();
+      };
+
+      // Reset Month Mess back to standard master default
+      window._resetMonthMess = function(empId) {
+        if (monthlyData[selectedPeriod] && monthlyData[selectedPeriod][empId]) {
+          delete monthlyData[selectedPeriod][empId].mess;
+          saveData();
+          render();
+        }
+      };
+
+      // Update Rent Allowance for current month only
+      window._updateMonthRent = function(empId, val) {
+        const emp = employees.find(e => e.id === empId);
+        const defaultRent = emp ? Number(emp.rent) || 0 : 0;
+        const num = parseFloat(val);
+
+        if (!monthlyData[selectedPeriod]) monthlyData[selectedPeriod] = {};
+        if (!monthlyData[selectedPeriod][empId]) monthlyData[selectedPeriod][empId] = {};
+
+        if (isNaN(num) || num === defaultRent) {
+          delete monthlyData[selectedPeriod][empId].rent;
+        } else {
+          monthlyData[selectedPeriod][empId].rent = Math.max(0, num);
+        }
+        saveData();
+        render();
+      };
+
+      // Reset Month Rent back to standard master default
+      window._resetMonthRent = function(empId) {
+        if (monthlyData[selectedPeriod] && monthlyData[selectedPeriod][empId]) {
+          delete monthlyData[selectedPeriod][empId].rent;
           saveData();
           render();
         }
@@ -1843,6 +1999,8 @@ import "../styles/global.css";
           if (typePermRadio.checked) {
             if (labelFormBasic) labelFormBasic.textContent = "Basic Salary (OMR)";
             if (tempInfoBox) tempInfoBox.classList.add("hidden");
+            const allowGroup = document.getElementById("form-allowances-group");
+            if (allowGroup) allowGroup.classList.remove("hidden");
             const id = document.getElementById("emp-internal-id").value;
             if (!id) {
               document.getElementById("form-emp-num").value = getNextEmpNum(false);
@@ -1856,6 +2014,8 @@ import "../styles/global.css";
           if (typeTempRadio.checked) {
             if (labelFormBasic) labelFormBasic.textContent = "Hourly Pay Rate (OMR / hr)";
             if (tempInfoBox) tempInfoBox.classList.remove("hidden");
+            const allowGroup = document.getElementById("form-allowances-group");
+            if (allowGroup) allowGroup.classList.add("hidden");
             const id = document.getElementById("emp-internal-id").value;
             if (!id) {
               document.getElementById("form-emp-num").value = getNextEmpNum(true);
@@ -1889,6 +2049,8 @@ import "../styles/global.css";
             if (typeTempRadio) typeTempRadio.checked = true;
             if (labelFormBasic) labelFormBasic.textContent = "Hourly Pay Rate (OMR / hr)";
             if (tempInfoBox) tempInfoBox.classList.remove("hidden");
+            const allowGroup = document.getElementById("form-allowances-group");
+            if (allowGroup) allowGroup.classList.add("hidden");
             const empMonth = (monthlyData[selectedPeriod] && monthlyData[selectedPeriod][emp.id]) || {};
             const curRate = (empMonth.hourlyRate !== undefined && empMonth.hourlyRate !== null && empMonth.hourlyRate !== "")
               ? Number(empMonth.hourlyRate)
@@ -1898,11 +2060,23 @@ import "../styles/global.css";
             if (typePermRadio) typePermRadio.checked = true;
             if (labelFormBasic) labelFormBasic.textContent = "Basic Salary (OMR)";
             if (tempInfoBox) tempInfoBox.classList.add("hidden");
+            const allowGroup = document.getElementById("form-allowances-group");
+            if (allowGroup) allowGroup.classList.remove("hidden");
             const empMonth = (monthlyData[selectedPeriod] && monthlyData[selectedPeriod][emp.id]) || {};
             const currentBasic = (empMonth.basic !== undefined && empMonth.basic !== null && empMonth.basic !== "")
               ? Number(empMonth.basic)
               : (Number(emp.basic) || 0);
+            const currentMess = (empMonth.mess !== undefined && empMonth.mess !== null && empMonth.mess !== "")
+              ? Number(empMonth.mess)
+              : (Number(emp.mess) || 0);
+            const currentRent = (empMonth.rent !== undefined && empMonth.rent !== null && empMonth.rent !== "")
+              ? Number(empMonth.rent)
+              : (Number(emp.rent) || 0);
             document.getElementById("form-emp-basic").value = currentBasic;
+            const messInp = document.getElementById("form-emp-mess");
+            const rentInp = document.getElementById("form-emp-rent");
+            if (messInp) messInp.value = currentMess;
+            if (rentInp) rentInp.value = currentRent;
           }
 
           if (scopeContainer) scopeContainer.classList.remove("hidden");
@@ -1912,6 +2086,7 @@ import "../styles/global.css";
           employeeForm.reset();
           document.getElementById("emp-internal-id").value = "";
           if (scopeContainer) scopeContainer.classList.add("hidden");
+          const allowGroup = document.getElementById("form-allowances-group");
 
           if (forceTemp) {
             if (typeTempRadio) typeTempRadio.checked = true;
@@ -1919,6 +2094,7 @@ import "../styles/global.css";
             document.getElementById("modal-title").textContent = "Add Temporary Employee";
             if (labelFormBasic) labelFormBasic.textContent = "Hourly Pay Rate (OMR / hr)";
             if (tempInfoBox) tempInfoBox.classList.remove("hidden");
+            if (allowGroup) allowGroup.classList.add("hidden");
             document.getElementById("form-emp-num").value = getNextEmpNum(true);
             document.getElementById("form-emp-basic").placeholder = "e.g. 1.000";
             document.getElementById("form-emp-basic").value = "1.000";
@@ -1929,10 +2105,15 @@ import "../styles/global.css";
             document.getElementById("modal-title").textContent = "Add New Employee";
             if (labelFormBasic) labelFormBasic.textContent = "Basic Salary (OMR)";
             if (tempInfoBox) tempInfoBox.classList.add("hidden");
+            if (allowGroup) allowGroup.classList.remove("hidden");
             document.getElementById("form-emp-num").value = getNextEmpNum(false);
             document.getElementById("form-emp-basic").placeholder = "e.g. 180.000";
             document.getElementById("form-emp-basic").value = "";
             document.getElementById("form-emp-designation").value = "";
+            const messInp = document.getElementById("form-emp-mess");
+            const rentInp = document.getElementById("form-emp-rent");
+            if (messInp) messInp.value = "0";
+            if (rentInp) rentInp.value = "0";
           }
         }
         employeeModal.classList.remove("hidden");
@@ -1961,6 +2142,8 @@ import "../styles/global.css";
         const name = document.getElementById("form-emp-name").value.trim();
         const designation = document.getElementById("form-emp-designation").value.trim();
         const valBasicOrRate = parseFloat(document.getElementById("form-emp-basic").value) || 0;
+        const valMess = Math.max(0, parseFloat(document.getElementById("form-emp-mess")?.value) || 0);
+        const valRent = Math.max(0, parseFloat(document.getElementById("form-emp-rent")?.value) || 0);
         const isTemp = (typeTempRadio && typeTempRadio.checked) || (empNum.toUpperCase().startsWith("T"));
 
         const scopeRadios = document.getElementsByName("salary-scope");
@@ -1986,15 +2169,28 @@ import "../styles/global.css";
               }
             } else {
               if (scopeVal === "all_months") {
-                employees[idx] = { ...employees[idx], empNum, name, designation, type: "permanent", basic: valBasicOrRate };
+                employees[idx] = {
+                  ...employees[idx],
+                  empNum,
+                  name,
+                  designation,
+                  type: "permanent",
+                  basic: valBasicOrRate,
+                  mess: valMess,
+                  rent: valRent
+                };
                 if (monthlyData[selectedPeriod] && monthlyData[selectedPeriod][id]) {
                   delete monthlyData[selectedPeriod][id].basic;
+                  delete monthlyData[selectedPeriod][id].mess;
+                  delete monthlyData[selectedPeriod][id].rent;
                 }
               } else {
                 employees[idx] = { ...employees[idx], empNum, name, designation, type: "permanent" };
                 if (!monthlyData[selectedPeriod]) monthlyData[selectedPeriod] = {};
                 if (!monthlyData[selectedPeriod][id]) monthlyData[selectedPeriod][id] = {};
                 monthlyData[selectedPeriod][id].basic = valBasicOrRate;
+                monthlyData[selectedPeriod][id].mess = valMess;
+                monthlyData[selectedPeriod][id].rent = valRent;
               }
             }
           }
@@ -2017,7 +2213,9 @@ import "../styles/global.css";
               name,
               designation,
               type: "permanent",
-              basic: valBasicOrRate
+              basic: valBasicOrRate,
+              mess: valMess,
+              rent: valRent
             });
           }
         }
@@ -2113,6 +2311,10 @@ import "../styles/global.css";
           document.getElementById("slip-basic-earning").textContent = fmtOmr(net);
 
           if (otRow) otRow.classList.add("hidden");
+          const messRow = document.getElementById("slip-mess-row");
+          const rentRow = document.getElementById("slip-rent-row");
+          if (messRow) messRow.classList.add("hidden");
+          if (rentRow) rentRow.classList.add("hidden");
           document.getElementById("slip-total-amount").textContent = `OMR ${fmtOmr(net)}`;
           if (slipCalcNote) {
             slipCalcNote.innerHTML = `<strong>Temporary Manpower Calculation:</strong> Total Hours Worked (<strong>${totalHours} hrs</strong>) × Agreed Rate (<strong>OMR ${fmtOmr(hourlyRate)}/hr</strong>) = <strong>OMR ${fmtOmr(net)}</strong>.`;
@@ -2134,14 +2336,50 @@ import "../styles/global.css";
           document.getElementById("slip-ot-hrs").textContent = calc.otHrs;
           document.getElementById("slip-ot-earning").textContent = fmtOmr(calc.otAmt);
 
+          // Mess & Rent Allowances
+          const messRow = document.getElementById("slip-mess-row");
+          const rentRow = document.getElementById("slip-rent-row");
+          const slipMessEl = document.getElementById("slip-mess-earning");
+          const slipRentEl = document.getElementById("slip-rent-earning");
+
+          if (messRow) {
+            if (calc.mess > 0) {
+              messRow.classList.remove("hidden");
+              if (slipMessEl) slipMessEl.textContent = fmtOmr(calc.mess);
+            } else {
+              messRow.classList.add("hidden");
+            }
+          }
+
+          if (rentRow) {
+            if (calc.rent > 0) {
+              rentRow.classList.remove("hidden");
+              if (slipRentEl) slipRentEl.textContent = fmtOmr(calc.rent);
+            } else {
+              rentRow.classList.add("hidden");
+            }
+          }
+
           document.getElementById("slip-total-amount").textContent = `OMR ${fmtOmr(calc.netPay)}`;
           if (slipCalcNote) {
+            let noteHtml = `<strong>Calculation Method:</strong> Standard Working Hours = ${p.days} days × 8 hrs = ${p.totalHrs} hrs. `;
             if (calc.leaveHrs > 0) {
               const leaveDeduct = calc.leaveHrs * calc.hourlyRate;
-              slipCalcNote.innerHTML = `<strong>Calculation Method:</strong> Standard Working Hours = ${p.days} days × 8 hrs = ${p.totalHrs} hrs. Normal Hours Worked = <strong>${calc.normalHrs} hrs</strong> (${calc.leaveHrs} hrs leave deducted = <strong>-OMR ${fmtOmr(leaveDeduct)}</strong>). Earned Basic Salary = <strong>OMR ${fmtOmr(calc.earnedBasic)}</strong>. Overtime = ${calc.otHrs} hrs × OMR ${fmtOmr(calc.otRate)}/hr (125%) = <strong>OMR ${fmtOmr(calc.otAmt)}</strong>. <strong>Total Net Salary Payout = OMR ${fmtOmr(calc.netPay)}</strong>.`;
+              noteHtml += `Normal Hours Worked = <strong>${calc.normalHrs} hrs</strong> (${calc.leaveHrs} hrs leave deducted = <strong>-OMR ${fmtOmr(leaveDeduct)}</strong>). Earned Basic = <strong>OMR ${fmtOmr(calc.earnedBasic)}</strong>. `;
             } else {
-              slipCalcNote.innerHTML = `<strong>Calculation Method:</strong> Total Working Hours = ${p.days} days × 8 hrs = ${p.totalHrs} hrs. Hourly Rate = Basic ÷ Total Hours = OMR ${fmtOmr(calc.hourlyRate)}/hr. Overtime Hourly Rate = Hourly Rate × 1.25 (Oman Labor Law Standard 125%). Overtime Earning = ${calc.otHrs} hrs × OT Rate = OMR ${fmtOmr(calc.otAmt)}. Total Net Payout = OMR ${fmtOmr(calc.netPay)}.`;
+              noteHtml += `Hourly Rate = Basic ÷ Total Hours = OMR ${fmtOmr(calc.hourlyRate)}/hr. `;
             }
+            if (calc.otHrs > 0) {
+              noteHtml += `Overtime = ${calc.otHrs} hrs × OMR ${fmtOmr(calc.otRate)}/hr (125%) = <strong>OMR ${fmtOmr(calc.otAmt)}</strong>. `;
+            }
+            if (calc.mess > 0) {
+              noteHtml += `Mess Allowance = <strong>OMR ${fmtOmr(calc.mess)}</strong>. `;
+            }
+            if (calc.rent > 0) {
+              noteHtml += `Rent Allowance = <strong>OMR ${fmtOmr(calc.rent)}</strong>. `;
+            }
+            noteHtml += `<strong>Total Net Salary Payout = OMR ${fmtOmr(calc.netPay)}</strong>.`;
+            slipCalcNote.innerHTML = noteHtml;
           }
         }
 
@@ -2199,6 +2437,8 @@ import "../styles/global.css";
             "OT Rate (125% OMR)",
             "OT Hours",
             "OT Earning (OMR)",
+            "Mess Allowance (OMR)",
+            "Rent Allowance (OMR)",
             "Net Pay (OMR)"
           ];
 
@@ -2234,6 +2474,8 @@ import "../styles/global.css";
                 "—",
                 "—",
                 "—",
+                "—",
+                "—",
                 net.toFixed(3)
               ];
             } else {
@@ -2252,6 +2494,8 @@ import "../styles/global.css";
                 calc.otRate.toFixed(3),
                 calc.otHrs,
                 calc.otAmt.toFixed(3),
+                calc.mess.toFixed(3),
+                calc.rent.toFixed(3),
                 calc.netPay.toFixed(3)
               ];
             }
