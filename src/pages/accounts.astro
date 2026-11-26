@@ -627,7 +627,7 @@ import "../styles/global.css";
 
   <!-- SCRIPT -->
   <script is:inline>
-    const STORAGE_KEY_ACCOUNTS = "nsts_accounts_records_v1";
+    const STORAGE_KEY_ACCOUNTS = "nsts_accounts_records_v2";
     const AUTH_KEY = "nsts_workflow_auth";
     const PASS_STORAGE_KEY = "nsts_workflow_admin_password";
     const DEFAULT_USER = "admin";
@@ -880,16 +880,17 @@ import "../styles/global.css";
     }
 
     function parseDateSortKey(dStr, yearFallback) {
-      if (!dStr) return (yearFallback || 2000) * 10000;
+      const yr = parseInt(yearFallback, 10) || 2000;
+      if (!dStr) return yr * 10000;
       const parts = dStr.split(/[./-]/);
-      if (parts.length === 3) {
+      if (parts.length >= 2) {
         let day = parseInt(parts[0], 10) || 1;
         let month = parseInt(parts[1], 10) || 1;
-        let yr = parseInt(parts[2], 10) || yearFallback || 2000;
-        if (yr < 100) yr += 2000;
+        if (day > 31) day = 1;
+        if (month > 12) month = 1;
         return yr * 10000 + month * 100 + day;
       }
-      return (yearFallback || 2000) * 10000;
+      return yr * 10000;
     }
 
     function renderMetrics(filtered) {
