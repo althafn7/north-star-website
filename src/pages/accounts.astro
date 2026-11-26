@@ -338,6 +338,14 @@ import "../styles/global.css";
           </div>
 
           <select
+            id="filter-paidto"
+            class="border border-white/15 bg-[#161920] px-3 py-2 text-xs text-white/80 focus:border-amber-400 focus:outline-none max-w-[190px]"
+            title="Filter by Beneficiary / Paid To"
+          >
+            <option value="ALL">All Paid To / Beneficiaries</option>
+          </select>
+
+          <select
             id="filter-category"
             class="border border-white/15 bg-[#161920] px-3 py-2 text-xs text-white/80 focus:border-amber-400 focus:outline-none max-w-[180px]"
           >
@@ -640,6 +648,7 @@ import "../styles/global.css";
 
     let records = [];
     let selectedYear = "ALL";
+    let selectedPaidTo = "ALL";
     let selectedCategory = "ALL";
     let selectedProject = "ALL";
     let searchQuery = "";
@@ -798,6 +807,7 @@ import "../styles/global.css";
         btn.addEventListener("click", () => {
           selectedYear = btn.dataset.year;
           currentPage = 1;
+          populateFilterDropdowns();
           renderYearTabs();
           render();
         });
@@ -807,25 +817,52 @@ import "../styles/global.css";
     function populateFilterDropdowns() {
       const catSelect = document.getElementById("filter-category");
       const projSelect = document.getElementById("filter-project");
+      const paidToSelect = document.getElementById("filter-paidto");
+
+      // Scope to active year if not ALL
+      const pool = selectedYear === "ALL" ? records : records.filter(r => parseInt(r.year, 10) === parseInt(selectedYear, 10));
 
       const catSet = new Set();
       const projSet = new Set();
+      const paidToSet = new Set();
 
-      records.forEach(r => {
-        if (r.category) catSet.add(r.category.trim());
-        if (r.project) projSet.add(r.project.trim());
+      pool.forEach(r => {
+        if (r.category && r.category.trim()) catSet.add(r.category.trim());
+        if (r.project && r.project.trim()) projSet.add(r.project.trim());
+        if (r.paidTo && r.paidTo.trim()) paidToSet.add(r.paidTo.trim());
       });
 
       if (catSelect) {
-        const sortedCats = Array.from(catSet).sort();
+        const sortedCats = Array.from(catSet).sort((a, b) => a.localeCompare(b));
+        const prevVal = selectedCategory;
         catSelect.innerHTML = `<option value="ALL">All Categories (${sortedCats.length})</option>` +
-          sortedCats.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join("");
+          sortedCats.map(c => `<option value="${escapeHtml(c)}" ${c.toLowerCase() === prevVal.toLowerCase() ? "selected" : ""}>${escapeHtml(c)}</option>`).join("");
+        if (!sortedCats.some(c => c.toLowerCase() === prevVal.toLowerCase()) && prevVal !== "ALL") {
+          selectedCategory = "ALL";
+          catSelect.value = "ALL";
+        }
       }
 
       if (projSelect) {
-        const sortedProjs = Array.from(projSet).sort();
+        const sortedProjs = Array.from(projSet).sort((a, b) => a.localeCompare(b));
+        const prevVal = selectedProject;
         projSelect.innerHTML = `<option value="ALL">All Projects (${sortedProjs.length})</option>` +
-          sortedProjs.map(p => `<option value="${escapeHtml(p)}">${escapeHtml(p)}</option>`).join("");
+          sortedProjs.map(p => `<option value="${escapeHtml(p)}" ${p.toLowerCase() === prevVal.toLowerCase() ? "selected" : ""}>${escapeHtml(p)}</option>`).join("");
+        if (!sortedProjs.some(p => p.toLowerCase() === prevVal.toLowerCase()) && prevVal !== "ALL") {
+          selectedProject = "ALL";
+          projSelect.value = "ALL";
+        }
+      }
+
+      if (paidToSelect) {
+        const sortedPaidTo = Array.from(paidToSet).sort((a, b) => a.localeCompare(b));
+        const prevVal = selectedPaidTo;
+        paidToSelect.innerHTML = `<option value="ALL">All Paid To (${sortedPaidTo.length})</option>` +
+          sortedPaidTo.map(p => `<option value="${escapeHtml(p)}" ${p.toLowerCase() === prevVal.toLowerCase() ? "selected" : ""}>${escapeHtml(p)}</option>`).join("");
+        if (!sortedPaidTo.some(p => p.toLowerCase() === prevVal.toLowerCase()) && prevVal !== "ALL") {
+          selectedPaidTo = "ALL";
+          paidToSelect.value = "ALL";
+        }
       }
     }
 
@@ -836,6 +873,11 @@ import "../styles/global.css";
       if (selectedYear !== "ALL") {
         const yNum = parseInt(selectedYear, 10);
         filtered = filtered.filter(r => parseInt(r.year, 10) === yNum);
+      }
+
+      // Paid To filter
+      if (selectedPaidTo !== "ALL") {
+        filtered = filtered.filter(r => (r.paidTo || "").trim().toLowerCase() === selectedPaidTo.toLowerCase());
       }
 
       // Category filter
@@ -1379,6 +1421,16 @@ import "../styles/global.css";
       if (searchInput) {
         searchInput.addEventListener("input", (e) => {
           searchQuery = e.target.value;
+          currentPage = 1;
+          renderTable();
+        });
+      }
+
+      // Paid To filter
+      const filterPaidTo = document.getElementById("filter-paidto");
+      if (filterPaidTo) {
+        filterPaidTo.addEventListener("change", (e) => {
+          selectedPaidTo = e.target.value;
           currentPage = 1;
           renderTable();
         });
