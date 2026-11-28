@@ -1057,7 +1057,13 @@ import "../styles/global.css";
           body: JSON.stringify({ records })
         });
         if (res.ok) {
-          if (syncText) syncText.textContent = "Live Synced";
+          const nowStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          if (syncText) syncText.textContent = `Live Synced ${nowStr}`;
+          const footerStatus = document.getElementById("footer-sync-status");
+          if (footerStatus) {
+            footerStatus.textContent = "Live Cloud Active";
+            footerStatus.className = "font-semibold text-emerald-400";
+          }
         } else {
           if (syncText) syncText.textContent = "Local Saved";
         }
@@ -1074,15 +1080,52 @@ import "../styles/global.css";
       if (syncIcon) syncIcon.classList.add("animate-spin");
 
       try {
-        const res = await fetch("/api/accounts-sync?cb=" + Date.now());
-        if (res.ok) {
-          const result = await res.json();
-          if (result && Array.isArray(result.records) && result.records.length > 0) {
-            records = result.records;
-            saveLocal();
-            render();
-            if (syncText) syncText.textContent = "Live Synced";
+        let cloudRecords = null;
+
+        // Try primary Cloudflare Worker endpoint
+        try {
+          const res = await fetch("/api/accounts-sync?cb=" + Date.now());
+          if (res.ok) {
+            const result = await res.json();
+            if (result && Array.isArray(result.records) && result.records.length > 0) {
+              cloudRecords = result.records;
+            }
           }
+        } catch (apiErr) {
+          console.warn("Primary API note:", apiErr);
+        }
+
+        // Direct fallback to public raw gist
+        if (!cloudRecords) {
+          try {
+            const rawGistUrl = "https://gist.githubusercontent.com/althafn7/96e888d176e236fa12728ddf0d5066e2/raw/accounts_records.json?t=" + Date.now();
+            const rawRes = await fetch(rawGistUrl);
+            if (rawRes.ok) {
+              const rawData = await rawRes.json();
+              if (Array.isArray(rawData) && rawData.length > 0) {
+                cloudRecords = rawData;
+              }
+            }
+          } catch (rawErr) {
+            console.warn("Raw gist note:", rawErr);
+          }
+        }
+
+        if (cloudRecords && Array.isArray(cloudRecords) && cloudRecords.length > 0) {
+          records = cloudRecords;
+          saveLocal();
+          populateFilterDropdowns();
+          renderYearTabs();
+          render();
+          const nowStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          if (syncText) syncText.textContent = `Live Synced ${nowStr}`;
+          const footerStatus = document.getElementById("footer-sync-status");
+          if (footerStatus) {
+            footerStatus.textContent = "Live Cloud Active";
+            footerStatus.className = "font-semibold text-emerald-400";
+          }
+        } else {
+          if (syncText) syncText.textContent = "Live Synced";
         }
       } catch (e) {
         console.log("Using cached records");

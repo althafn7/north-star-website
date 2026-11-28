@@ -225,6 +225,140 @@ export default {
       }
     }
 
+    // Live Accounts & Cash Book Cloud Sync API
+    if (url.pathname.startsWith("/api/accounts-sync")) {
+      if (request.method === "OPTIONS") {
+        return new Response(null, { status: 204, headers: CORS_HEADERS });
+      }
+
+      const token = getGithubToken(env);
+      const ACCOUNTS_GIST_FILE = "accounts_records.json";
+
+      if (request.method === "GET") {
+        try {
+          const res = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+            headers: {
+              "User-Agent": "NorthStar-AccountsSync",
+              "Authorization": `Bearer ${token}`,
+              "Accept": "application/vnd.github+json"
+            }
+          });
+
+          if (res.ok) {
+            const data = await res.json();
+            const fileObj = data.files && data.files[ACCOUNTS_GIST_FILE];
+            if (fileObj) {
+              let records = null;
+              // Handle large files (> 1MB) where GitHub truncates API payload
+              if (fileObj.truncated || !fileObj.content) {
+                const rawUrl = fileObj.raw_url || `https://gist.githubusercontent.com/althafn7/${GIST_ID}/raw/${ACCOUNTS_GIST_FILE}?t=${Date.now()}`;
+                const rawRes = await fetch(rawUrl);
+                if (rawRes.ok) {
+                  records = await rawRes.json();
+                }
+              } else {
+                try {
+                  records = JSON.parse(fileObj.content);
+                } catch (pe) {
+                  const rawUrl = fileObj.raw_url || `https://gist.githubusercontent.com/althafn7/${GIST_ID}/raw/${ACCOUNTS_GIST_FILE}?t=${Date.now()}`;
+                  const rawRes = await fetch(rawUrl);
+                  if (rawRes.ok) records = await rawRes.json();
+                }
+              }
+
+              if (Array.isArray(records) && records.length > 0) {
+                return new Response(JSON.stringify({
+                  success: true,
+                  records,
+                  updatedAt: data.updated_at,
+                  count: records.length,
+                  source: "gist-api"
+                }), {
+                  headers: { "Content-Type": "application/json", ...CORS_HEADERS }
+                });
+              }
+            }
+          }
+
+          // Fallback to direct raw gist URL
+          const rawRes = await fetch(`https://gist.githubusercontent.com/althafn7/${GIST_ID}/raw/${ACCOUNTS_GIST_FILE}?t=${Date.now()}`);
+          if (rawRes.ok) {
+            const rawData = await rawRes.json();
+            if (Array.isArray(rawData) && rawData.length > 0) {
+              return new Response(JSON.stringify({
+                success: true,
+                records: rawData,
+                count: rawData.length,
+                source: "gist-raw"
+              }), {
+                headers: { "Content-Type": "application/json", ...CORS_HEADERS }
+              });
+            }
+          }
+
+          return new Response(JSON.stringify({ success: false, error: "Accounts records unavailable" }), {
+            status: 502,
+            headers: { "Content-Type": "application/json", ...CORS_HEADERS }
+          });
+        } catch (e) {
+          return new Response(JSON.stringify({ success: false, error: e.message }), {
+            status: 500,
+            headers: { "Content-Type": "application/json", ...CORS_HEADERS }
+          });
+        }
+      }
+
+      if (request.method === "POST") {
+        try {
+          const body = await request.json();
+          if (!body || !Array.isArray(body.records)) {
+            return new Response(JSON.stringify({ success: false, error: "'records' must be an array" }), {
+              status: 400,
+              headers: { "Content-Type": "application/json", ...CORS_HEADERS }
+            });
+          }
+
+          const patchRes = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+            method: "PATCH",
+            headers: {
+              "User-Agent": "NorthStar-AccountsSync",
+              "Authorization": `Bearer ${token}`,
+              "Content-Type": "application/json",
+              "Accept": "application/vnd.github+json"
+            },
+            body: JSON.stringify({
+              description: `North Star Accounts Live Sync (Records: ${body.records.length})`,
+              files: {
+                [ACCOUNTS_GIST_FILE]: { content: JSON.stringify(body.records) }
+              }
+            })
+          });
+
+          if (!patchRes.ok) {
+            const errText = await patchRes.text();
+            return new Response(JSON.stringify({ success: false, error: "Gist update failed", details: errText }), {
+              status: patchRes.status,
+              headers: { "Content-Type": "application/json", ...CORS_HEADERS }
+            });
+          }
+
+          const updated = await patchRes.json();
+          return new Response(JSON.stringify({
+            success: true,
+            updatedAt: updated.updated_at,
+            count: body.records.length
+          }), {
+            headers: { "Content-Type": "application/json", ...CORS_HEADERS }
+          });
+        } catch (e) {
+          return new Response(JSON.stringify({ success: false, error: e.message }), {
+            status: 500,
+            headers: { "Content-Type": "application/json", ...CORS_HEADERS }
+          });
+        }
+      }
+    }
+
     // Pass through to static assets from ./dist
     if (env.ASSETS && env.ASSETS.fetch) {
       return env.ASSETS.fetch(request);
