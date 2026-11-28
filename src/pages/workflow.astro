@@ -381,7 +381,7 @@ import "../styles/global.css";
                 <th class="w-[100px] px-1 py-2.5">PO Details</th>
                 <th class="w-[88px] px-1 py-2.5">Work Progress</th>
                 <th class="w-[98px] px-1 py-2.5">Invoicing</th>
-                <th class="w-[82px] py-2.5 pl-1 pr-1 text-left">Actions</th>
+                <th class="w-[125px] min-w-[125px] py-2.5 pl-1 pr-1 text-left">Actions</th>
               </tr>
             </thead>
             <tbody id="workflow-table-body" class="divide-y divide-white/5">
@@ -477,6 +477,27 @@ import "../styles/global.css";
             <div id="view-work-badge"></div>
           </div>
           <div id="view-invoices-summary" class="mt-3">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+
+        <!-- 4. Attached Documents (Method Statement, JHA, Drawings, MTC) -->
+        <div class="rounded border border-white/10 bg-[#0f1115] p-3.5 sm:p-4">
+          <div class="flex items-center justify-between border-b border-white/10 pb-2">
+            <div class="flex items-center gap-2">
+              <span class="font-bold uppercase tracking-wider text-white/70 text-[11px]">4. Attached Documents</span>
+              <span id="view-docs-count-badge" class="rounded bg-amber-500/20 px-1.5 py-0.2 text-[9px] font-bold text-amber-300">0 files</span>
+            </div>
+            <button
+              type="button"
+              id="view-manage-docs-btn"
+              class="inline-flex items-center gap-1 rounded border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10.5px] font-medium text-amber-300 transition-colors hover:border-amber-500/60 hover:bg-amber-500/25"
+            >
+              <svg class="h-3 w-3 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+              <span>+ Upload / Manage Docs</span>
+            </button>
+          </div>
+          <div id="view-docs-list" class="mt-3 space-y-1.5">
             <!-- Populated dynamically -->
           </div>
         </div>
@@ -674,6 +695,143 @@ import "../styles/global.css";
           </button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- ================= ATTACHED DOCUMENTS MANAGEMENT MODAL ================= -->
+  <div id="docs-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/85 p-4 backdrop-blur-xs">
+    <div class="relative max-h-[92vh] w-full max-w-3xl overflow-y-auto border border-white/15 border-t-4 border-t-amber-500 bg-[#161920] p-6 shadow-2xl sm:p-8">
+      <!-- Close button (top right) -->
+      <button
+        id="docs-modal-close-btn"
+        type="button"
+        class="absolute right-4 top-4 rounded-sm border border-white/15 p-1.5 text-white/60 transition-colors hover:border-white/40 hover:bg-white/10 hover:text-white"
+        aria-label="Close"
+        title="Close Documents Window (Esc)"
+      >
+        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+
+      <!-- Eyebrow & Title -->
+      <div class="flex flex-wrap items-center gap-2.5">
+        <span class="text-xs font-semibold uppercase tracking-[0.2em] text-amber-400">Engineering &amp; Project Attachments</span>
+        <span id="docs-storage-badge" class="rounded bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-300 ring-1 ring-emerald-500/30">
+          ⚡ Cloudflare R2 Storage (10 GB Free Tier)
+        </span>
+      </div>
+      <h2 id="docs-modal-ref" class="mt-1 font-mono text-2xl font-extrabold text-white sm:text-3xl tracking-tight">NSTS/QUOTE/...</h2>
+      <div id="docs-modal-client-bar" class="mt-1 text-xs text-white/70"></div>
+
+      <!-- Upload Document Card -->
+      <div class="mt-5 rounded border border-amber-500/30 bg-[#0f1115] p-4">
+        <div class="flex items-center justify-between border-b border-white/10 pb-2">
+          <span class="font-bold uppercase tracking-wider text-amber-300 text-[11px] flex items-center gap-1.5">
+            <svg class="h-4 w-4 inline text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Attach New Document to this Job
+          </span>
+          <span class="text-[10px] text-white/40 font-mono">PDF, DOC, XLS, DWG, PNG (Max 50MB)</span>
+        </div>
+
+        <form id="docs-upload-form" class="mt-3 space-y-3">
+          <input type="hidden" id="docs-record-id" />
+          <input type="hidden" id="docs-record-ref" />
+
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <!-- Category Selector -->
+            <div>
+              <label for="docs-file-category" class="block text-[10.5px] font-semibold uppercase text-white/70">
+                Document Category *
+              </label>
+              <select
+                id="docs-file-category"
+                required
+                class="mt-1 w-full border border-white/15 bg-[#161920] px-3 py-2 text-xs text-white focus:border-amber-400 focus:outline-none"
+              >
+                <option value="Method Statement (MS)">📄 Method Statement (MS)</option>
+                <option value="Job Hazard Analysis (JHA / Safety)">🛡️ Job Hazard Analysis (JHA / Safety)</option>
+                <option value="Permit to Work (PTW)">📜 Permit to Work (PTW)</option>
+                <option value="Engineering Drawing / Isometric">📐 Engineering Drawing / Isometric</option>
+                <option value="Inspection & Test Plan (ITP) / QC">🔍 Inspection &amp; Test Plan (ITP) / QC</option>
+                <option value="Client PO / Work Order">📋 Client PO / Work Order</option>
+                <option value="Material Test Certificate (MTC)">🔬 Material Test Certificate (MTC)</option>
+                <option value="Delivery Note / Handover">🚚 Delivery Note / Handover</option>
+                <option value="General Document">📁 General Document</option>
+              </select>
+            </div>
+
+            <!-- Notes / Remarks (Optional) -->
+            <div class="sm:col-span-2">
+              <label for="docs-file-notes" class="block text-[10.5px] font-semibold uppercase text-white/70">
+                Title / Description / Revision (Optional)
+              </label>
+              <input
+                type="text"
+                id="docs-file-notes"
+                placeholder="e.g. Rev-02 Approved by Client Safety Dept"
+                class="mt-1 w-full border border-white/15 bg-[#161920] px-3 py-2 text-xs text-white placeholder-white/30 focus:border-amber-400 focus:outline-none"
+              />
+            </div>
+          </div>
+
+          <!-- File Input & Drop Zone -->
+          <div class="mt-2">
+            <label for="docs-file-input" class="block text-[10.5px] font-semibold uppercase text-white/70">
+              Select or Drag File *
+            </label>
+            <div class="mt-1 flex items-center gap-2">
+              <input
+                type="file"
+                id="docs-file-input"
+                required
+                class="block w-full text-xs text-white/70 file:mr-3 file:border-0 file:bg-white/10 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white hover:file:bg-white/20"
+              />
+              <button
+                type="submit"
+                id="docs-upload-btn"
+                class="inline-flex shrink-0 items-center gap-1.5 bg-amber-500 px-4 py-2 text-xs font-bold uppercase tracking-wider text-black shadow transition-colors hover:bg-amber-400 disabled:opacity-50"
+              >
+                <svg id="docs-upload-spinner" class="hidden h-3.5 w-3.5 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+                <span id="docs-upload-btn-text">Upload Document</span>
+              </button>
+            </div>
+          </div>
+
+          <div id="docs-upload-status" class="hidden rounded p-2 text-xs font-medium"></div>
+        </form>
+      </div>
+
+      <!-- Currently Attached Documents List -->
+      <div class="mt-5">
+        <div class="flex items-center justify-between border-b border-white/10 pb-2">
+          <div class="flex items-center gap-2">
+            <span class="font-bold uppercase tracking-wider text-white text-xs">Attached Documents</span>
+            <span id="docs-modal-count-badge" class="rounded bg-white/10 px-2 py-0.5 font-mono text-[10px] font-semibold text-white/80">0 files</span>
+          </div>
+          <span id="docs-modal-total-size" class="text-[10px] font-mono text-white/40"></span>
+        </div>
+
+        <div id="docs-modal-list" class="mt-3 space-y-2">
+          <!-- Populated dynamically -->
+        </div>
+
+        <div id="docs-modal-empty" class="hidden rounded border border-dashed border-white/15 bg-white/[0.02] p-8 text-center text-xs text-white/40">
+          <svg class="mx-auto h-8 w-8 text-white/20 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          No documents attached to this job yet.<br />
+          Upload your Method Statement, JHA, or drawings above.
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="mt-6 flex items-center justify-between border-t border-white/10 pt-4">
+        <span class="text-[10px] text-white/40">Stored securely with perpetual zero-egress Cloudflare R2 cloud storage.</span>
+        <button
+          type="button"
+          id="docs-modal-close-bottom-btn"
+          class="rounded-xs border border-white/20 bg-white/5 px-5 py-1.5 text-xs font-semibold text-white transition-colors hover:border-white/50 hover:bg-white/15"
+        >
+          ✕ Close
+        </button>
+      </div>
     </div>
   </div>
 
@@ -2894,6 +3052,21 @@ import "../styles/global.css";
           <!-- Scope -->
           <td class="px-2 py-2">
             <p class="line-clamp-2 text-[10.5px] leading-snug text-white/80" title="${r.scope || ""}">${r.scope || "—"}</p>
+            ${(Array.isArray(r.documents) && r.documents.length > 0) ? `
+              <div class="mt-1 flex flex-wrap items-center gap-1">
+                ${r.documents.map(d => `
+                  <button
+                    type="button"
+                    onclick="window._openDocsModal('${r.id}')"
+                    class="inline-flex items-center gap-1 rounded bg-amber-500/15 border border-amber-500/30 px-1.5 py-0.2 text-[9px] font-semibold text-amber-300 hover:bg-amber-500/25 transition-colors"
+                    title="${escapeHtml(d.name)}${d.notes ? ' • ' + escapeHtml(d.notes) : ''}"
+                  >
+                    <span>📎</span>
+                    <span class="max-w-[110px] truncate">${escapeHtml(d.category || d.name)}</span>
+                  </button>
+                `).join('')}
+              </div>
+            ` : ''}
           </td>
 
           <!-- Quoted Total & VAT Breakdown (Option A) -->
@@ -2936,7 +3109,7 @@ import "../styles/global.css";
           </td>
 
           <!-- Actions -->
-          <td class="w-[82px] whitespace-nowrap py-2 pl-1 pr-1 text-left">
+          <td class="w-[125px] whitespace-nowrap py-2 pl-1 pr-1 text-left">
             <div class="inline-flex items-center gap-1">
               <button
                 onclick="window._viewRecord('${r.id}')"
@@ -2945,6 +3118,13 @@ import "../styles/global.css";
                 aria-label="View record"
               >
                 <svg class="h-3 w-3 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+              <button
+                onclick="window._openDocsModal('${r.id}')"
+                class="rounded-xs border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 text-[10.5px] font-medium text-amber-300 transition-colors hover:border-amber-500/60 hover:bg-amber-500/25"
+                title="Manage Attached Documents (${(Array.isArray(r.documents) && r.documents.length) || 0} attached)"
+              >
+                Docs${(Array.isArray(r.documents) && r.documents.length > 0) ? ` (${r.documents.length})` : ''}
               </button>
               <button
                 onclick="window._editRecord('${r.id}')"
@@ -3420,6 +3600,53 @@ import "../styles/global.css";
         `;
       }
 
+      // Render Attached Documents in View Modal
+      const viewDocsCountEl = document.getElementById("view-docs-count-badge");
+      const viewDocsListEl = document.getElementById("view-docs-list");
+      const docs = Array.isArray(r.documents) ? r.documents : [];
+      if (viewDocsCountEl) {
+        viewDocsCountEl.textContent = `${docs.length} ${docs.length === 1 ? 'file' : 'files'}`;
+      }
+      if (viewDocsListEl) {
+        if (docs.length === 0) {
+          viewDocsListEl.innerHTML = `
+            <div class="rounded border border-dashed border-white/10 p-3 text-center text-white/40 italic">
+              No documents attached yet. Click "+ Upload / Manage Docs" to attach a Method Statement, JHA, or drawing.
+            </div>
+          `;
+        } else {
+          viewDocsListEl.innerHTML = docs.map(d => `
+            <div class="flex flex-wrap items-center justify-between gap-2 rounded border border-white/10 bg-[#161920] p-2 text-xs">
+              <div class="flex items-center gap-2 max-w-[70%]">
+                <span class="inline-block rounded px-1.5 py-0.5 text-[9.5px] font-semibold ${getDocBadgeClass(d.category)}">
+                  ${escapeHtml(d.category || 'General')}
+                </span>
+                <span class="font-medium text-white truncate" title="${escapeHtml(d.name)}">${escapeHtml(d.name)}</span>
+                <span class="font-mono text-[10px] text-white/50">(${formatFileSize(d.size)})</span>
+                ${d.notes ? `<span class="text-[10px] text-white/40 truncate max-w-[150px] italic">• ${escapeHtml(d.notes)}</span>` : ''}
+              </div>
+              <div class="flex items-center gap-1">
+                <a
+                  href="${d.url}"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="rounded bg-white/10 px-2 py-0.5 text-[10px] font-semibold text-white hover:bg-white/20 transition-colors"
+                >
+                  View ↗
+                </a>
+                <a
+                  href="${d.url}${d.url.includes('?') ? '&' : '?'}download=1"
+                  download="${escapeHtml(d.name)}"
+                  class="rounded bg-white/5 border border-white/15 px-2 py-0.5 text-[10px] font-semibold text-white/80 hover:bg-white/15 transition-colors"
+                >
+                  Download ⬇
+                </a>
+              </div>
+            </div>
+          `).join('');
+        }
+      }
+
       viewModal.classList.remove("hidden");
       viewModal.classList.add("flex");
     }
@@ -3442,6 +3669,296 @@ import "../styles/global.css";
         saveRecords();
       }
     };
+
+    // ================= DOCUMENT ATTACHMENTS & R2 LOGIC =================
+    let activeDocsRecord = null;
+
+    function escapeHtml(str) {
+      if (!str) return "";
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function formatFileSize(bytes) {
+      if (!bytes || isNaN(bytes)) return "0 KB";
+      const b = Number(bytes);
+      if (b < 1024) return b + " B";
+      if (b < 1024 * 1024) return (b / 1024).toFixed(1) + " KB";
+      return (b / (1024 * 1024)).toFixed(1) + " MB";
+    }
+
+    function getDocBadgeClass(cat) {
+      const c = (cat || "").toLowerCase();
+      if (c.includes("method")) return "bg-amber-500/20 text-amber-300 border border-amber-500/30";
+      if (c.includes("safety") || c.includes("jha") || c.includes("hazard")) return "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
+      if (c.includes("drawing") || c.includes("isometric")) return "bg-cyan-500/20 text-cyan-300 border border-cyan-500/30";
+      if (c.includes("po") || c.includes("order")) return "bg-purple-500/20 text-purple-300 border border-purple-500/30";
+      if (c.includes("qc") || c.includes("itp") || c.includes("inspect")) return "bg-rose-500/20 text-rose-300 border border-rose-500/30";
+      if (c.includes("permit") || c.includes("ptw")) return "bg-orange-500/20 text-orange-300 border border-orange-500/30";
+      if (c.includes("certificate") || c.includes("mtc") || c.includes("delivery") || c.includes("handover")) return "bg-blue-500/20 text-blue-300 border border-blue-500/30";
+      return "bg-white/10 text-white/80 border border-white/20";
+    }
+
+    function openDocsModal(recOrId) {
+      const rec = typeof recOrId === "string" ? records.find(r => r.id === recOrId) : recOrId;
+      if (!rec) return;
+      activeDocsRecord = rec;
+
+      const refEl = document.getElementById("docs-modal-ref");
+      const clientEl = document.getElementById("docs-modal-client-bar");
+      const recIdInput = document.getElementById("docs-record-id");
+      const recRefInput = document.getElementById("docs-record-ref");
+      const statusBox = document.getElementById("docs-upload-status");
+
+      if (refEl) refEl.textContent = rec.ref || "Untitled Job";
+      if (clientEl) {
+        clientEl.innerHTML = `Client: <strong class="text-white">${rec.client || "—"}</strong> &bull; Scope: <span class="text-white/80">${escapeHtml(rec.scope || "—")}</span>`;
+      }
+      if (recIdInput) recIdInput.value = rec.id;
+      if (recRefInput) recRefInput.value = rec.ref || "NSTS";
+      if (statusBox) statusBox.classList.add("hidden");
+
+      renderDocsModalList();
+
+      const modal = document.getElementById("docs-modal");
+      if (modal) {
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+      }
+    }
+
+    function closeDocsModal() {
+      const modal = document.getElementById("docs-modal");
+      if (modal) {
+        modal.classList.add("hidden");
+        modal.classList.remove("flex");
+      }
+      activeDocsRecord = null;
+    }
+
+    function renderDocsModalList() {
+      if (!activeDocsRecord) return;
+      const listEl = document.getElementById("docs-modal-list");
+      const emptyEl = document.getElementById("docs-modal-empty");
+      const countEl = document.getElementById("docs-modal-count-badge");
+      const totalSizeEl = document.getElementById("docs-modal-total-size");
+
+      const docs = Array.isArray(activeDocsRecord.documents) ? activeDocsRecord.documents : [];
+
+      if (countEl) countEl.textContent = `${docs.length} ${docs.length === 1 ? 'file' : 'files'}`;
+
+      const totalBytes = docs.reduce((sum, d) => sum + (Number(d.size) || 0), 0);
+      if (totalSizeEl) totalSizeEl.textContent = totalBytes > 0 ? `Total size: ${formatFileSize(totalBytes)}` : "";
+
+      if (docs.length === 0) {
+        if (listEl) listEl.innerHTML = "";
+        if (emptyEl) emptyEl.classList.remove("hidden");
+        return;
+      }
+
+      if (emptyEl) emptyEl.classList.add("hidden");
+
+      if (listEl) {
+        listEl.innerHTML = docs.map((d) => `
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 rounded border border-white/10 bg-[#0f1115] p-3 text-xs transition-colors hover:border-white/20">
+            <div class="flex items-start gap-2.5 min-w-0">
+              <span class="mt-0.5 inline-block shrink-0 rounded px-2 py-0.5 text-[9.5px] font-semibold tracking-wide ${getDocBadgeClass(d.category)}">
+                ${escapeHtml(d.category || 'General')}
+              </span>
+              <div class="min-w-0">
+                <a
+                  href="${d.url}"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="block font-semibold text-white hover:text-amber-300 hover:underline truncate text-[12px]"
+                  title="${escapeHtml(d.name)}"
+                >
+                  ${escapeHtml(d.name)}
+                </a>
+                <div class="mt-0.5 flex flex-wrap items-center gap-2 text-[10px] text-white/50">
+                  <span class="font-mono text-white/70">${formatFileSize(d.size)}</span>
+                  <span>&bull;</span>
+                  <span>Uploaded: ${fmtDate(d.uploadDate ? d.uploadDate.split('T')[0] : '')}</span>
+                  ${d.notes ? `<span>&bull;</span><span class="text-amber-200/80 italic font-normal">${escapeHtml(d.notes)}</span>` : ''}
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-1.5 shrink-0 self-end sm:self-center">
+              <a
+                href="${d.url}"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="rounded bg-white/10 px-2.5 py-1 text-[10.5px] font-semibold text-white hover:bg-white/20 transition-colors"
+                title="View document in new tab"
+              >
+                View ↗
+              </a>
+              <a
+                href="${d.url}${d.url.includes('?') ? '&' : '?'}download=1"
+                download="${escapeHtml(d.name)}"
+                class="rounded border border-white/15 bg-white/5 px-2.5 py-1 text-[10.5px] font-medium text-white/80 hover:bg-white/15 transition-colors"
+                title="Download file to computer"
+              >
+                Download ⬇
+              </a>
+              <button
+                type="button"
+                onclick="window._deleteDocument('${activeDocsRecord.id}', '${d.id}')"
+                class="rounded border border-red-500/30 bg-red-500/10 px-2 py-1 text-[10.5px] font-semibold text-red-300 hover:border-red-500/60 hover:bg-red-500/25 transition-colors"
+                title="Delete document"
+              >
+                Delete ✕
+              </button>
+            </div>
+          </div>
+        `).join("");
+      }
+    }
+
+    window._openDocsModal = openDocsModal;
+
+    window._deleteDocument = async function (recordId, docId) {
+      const rec = records.find(r => r.id === recordId);
+      if (!rec || !Array.isArray(rec.documents)) return;
+
+      const doc = rec.documents.find(d => d.id === docId);
+      if (!doc) return;
+
+      if (!confirm(`Are you sure you want to delete this attached document?\n\n• ${doc.name}\n• Category: ${doc.category || 'General'}\n\nThis will remove it from this job card.`)) {
+        return;
+      }
+
+      // If document is stored in R2, delete it via API
+      if (doc.r2Key && doc.r2Key !== 'inline') {
+        try {
+          await fetch(`/api/documents/${encodeURIComponent(doc.r2Key)}`, { method: "DELETE" });
+        } catch (e) {
+          console.warn("Could not delete from R2:", e);
+        }
+      }
+
+      // Remove from record array
+      rec.documents = rec.documents.filter(d => d.id !== docId);
+      saveRecords();
+
+      renderDocsModalList();
+      if (activeViewingRecord && activeViewingRecord.id === recordId) {
+        openViewModal(rec);
+      }
+    };
+
+    // Upload Document Form Listener
+    const docsUploadForm = document.getElementById("docs-upload-form");
+    if (docsUploadForm) {
+      docsUploadForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        if (!activeDocsRecord) return;
+
+        const fileInput = document.getElementById("docs-file-input");
+        const categoryInput = document.getElementById("docs-file-category");
+        const notesInput = document.getElementById("docs-file-notes");
+        const statusBox = document.getElementById("docs-upload-status");
+        const uploadBtn = document.getElementById("docs-upload-btn");
+        const uploadSpinner = document.getElementById("docs-upload-spinner");
+        const uploadBtnText = document.getElementById("docs-upload-btn-text");
+
+        if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+          alert("Please select a file to upload.");
+          return;
+        }
+
+        const file = fileInput.files[0];
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("recordId", activeDocsRecord.id);
+        formData.append("jobRef", activeDocsRecord.ref || "NSTS");
+        formData.append("category", categoryInput ? categoryInput.value : "General");
+        formData.append("notes", notesInput ? notesInput.value.trim() : "");
+
+        try {
+          if (uploadBtn) uploadBtn.disabled = true;
+          if (uploadSpinner) uploadSpinner.classList.remove("hidden");
+          if (uploadBtnText) uploadBtnText.textContent = "Uploading...";
+          if (statusBox) statusBox.classList.add("hidden");
+
+          const res = await fetch("/api/documents/upload", {
+            method: "POST",
+            body: formData
+          });
+
+          const data = await res.json();
+
+          if (res.ok && data.success && data.document) {
+            activeDocsRecord.documents = activeDocsRecord.documents || [];
+            activeDocsRecord.documents.unshift(data.document);
+            saveRecords();
+
+            // Reset form
+            fileInput.value = "";
+            if (notesInput) notesInput.value = "";
+
+            if (statusBox) {
+              statusBox.textContent = `✔ Successfully attached "${data.document.name}" (${formatFileSize(data.document.size)}) to ${activeDocsRecord.ref}!`;
+              statusBox.className = "rounded bg-emerald-900/40 border border-emerald-500/30 p-2.5 text-xs font-medium text-emerald-300 block";
+            }
+
+            renderDocsModalList();
+            if (activeViewingRecord && activeViewingRecord.id === activeDocsRecord.id) {
+              openViewModal(activeDocsRecord);
+            }
+          } else {
+            if (statusBox) {
+              statusBox.textContent = "Upload notice: " + (data.error || "Failed to upload file.");
+              statusBox.className = "rounded bg-red-900/40 border border-red-500/30 p-2.5 text-xs font-medium text-red-300 block";
+            }
+          }
+        } catch (err) {
+          if (statusBox) {
+            statusBox.textContent = "Network error while uploading: " + err.message;
+            statusBox.className = "rounded bg-red-900/40 border border-red-500/30 p-2.5 text-xs font-medium text-red-300 block";
+          }
+        } finally {
+          if (uploadBtn) uploadBtn.disabled = false;
+          if (uploadSpinner) uploadSpinner.classList.add("hidden");
+          if (uploadBtnText) uploadBtnText.textContent = "Upload Document";
+        }
+      });
+    }
+
+    // Modal Close Buttons
+    const docsModal = document.getElementById("docs-modal");
+    const docsModalCloseBtn = document.getElementById("docs-modal-close-btn");
+    const docsModalCloseBottomBtn = document.getElementById("docs-modal-close-bottom-btn");
+    if (docsModalCloseBtn) docsModalCloseBtn.addEventListener("click", closeDocsModal);
+    if (docsModalCloseBottomBtn) docsModalCloseBottomBtn.addEventListener("click", closeDocsModal);
+    if (docsModal) {
+      docsModal.addEventListener("click", (e) => {
+        if (e.target === docsModal) closeDocsModal();
+      });
+    }
+
+    const viewManageDocsBtn = document.getElementById("view-manage-docs-btn");
+    if (viewManageDocsBtn) {
+      viewManageDocsBtn.addEventListener("click", () => {
+        if (activeViewingRecord) {
+          openDocsModal(activeViewingRecord);
+        }
+      });
+    }
+
+    // Global Esc key listener for docs modal
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        if (docsModal && !docsModal.classList.contains("hidden")) {
+          closeDocsModal();
+        }
+      }
+    });
 
     // Filter & Sort Listeners
     const metricCardInvoiced = document.getElementById("metric-card-invoiced");
