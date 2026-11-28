@@ -317,6 +317,7 @@ import "../styles/global.css";
           >
             <option value="ALL">All Approval Statuses</option>
             <option value="INVOICED">Invoiced Jobs Only (24)</option>
+            <option value="DIRECT">⚡ Direct Invoices (No Quote / No PO)</option>
             <option value="Pending">Pending Approval</option>
             <option value="Approved">PO Received / Approved</option>
             <option value="Under Revision">Under Revision</option>
@@ -425,7 +426,7 @@ import "../styles/global.css";
 
       <!-- Eyebrow & Title -->
       <div class="flex flex-wrap items-center gap-2.5">
-        <span class="text-xs font-semibold uppercase tracking-[0.2em] text-blue-400">Quote Inspection</span>
+        <span id="view-eyebrow-type" class="text-xs font-semibold uppercase tracking-[0.2em] text-blue-400">Quote Inspection</span>
         <div id="view-status-badge"></div>
       </div>
       <h2 id="view-title-ref" class="mt-1 font-mono text-2xl font-extrabold text-white sm:text-3xl tracking-tight">NSTS/QUOTE/...</h2>
@@ -436,12 +437,12 @@ import "../styles/global.css";
         <!-- 1. Quotation Details -->
         <div class="rounded border border-white/10 bg-[#0f1115] p-3.5 sm:p-4">
           <div class="flex items-center justify-between border-b border-white/10 pb-2">
-            <span class="font-bold uppercase tracking-wider text-white/70 text-[11px]">1. Quotation Details</span>
+            <span id="view-sec-1-title" class="font-bold uppercase tracking-wider text-white/70 text-[11px]">1. Quotation Details</span>
             <span id="view-quote-date" class="text-white/50 font-mono text-[11px]"></span>
           </div>
           <div class="mt-3 grid grid-cols-1 gap-2.5 sm:grid-cols-3">
             <div class="rounded bg-[#161920] p-2.5 border border-white/5">
-              <span class="block text-[10px] uppercase font-semibold text-white/50">Basic Amount</span>
+              <span id="view-label-quote-basic" class="block text-[10px] uppercase font-semibold text-white/50">Basic Amount</span>
               <span id="view-quote-basic" class="mt-1 block font-mono text-sm font-bold text-white"></span>
             </div>
             <div class="rounded bg-[#161920] p-2.5 border border-white/5">
@@ -449,7 +450,7 @@ import "../styles/global.css";
               <span id="view-quote-vat" class="mt-1 block font-mono text-sm font-bold text-amber-300"></span>
             </div>
             <div class="rounded bg-flare/10 p-2.5 border border-flare/30">
-              <span class="block text-[10px] uppercase font-semibold text-flare">Total Quoted (incl. VAT)</span>
+              <span id="view-label-quote-total" class="block text-[10px] uppercase font-semibold text-flare">Total Quoted (incl. VAT)</span>
               <span id="view-quote-total" class="mt-1 block font-mono text-sm font-extrabold text-flare"></span>
             </div>
           </div>
@@ -542,17 +543,44 @@ import "../styles/global.css";
       <form id="record-form" class="mt-6 space-y-6">
         <input type="hidden" id="record-id" name="id" value="" />
 
+        <!-- Entry Type Selector (Quotation vs Direct Invoice) -->
+        <div class="rounded border border-white/10 bg-[#0f1115] p-2.5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <span class="block text-[11px] font-bold uppercase tracking-wider text-white">Entry Type</span>
+              <span class="block text-[10.5px] text-white/50">Select standard quotation or direct spot billing</span>
+            </div>
+            <div class="inline-flex rounded border border-white/15 bg-[#161920] p-0.5">
+              <button
+                type="button"
+                id="type-btn-quote"
+                class="rounded px-3 py-1.5 text-xs font-semibold transition-all bg-flare text-white shadow"
+              >
+                📋 Standard Quotation
+              </button>
+              <button
+                type="button"
+                id="type-btn-direct"
+                class="rounded px-3 py-1.5 text-xs font-semibold text-white/60 transition-all hover:text-white"
+              >
+                ⚡ Direct Invoice (No Quote / No PO)
+              </button>
+            </div>
+          </div>
+          <input type="hidden" id="form-entry-type" value="QUOTE" />
+        </div>
+
         <!-- Section 1: Quotation Details -->
         <div>
-          <h3 class="border-b border-white/10 pb-1.5 text-xs font-bold uppercase tracking-wider text-white/80">1. Quotation Details</h3>
+          <h3 id="modal-section-1-title" class="border-b border-white/10 pb-1.5 text-xs font-bold uppercase tracking-wider text-white/80">1. Quotation Details</h3>
           <div class="mt-3 grid grid-cols-1 gap-3.5 sm:grid-cols-2">
             <div>
-              <label for="form-ref" class="block text-[11px] font-semibold uppercase tracking-wider text-white/70">Quote Ref #</label>
+              <label for="form-ref" id="label-form-ref" class="block text-[11px] font-semibold uppercase tracking-wider text-white/70">Quote Ref #</label>
               <input type="text" id="form-ref" required placeholder="e.g. NSTS-QT-2601" class="mt-1 w-full border border-white/15 bg-[#0f1115] px-3 py-2 text-xs text-white placeholder-white/30 focus:border-flare focus:outline-none" />
             </div>
 
             <div>
-              <label for="form-date" class="block text-[11px] font-semibold uppercase tracking-wider text-white/70">Quote Date</label>
+              <label for="form-date" id="label-form-date" class="block text-[11px] font-semibold uppercase tracking-wider text-white/70">Quote Date</label>
               <input type="date" id="form-date" required class="mt-1 w-full border border-white/15 bg-[#0f1115] px-3 py-2 text-xs text-white focus:border-flare focus:outline-none" />
             </div>
 
@@ -563,7 +591,7 @@ import "../styles/global.css";
 
             <div class="sm:col-span-2 grid grid-cols-1 gap-3 sm:grid-cols-3 rounded border border-white/10 bg-[#0b0d11]/60 p-2.5">
               <div>
-                <label for="form-basic-amt" class="block text-[11px] font-semibold uppercase tracking-wider text-white/70">Basic Amount (OMR)</label>
+                <label for="form-basic-amt" id="label-form-basic-amt" class="block text-[11px] font-semibold uppercase tracking-wider text-white/70">Basic Amount (OMR)</label>
                 <input type="number" step="0.001" id="form-basic-amt" required placeholder="0.000" class="mt-1 w-full border border-white/15 bg-[#0f1115] px-3 py-2 text-xs font-mono text-white placeholder-white/30 focus:border-flare focus:outline-none" />
               </div>
               <div>
@@ -571,7 +599,7 @@ import "../styles/global.css";
                 <input type="number" step="0.001" id="form-vat-amt" placeholder="0.000" class="mt-1 w-full border border-white/15 bg-[#0f1115] px-3 py-2 text-xs font-mono text-amber-300 placeholder-white/30 focus:border-flare focus:outline-none" />
               </div>
               <div>
-                <label for="form-total-amt" class="block text-[11px] font-semibold uppercase tracking-wider text-flare font-bold">Total Quoted (OMR)</label>
+                <label for="form-total-amt" id="label-form-total-amt" class="block text-[11px] font-semibold uppercase tracking-wider text-flare font-bold">Total Quoted (OMR)</label>
                 <input type="number" step="0.001" id="form-total-amt" readonly class="mt-1 w-full border border-flare/40 bg-flare/10 px-3 py-2 text-xs font-mono font-bold text-flare focus:outline-none cursor-not-allowed" />
               </div>
             </div>
@@ -584,7 +612,7 @@ import "../styles/global.css";
         </div>
 
         <!-- Section 2: Approval & PO Details -->
-        <div>
+        <div id="modal-section-po">
           <h3 class="border-b border-white/10 pb-1.5 text-xs font-bold uppercase tracking-wider text-white/80">2. Approval &amp; Purchase Order (PO)</h3>
           <div class="mt-3 grid grid-cols-1 gap-3.5 sm:grid-cols-3">
             <div>
@@ -617,6 +645,14 @@ import "../styles/global.css";
                 <input type="number" step="0.001" id="form-po-total-amt" readonly class="mt-1 w-full border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-xs font-mono font-bold text-emerald-400 focus:outline-none cursor-not-allowed" />
               </div>
             </div>
+          </div>
+        </div>
+
+        <!-- Direct Job Notice (Shown when in Direct Invoice Mode) -->
+        <div id="direct-po-notice" class="hidden rounded border border-cyan-500/30 bg-cyan-500/10 p-3 text-xs text-cyan-200">
+          <div class="flex items-center gap-2">
+            <span class="font-bold text-cyan-300">⚡ Direct Job Billing:</span>
+            <span>No client quotation or PO required. Billing will automatically record as <strong>INVOICED</strong>.</span>
           </div>
         </div>
 
@@ -2885,7 +2921,12 @@ import "../styles/global.css";
       return dStr;
     }
 
-    function getStatusBadge(status) {
+    function getStatusBadge(status, entryType = "") {
+      if (entryType === "DIRECT" || status === "DIRECT") {
+        return `<span class="inline-flex items-center gap-1 rounded-full bg-cyan-500/15 px-2 py-0.5 text-[10px] font-semibold text-cyan-300 ring-1 ring-cyan-500/30">
+          <span class="h-1.5 w-1.5 rounded-full bg-cyan-400"></span> Direct Inv
+        </span>`;
+      }
       switch (status) {
         case "Approved":
           return `<span class="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-semibold text-emerald-300 ring-1 ring-emerald-500/30">
@@ -2946,17 +2987,18 @@ import "../styles/global.css";
         const pTot = Number(r.poTotalAmt || r.poAmt) || 0;
         totalQuoted += qTot;
 
-        if (r.status === "Approved") {
+        const isDirect = r.entryType === "DIRECT" || r.poNumber === "Direct (No PO)";
+        if (r.status === "Approved" || isDirect) {
           totalPo += pTot > 0 ? pTot : qTot;
           poCount++;
         }
-        if (r.status === "Pending") {
+        if (r.status === "Pending" && !isDirect) {
           pendingVal += qTot;
           pendingCount++;
         }
         const invs = Array.isArray(r.invoices) && r.invoices.length > 0
           ? r.invoices
-          : (r.invoiceDate || r.invoiceNum ? [{ invAmt: pTot > 0 ? pTot : qTot }] : []);
+          : (r.invoiceDate || r.invoiceNum || isDirect ? [{ invAmt: pTot > 0 ? pTot : qTot }] : []);
 
         if (invs.length > 0) {
           const invSum = invs.reduce((sum, i) => sum + (Number(i.invAmt) || 0), 0);
@@ -2983,11 +3025,14 @@ import "../styles/global.css";
 
       let filtered = records.filter((r) => {
         const matchesYear = selectedYear === "ALL" || getRecordYear(r) === selectedYear;
+        const isDirect = r.entryType === "DIRECT" || r.poNumber === "Direct (No PO)" || (r.ref && (r.ref.startsWith("INV") || r.ref.includes("DIR")));
         const matchesStatus = statusF === "ALL" 
           ? true 
           : (statusF === "INVOICED" 
-              ? ((Array.isArray(r.invoices) && r.invoices.length > 0) || !!r.invoiceNum)
-              : r.status === statusF);
+              ? ((Array.isArray(r.invoices) && r.invoices.length > 0) || !!r.invoiceNum || isDirect)
+              : (statusF === "DIRECT"
+                  ? isDirect
+                  : r.status === statusF));
         const matchesWork = workF === "ALL" || r.workStatus === workF;
         const matchesQuery =
           !q ||
@@ -3029,19 +3074,26 @@ import "../styles/global.css";
 
       tableBody.innerHTML = filtered
         .map(
-          (r) => `
+          (r) => {
+            const isDirect = r.entryType === 'DIRECT' || r.poNumber === 'Direct (No PO)' || (r.ref && (r.ref.startsWith('INV') || r.ref.includes('DIR')));
+            return `
         <tr class="transition-colors hover:bg-white/[0.03]">
           <!-- Ref & Date -->
           <td class="w-[105px] py-2 pl-2 pr-1">
-            <button
-              type="button"
-              onclick="window._viewRecord('${r.id}')"
-              class="block w-full text-left truncate font-mono font-bold text-white text-[10.5px] transition-colors hover:text-flare hover:underline focus:outline-none"
-              title="Click to view full quote details"
-            >
-              ${r.ref || "—"}
-            </button>
-            <span class="mt-0.5 block text-[9.5px] text-white/50">${fmtDate(r.quoteDate)}</span>
+            <div class="flex items-center gap-1">
+              <button
+                type="button"
+                onclick="window._viewRecord('${r.id}')"
+                class="block truncate font-mono font-bold text-white text-[10.5px] transition-colors hover:text-flare hover:underline focus:outline-none"
+                title="Click to view full details"
+              >
+                ${r.ref || "—"}
+              </button>
+              ${isDirect ? `
+                <span class="inline-block shrink-0 rounded bg-cyan-500/20 px-1 py-0.2 font-mono text-[8.5px] font-bold text-cyan-300 ring-1 ring-cyan-500/30">DIRECT</span>
+              ` : ''}
+            </div>
+            <span class="mt-0.5 block text-[9.5px] text-white/50">${isDirect ? 'Inv: ' : ''}${fmtDate(r.quoteDate)}</span>
           </td>
 
           <!-- Client -->
@@ -3069,31 +3121,35 @@ import "../styles/global.css";
             ` : ''}
           </td>
 
-          <!-- Quoted Total & VAT Breakdown (Option A) -->
+          <!-- Quoted / Invoiced Total & VAT Breakdown -->
           <td class="w-[95px] whitespace-nowrap px-1 py-2">
             <span class="font-mono font-bold text-white text-[10.5px]">OMR ${fmtOmr(r.totalAmt || r.quoteAmt)}</span>
-            <span class="mt-0.5 block font-mono text-[9px] text-white/60">Base: ${fmtOmr(r.basicAmt || (r.totalAmt ? r.totalAmt / 1.05 : 0))}</span>
+            <span class="mt-0.5 block font-mono text-[9px] text-white/60">${isDirect ? 'Taxable:' : 'Base:'} ${fmtOmr(r.basicAmt || (r.totalAmt ? r.totalAmt / 1.05 : 0))}</span>
             <span class="block font-mono text-[9px] text-amber-300/80">VAT: ${fmtOmr(r.vatAmt || (r.totalAmt ? r.totalAmt - (r.totalAmt / 1.05) : 0))}</span>
           </td>
 
           <!-- Approval Status -->
           <td class="w-[95px] whitespace-nowrap px-1 py-2">
-            ${getStatusBadge(r.status)}
+            ${getStatusBadge(r.status, isDirect ? "DIRECT" : (r.entryType || ""))}
           </td>
 
           <!-- PO Details (Option A) -->
           <td class="w-[100px] whitespace-nowrap px-1 py-2">
             ${
-              r.poNumber
-                ? `<span class="block truncate font-mono font-semibold text-emerald-400 text-[10.5px]" title="${r.poNumber}">${r.poNumber}</span>
-                   <span class="mt-0.5 block font-mono font-bold text-white text-[10.5px]">OMR ${fmtOmr(r.poTotalAmt || r.poAmt)}</span>
-                   ${
-                     (r.poBasicAmt || r.poVatAmt)
-                       ? `<span class="mt-0.5 block font-mono text-[9px] text-white/60">Base: ${fmtOmr(r.poBasicAmt)}</span>
-                          <span class="block font-mono text-[9px] text-amber-300/80">VAT: ${fmtOmr(r.poVatAmt)}</span>`
-                       : ""
-                   }`
-                : `<span class="text-white/30 text-[10.5px]">—</span>`
+              isDirect
+                ? `<span class="inline-block rounded bg-cyan-500/10 px-1.5 py-0.5 text-[9.5px] font-semibold text-cyan-300 border border-cyan-500/20">Direct (No PO)</span>
+                   <span class="mt-0.5 block font-mono text-[9px] text-white/50">Direct Billing</span>`
+                : (r.poNumber
+                    ? `<span class="block truncate font-mono font-semibold text-emerald-400 text-[10.5px]" title="${r.poNumber}">${r.poNumber}</span>
+                       <span class="mt-0.5 block font-mono font-bold text-white text-[10.5px]">OMR ${fmtOmr(r.poTotalAmt || r.poAmt)}</span>
+                       ${
+                         (r.poBasicAmt || r.poVatAmt)
+                           ? `<span class="mt-0.5 block font-mono text-[9px] text-white/60">Base: ${fmtOmr(r.poBasicAmt)}</span>
+                              <span class="block font-mono text-[9px] text-amber-300/80">VAT: ${fmtOmr(r.poVatAmt)}</span>`
+                           : ""
+                       }`
+                    : `<span class="text-white/30 text-[10.5px]">—</span>`
+                  )
             }
           </td>
 
@@ -3114,7 +3170,7 @@ import "../styles/global.css";
               <button
                 onclick="window._viewRecord('${r.id}')"
                 class="rounded-xs border border-blue-500/30 bg-blue-500/10 px-1 py-0.5 text-[10.5px] font-medium text-blue-300 transition-colors hover:border-blue-500/60 hover:bg-blue-500/25"
-                title="View full quote details"
+                title="View full details"
                 aria-label="View record"
               >
                 <svg class="h-3 w-3 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -3143,25 +3199,29 @@ import "../styles/global.css";
             </div>
           </td>
         </tr>
-      `
+      `;
+          }
         )
         .join("");
     }
 
     // Helper to render Invoicing column in main table
     function getInvoicingCell(r) {
+      const isDirect = r.entryType === 'DIRECT' || r.poNumber === 'Direct (No PO)' || (r.ref && (r.ref.startsWith('INV') || r.ref.includes('DIR')));
       const invs = Array.isArray(r.invoices) && r.invoices.length > 0
         ? r.invoices
         : (r.invoiceDate || r.invoiceNum
-            ? [{ invNum: r.invoiceNum || "Inv", invDate: r.invoiceDate || "", invAmt: Number(r.poTotalAmt || r.poAmt) || 0, remarks: "Full Invoice" }]
-            : []);
+            ? [{ invNum: r.invoiceNum || "Inv", invDate: r.invoiceDate || "", invAmt: Number(r.poTotalAmt || r.poAmt || r.totalAmt) || 0, remarks: "Full Invoice" }]
+            : (isDirect
+                ? [{ invNum: r.ref || "Direct Inv", invDate: r.quoteDate || "", invAmt: Number(r.totalAmt || r.quoteAmt) || 0, remarks: "Direct Invoice" }]
+                : []));
 
       if (invs.length === 0) {
         return `<span class="text-white/30 text-[10.5px]">Not Invoiced</span>`;
       }
 
       const totalInvAmt = invs.reduce((sum, i) => sum + (Number(i.invAmt) || 0), 0);
-      const poTarget = Number(r.poTotalAmt || r.poAmt) || 0;
+      const poTarget = Number(r.poTotalAmt || r.poAmt || (isDirect ? r.totalAmt : 0)) || 0;
       const isFullyInvoiced = poTarget > 0 && totalInvAmt >= (poTarget - 0.001);
 
       return `
@@ -3196,8 +3256,11 @@ import "../styles/global.css";
 
     function updateModalInvoiceSummary() {
       if (!modalInvTotal || !modalInvPoTarget || !modalInvBalancePill) return;
+      const entryType = document.getElementById("form-entry-type")?.value || "QUOTE";
       const totalInv = currentModalInvoices.reduce((sum, inv) => sum + (parseFloat(inv.invAmt) || 0), 0);
-      const poTarget = parseFloat(document.getElementById("form-po-total-amt")?.value) || parseFloat(document.getElementById("form-total-amt")?.value) || 0;
+      const poTarget = entryType === "DIRECT"
+        ? (parseFloat(document.getElementById("form-total-amt")?.value) || 0)
+        : (parseFloat(document.getElementById("form-po-total-amt")?.value) || parseFloat(document.getElementById("form-total-amt")?.value) || 0);
       modalInvTotal.textContent = `OMR ${fmtOmr(totalInv)}`;
       modalInvPoTarget.textContent = `OMR ${fmtOmr(poTarget)}`;
 
@@ -3257,11 +3320,14 @@ import "../styles/global.css";
     if (btnAddInvoice) {
       btnAddInvoice.addEventListener("click", () => {
         const today = new Date().toISOString().split("T")[0];
+        const entryType = document.getElementById("form-entry-type")?.value || "QUOTE";
+        const defaultRef = entryType === "DIRECT" ? (document.getElementById("form-ref")?.value || "INV-001") : "";
+        const defaultAmt = entryType === "DIRECT" && currentModalInvoices.length === 0 ? (parseFloat(document.getElementById("form-total-amt")?.value) || 0) : 0;
         currentModalInvoices.push({
-          invNum: "",
+          invNum: defaultRef,
           invDate: today,
-          invAmt: 0,
-          remarks: `Part ${currentModalInvoices.length + 1}`
+          invAmt: defaultAmt,
+          remarks: entryType === "DIRECT" ? "Direct Invoice" : `Part ${currentModalInvoices.length + 1}`
         });
         renderModalInvoices();
       });
@@ -3292,11 +3358,89 @@ import "../styles/global.css";
       });
     }
 
+    // Helper to toggle entry type mode inside record modal
+    function setEntryType(t) {
+      const typeBtnQuote = document.getElementById("type-btn-quote");
+      const typeBtnDirect = document.getElementById("type-btn-direct");
+      const formEntryType = document.getElementById("form-entry-type");
+      const modalSecPo = document.getElementById("modal-section-po");
+      const directPoNotice = document.getElementById("direct-po-notice");
+      const sec1Title = document.getElementById("modal-section-1-title");
+      const lblRef = document.getElementById("label-form-ref");
+      const lblDate = document.getElementById("label-form-date");
+      const lblBasic = document.getElementById("label-form-basic-amt");
+      const lblTotal = document.getElementById("label-form-total-amt");
+
+      if (formEntryType) formEntryType.value = t;
+
+      if (t === "DIRECT") {
+        typeBtnDirect?.classList.remove("text-white/60");
+        typeBtnDirect?.classList.add("bg-cyan-500", "text-black", "shadow");
+        typeBtnQuote?.classList.remove("bg-flare", "text-white", "shadow");
+        typeBtnQuote?.classList.add("text-white/60");
+
+        if (sec1Title) sec1Title.textContent = "1. Direct Billing & Tax Invoice Details";
+        if (lblRef) lblRef.textContent = "Tax Invoice # / Direct Ref *";
+        if (lblDate) lblDate.textContent = "Invoice Date *";
+        if (lblBasic) lblBasic.textContent = "Taxable Amount (OMR) *";
+        if (lblTotal) lblTotal.textContent = "Total Invoiced (OMR)";
+
+        modalSecPo?.classList.add("hidden");
+        directPoNotice?.classList.remove("hidden");
+
+        const workSt = document.getElementById("form-work-status");
+        if (workSt && (!workSt.value || workSt.value === "Not Started")) {
+          workSt.value = "Completed";
+        }
+      } else {
+        typeBtnQuote?.classList.remove("text-white/60");
+        typeBtnQuote?.classList.add("bg-flare", "text-white", "shadow");
+        typeBtnDirect?.classList.remove("bg-cyan-500", "text-black", "shadow");
+        typeBtnDirect?.classList.add("text-white/60");
+
+        if (sec1Title) sec1Title.textContent = "1. Quotation Details";
+        if (lblRef) lblRef.textContent = "Quote Ref #";
+        if (lblDate) lblDate.textContent = "Quote Date";
+        if (lblBasic) lblBasic.textContent = "Basic Amount (OMR)";
+        if (lblTotal) lblTotal.textContent = "Total Quoted (OMR)";
+
+        modalSecPo?.classList.remove("hidden");
+        directPoNotice?.classList.add("hidden");
+      }
+      updateModalInvoiceSummary();
+    }
+
+    const typeBtnQuote = document.getElementById("type-btn-quote");
+    const typeBtnDirect = document.getElementById("type-btn-direct");
+
+    if (typeBtnQuote) {
+      typeBtnQuote.addEventListener("click", () => {
+        setEntryType("QUOTE");
+        const refInput = document.getElementById("form-ref");
+        if (refInput && (refInput.value.startsWith("INV-") || refInput.value.startsWith("NSTS/INV/"))) {
+          refInput.value = `NSTS/QUOTE/${String(records.length + 1).padStart(3, "0")}/2026`;
+        }
+      });
+    }
+
+    if (typeBtnDirect) {
+      typeBtnDirect.addEventListener("click", () => {
+        setEntryType("DIRECT");
+        const refInput = document.getElementById("form-ref");
+        if (refInput && (refInput.value.startsWith("NSTS/QUOTE/") || !refInput.value)) {
+          refInput.value = `INV-${new Date().getFullYear().toString().slice(-2)}${String(records.length + 1).padStart(3, "0")}`;
+        }
+      });
+    }
+
     // Modal Operations
     function openModal(editRecord = null) {
       if (editRecord) {
-        modalEyebrow.textContent = "Edit Entry";
-        modalTitle.textContent = "Update Workflow Record";
+        const isDirect = editRecord.entryType === "DIRECT" || editRecord.poNumber === "Direct (No PO)" || (editRecord.ref && (editRecord.ref.startsWith("INV") || editRecord.ref.includes("DIR")));
+        modalEyebrow.textContent = isDirect ? "Edit Direct Invoice" : "Edit Entry";
+        modalTitle.textContent = isDirect ? "Update Direct Invoice Record" : "Update Workflow Record";
+        setEntryType(isDirect ? "DIRECT" : "QUOTE");
+
         document.getElementById("record-id").value = editRecord.id;
         document.getElementById("form-ref").value = editRecord.ref || "";
         document.getElementById("form-date").value = editRecord.quoteDate || "";
@@ -3318,7 +3462,7 @@ import "../styles/global.css";
         document.getElementById("form-po-basic-amt").value = poBase !== "" ? Number(poBase).toFixed(3) : "";
         document.getElementById("form-po-vat-amt").value = poVat !== "" ? Number(poVat).toFixed(3) : "";
         document.getElementById("form-po-total-amt").value = poTot !== "" ? Number(poTot).toFixed(3) : "";
-        document.getElementById("form-work-status").value = editRecord.workStatus || "Not Started";
+        document.getElementById("form-work-status").value = editRecord.workStatus || (isDirect ? "Completed" : "Not Started");
         document.getElementById("form-completed-date").value = editRecord.completionDate || "";
 
         if (Array.isArray(editRecord.invoices) && editRecord.invoices.length > 0) {
@@ -3327,8 +3471,15 @@ import "../styles/global.css";
           currentModalInvoices = [{
             invNum: editRecord.invoiceNum || "",
             invDate: editRecord.invoiceDate || "",
-            invAmt: Number(editRecord.poTotalAmt || editRecord.poAmt) || 0,
+            invAmt: Number(editRecord.poTotalAmt || editRecord.poAmt || editRecord.totalAmt) || 0,
             remarks: "Part 1"
+          }];
+        } else if (isDirect) {
+          currentModalInvoices = [{
+            invNum: editRecord.ref || "INV-DIRECT",
+            invDate: editRecord.quoteDate || "",
+            invAmt: Number(tAmt) || 0,
+            remarks: "Direct Full Invoice"
           }];
         } else {
           currentModalInvoices = [];
@@ -3337,6 +3488,7 @@ import "../styles/global.css";
       } else {
         modalEyebrow.textContent = "New Entry";
         modalTitle.textContent = "Add Job / Quotation";
+        setEntryType("QUOTE");
         recordForm.reset();
         document.getElementById("record-id").value = "";
         // Default today's date
@@ -3413,16 +3565,45 @@ import "../styles/global.css";
     recordForm.addEventListener("submit", (e) => {
       e.preventDefault();
       const id = document.getElementById("record-id").value || `rec_${Date.now()}`;
+      const entryType = document.getElementById("form-entry-type")?.value || "QUOTE";
       const basicAmt = parseFloat(document.getElementById("form-basic-amt").value) || 0;
       const vatAmt = parseFloat(document.getElementById("form-vat-amt").value) || 0;
       const totalAmt = parseFloat(document.getElementById("form-total-amt").value) || (basicAmt + vatAmt);
 
-      const poBasicAmt = parseFloat(document.getElementById("form-po-basic-amt").value) || 0;
-      const poVatAmt = parseFloat(document.getElementById("form-po-vat-amt").value) || 0;
-      const poTotalAmt = parseFloat(document.getElementById("form-po-total-amt").value) || (poBasicAmt + poVatAmt);
+      let poBasicAmt = parseFloat(document.getElementById("form-po-basic-amt").value) || 0;
+      let poVatAmt = parseFloat(document.getElementById("form-po-vat-amt").value) || 0;
+      let poTotalAmt = parseFloat(document.getElementById("form-po-total-amt").value) || (poBasicAmt + poVatAmt);
+      let statusVal = document.getElementById("form-status").value;
+      let poNumberVal = document.getElementById("form-po-number").value.trim();
+      let workStatusVal = document.getElementById("form-work-status").value;
+      let completionDateVal = document.getElementById("form-completed-date").value;
+      let invoicesVal = [...currentModalInvoices];
+
+      if (entryType === "DIRECT") {
+        statusVal = "Approved";
+        poNumberVal = poNumberVal || "Direct (No PO)";
+        poBasicAmt = basicAmt;
+        poVatAmt = vatAmt;
+        poTotalAmt = totalAmt;
+        if (!workStatusVal || workStatusVal === "Not Started") {
+          workStatusVal = "Completed";
+        }
+        if (!completionDateVal) {
+          completionDateVal = document.getElementById("form-date").value;
+        }
+        if (invoicesVal.length === 0) {
+          invoicesVal = [{
+            invNum: document.getElementById("form-ref").value.trim() || "INV-DIRECT",
+            invDate: document.getElementById("form-date").value,
+            invAmt: totalAmt,
+            remarks: "Direct Full Invoice"
+          }];
+        }
+      }
 
       const updated = {
         id,
+        entryType,
         ref: document.getElementById("form-ref").value.trim(),
         quoteDate: document.getElementById("form-date").value,
         client: document.getElementById("form-client").value.trim(),
@@ -3431,17 +3612,17 @@ import "../styles/global.css";
         totalAmt,
         quoteAmt: totalAmt,
         scope: document.getElementById("form-scope").value.trim(),
-        status: document.getElementById("form-status").value,
-        poNumber: document.getElementById("form-po-number").value.trim(),
+        status: statusVal,
+        poNumber: poNumberVal,
         poBasicAmt,
         poVatAmt,
         poTotalAmt,
         poAmt: poTotalAmt,
-        workStatus: document.getElementById("form-work-status").value,
-        completionDate: document.getElementById("form-completed-date").value,
-        invoices: currentModalInvoices,
-        invoiceNum: currentModalInvoices.length > 0 ? currentModalInvoices.map(i => i.invNum).filter(Boolean).join(", ") : "",
-        invoiceDate: currentModalInvoices.length > 0 ? (currentModalInvoices[currentModalInvoices.length - 1].invDate || "") : ""
+        workStatus: workStatusVal,
+        completionDate: completionDateVal,
+        invoices: invoicesVal,
+        invoiceNum: invoicesVal.length > 0 ? invoicesVal.map(i => i.invNum).filter(Boolean).join(", ") : "",
+        invoiceDate: invoicesVal.length > 0 ? (invoicesVal[invoicesVal.length - 1].invDate || "") : ""
       };
 
       const existingIndex = records.findIndex((r) => r.id === id);
@@ -3499,10 +3680,37 @@ import "../styles/global.css";
       if (!r || !viewModal) return;
       activeViewingRecord = r;
 
-      document.getElementById("view-title-ref").textContent = r.ref || "Untitled Quote";
+      const isDirect = r.entryType === "DIRECT" || r.poNumber === "Direct (No PO)" || (r.ref && (r.ref.startsWith("INV") || r.ref.includes("DIR")));
+
+      const eyebrowEl = document.getElementById("view-eyebrow-type");
+      if (eyebrowEl) {
+        eyebrowEl.textContent = isDirect ? "⚡ Direct Invoice Inspection" : "Quote Inspection";
+        eyebrowEl.className = isDirect ? "text-xs font-semibold uppercase tracking-[0.2em] text-cyan-400 font-bold" : "text-xs font-semibold uppercase tracking-[0.2em] text-blue-400";
+      }
+
+      document.getElementById("view-title-ref").textContent = r.ref || (isDirect ? "Direct Invoice" : "Untitled Quote");
       document.getElementById("view-client-bar").innerHTML = `Client: <strong class="text-white">${r.client || "—"}</strong>`;
-      document.getElementById("view-status-badge").innerHTML = getStatusBadge(r.status);
-      document.getElementById("view-quote-date").textContent = fmtDate(r.quoteDate);
+
+      if (isDirect) {
+        document.getElementById("view-status-badge").innerHTML = `
+          <span class="inline-flex items-center gap-1.5 rounded-full bg-cyan-500/20 px-2.5 py-0.5 text-[10.5px] font-bold text-cyan-300 ring-1 ring-cyan-500/40">
+            <span class="h-1.5 w-1.5 rounded-full bg-cyan-400"></span> ⚡ DIRECT INVOICE JOB
+          </span>
+        `;
+      } else {
+        document.getElementById("view-status-badge").innerHTML = getStatusBadge(r.status);
+      }
+
+      const sec1Title = document.getElementById("view-sec-1-title");
+      if (sec1Title) sec1Title.textContent = isDirect ? "1. Direct Billing & Tax Invoice Details" : "1. Quotation Details";
+
+      const lblBasic = document.getElementById("view-label-quote-basic");
+      if (lblBasic) lblBasic.textContent = isDirect ? "Taxable Amount" : "Basic Amount";
+
+      const lblTotal = document.getElementById("view-label-quote-total");
+      if (lblTotal) lblTotal.textContent = isDirect ? "Total Invoiced (incl. 5% VAT)" : "Total Quoted (incl. VAT)";
+
+      document.getElementById("view-quote-date").textContent = (isDirect ? "Inv Date: " : "") + fmtDate(r.quoteDate);
 
       const bAmt = Number(r.basicAmt !== undefined ? r.basicAmt : (r.totalAmt ? r.totalAmt / 1.05 : 0)) || 0;
       const vAmt = Number(r.vatAmt !== undefined ? r.vatAmt : (r.totalAmt ? r.totalAmt - (r.totalAmt / 1.05) : 0)) || 0;
@@ -3516,7 +3724,19 @@ import "../styles/global.css";
       // PO Details
       const poEl = document.getElementById("view-po-details-body");
       const poNumberEl = document.getElementById("view-po-number-badge");
-      if (r.poNumber) {
+      if (isDirect) {
+        poNumberEl.textContent = "Direct Job (No Client PO Required)";
+        poEl.innerHTML = `
+          <div class="rounded border border-cyan-500/30 bg-cyan-500/10 p-3 text-xs text-cyan-200">
+            <div class="flex items-center gap-2 font-bold text-cyan-300">
+              <span>⚡ Spot / Direct Job Billing</span>
+            </div>
+            <p class="mt-1 text-cyan-200/80 text-[11px] leading-relaxed">
+              This job was executed and billed directly to the client via Tax Invoice. No prior quotation or client purchase order (PO) was required.
+            </p>
+          </div>
+        `;
+      } else if (r.poNumber) {
         poNumberEl.textContent = `PO: ${r.poNumber}`;
         const poBase = Number(r.poBasicAmt !== undefined ? r.poBasicAmt : (r.poTotalAmt ? r.poTotalAmt / 1.05 : 0)) || 0;
         const poVat = Number(r.poVatAmt !== undefined ? r.poVatAmt : (r.poTotalAmt ? r.poTotalAmt - (r.poTotalAmt / 1.05) : 0)) || 0;
