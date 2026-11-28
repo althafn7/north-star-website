@@ -77,6 +77,14 @@ import "../styles/global.css";
         page-break-inside: avoid;
         break-inside: avoid;
       }
+
+      #slip-pending-approval-box {
+        border: 2px dashed #b91c1c !important;
+        background-color: #fef2f2 !important;
+        color: #b91c1c !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
     }
   </style>
 </head>
@@ -106,9 +114,8 @@ import "../styles/global.css";
             autocapitalize="none"
             autocorrect="off"
             spellcheck="false"
-            value="admin"
             class="mt-1.5 w-full border border-white/15 bg-[#0f1115] px-4 py-2.5 text-sm text-white placeholder-white/30 focus:border-amber-400 focus:outline-none focus:ring-1 focus:ring-amber-400"
-            placeholder="admin"
+            placeholder="admin or suresh"
           />
         </div>
 
@@ -319,13 +326,20 @@ import "../styles/global.css";
             <svg id="cloud-sync-icon" class="h-3.5 w-3.5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
           </button>
 
+          <!-- Current Logged-in User Badge -->
+          <div id="user-badge" class="inline-flex items-center gap-1.5 rounded-sm border border-white/15 bg-white/5 px-2.5 py-1 text-xs font-medium">
+            <span id="user-avatar-dot" class="h-2 w-2 rounded-full bg-amber-400"></span>
+            <span id="user-display-name" class="font-semibold text-white">Admin</span>
+            <span id="user-role-badge" class="rounded bg-white/10 px-1 py-0.2 text-[9.5px] uppercase tracking-wider text-white/60">Management</span>
+          </div>
+
           <button
             id="open-create-modal-btn"
             type="button"
             class="inline-flex items-center gap-1 bg-amber-500 px-2.5 py-1.5 text-xs font-semibold text-black shadow-md transition-colors hover:bg-amber-400"
           >
             <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            <span class="hidden sm:inline">+ New Voucher</span>
+            <span id="open-create-modal-btn-text" class="hidden sm:inline">+ New Voucher</span>
             <span class="sm:hidden">+ Entry</span>
           </button>
 
@@ -391,6 +405,29 @@ import "../styles/global.css";
         </div>
       </section>
 
+      <!-- Pending Approval Notification Banner -->
+      <section id="pending-approval-banner" class="hidden mt-4 items-center justify-between rounded-sm border border-amber-500/50 bg-amber-500/10 p-3 shadow-md sm:flex">
+        <div class="flex items-center gap-2.5">
+          <span class="relative flex h-3 w-3 shrink-0">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
+          </span>
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-amber-400">Action Required:</span>
+            <span id="pending-approval-msg" class="text-xs text-white/90 font-medium ml-1">Vouchers submitted by Suresh are waiting for management approval.</span>
+          </div>
+        </div>
+        <div class="mt-2 sm:mt-0 flex items-center gap-2">
+          <button
+            type="button"
+            id="view-pending-filter-btn"
+            class="rounded-xs bg-amber-500 px-3 py-1 text-xs font-bold text-black transition-colors hover:bg-amber-400 shadow cursor-pointer"
+          >
+            Review Pending Vouchers
+          </button>
+        </div>
+      </section>
+
       <!-- Table Toolbar (Search & Filters) -->
       <section class="mt-6 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
         <div class="flex flex-1 flex-wrap items-center gap-2.5">
@@ -424,6 +461,16 @@ import "../styles/global.css";
             class="border border-white/15 bg-[#161920] px-3 py-2 text-xs text-white/80 focus:border-amber-400 focus:outline-none max-w-[160px]"
           >
             <option value="ALL">All Projects</option>
+          </select>
+
+          <select
+            id="filter-approval"
+            class="border border-white/15 bg-[#161920] px-3 py-2 text-xs text-white/80 focus:border-amber-400 focus:outline-none max-w-[170px]"
+            title="Filter by Approval Status"
+          >
+            <option value="ALL">All Vouchers</option>
+            <option value="PENDING">⏳ Waiting for Approval</option>
+            <option value="APPROVED">✓ Approved Vouchers</option>
           </select>
 
           <select
@@ -543,6 +590,16 @@ import "../styles/global.css";
 
       <span id="modal-eyebrow" class="text-xs font-semibold uppercase tracking-[0.2em] text-amber-400">Cash Voucher Record</span>
       <h2 id="modal-title" class="font-display text-2xl font-extrabold text-white">Expense Details</h2>
+
+      <!-- Notice banner for Suresh / Approval workflow -->
+      <div id="txn-approval-notice" class="mt-3 hidden rounded border border-amber-500/30 bg-amber-500/10 p-2.5 text-xs text-amber-300">
+        <div class="flex items-start gap-2">
+          <span class="text-sm">ℹ️</span>
+          <div>
+            <span class="font-bold">Approval Workflow:</span> This voucher will be submitted to Admin for approval. The official company stamp and signature will only appear on the voucher slip after management approval.
+          </div>
+        </div>
+      </div>
 
       <form id="txn-form" class="mt-6 space-y-4">
         <input type="hidden" id="form-txn-id" value="" />
@@ -693,6 +750,7 @@ import "../styles/global.css";
           </button>
           <button
             type="submit"
+            id="txn-modal-submit-btn"
             class="bg-amber-500 px-6 py-2 text-xs font-semibold text-black shadow-md transition-colors hover:bg-amber-400"
           >
             Save Voucher
@@ -710,8 +768,19 @@ import "../styles/global.css";
         <div class="flex items-center gap-2">
           <span class="rounded bg-amber-500/20 px-2 py-0.5 font-mono text-[11px] font-bold text-amber-400">PAYMENT VOUCHER</span>
           <span id="slip-voucher-no-tag" class="text-xs text-white/70"></span>
+          <span id="slip-approval-badge" class="hidden rounded px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider"></span>
         </div>
         <div class="flex items-center gap-2">
+          <!-- Admin Approve Button (Visible for pending vouchers when admin is logged in) -->
+          <button
+            type="button"
+            id="slip-approve-btn"
+            class="hidden inline-flex items-center gap-1.5 bg-emerald-600 px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider text-white shadow transition-colors hover:bg-emerald-500"
+            title="Approve this voucher and apply official stamp & signature"
+          >
+            <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            <span>Approve Voucher</span>
+          </button>
           <button
             type="button"
             id="print-voucher-btn"
@@ -848,12 +917,14 @@ import "../styles/global.css";
             </div>
           </div>
 
-          <!-- Right: Official Stamp & MD Signature -->
+          <!-- Right: Official Stamp & MD Signature OR Waiting for Approval -->
           <div class="w-full sm:w-60 text-center sm:text-right">
             <div class="text-[10.5px] font-bold uppercase tracking-wider text-black mb-1">
               For NORTH STAR TECHNICAL SERVICES LLC
             </div>
-            <div class="relative flex items-center justify-center sm:justify-end h-20 w-full my-1">
+
+            <!-- Approved State: Official Stamp & Signature -->
+            <div id="slip-stamp-signature-area" class="relative flex items-center justify-center sm:justify-end h-20 w-full my-1">
               <img 
                 src="/stamp-nsts.png" 
                 alt="North Star Company Stamp" 
@@ -869,6 +940,17 @@ import "../styles/global.css";
                 class="h-16 w-auto object-contain -ml-7 z-10 pointer-events-none select-none"
               />
             </div>
+
+            <!-- Pending Approval State: Prominent WAITING FOR APPROVAL badge box -->
+            <div id="slip-pending-approval-box" class="hidden flex-col items-center justify-center h-20 w-full my-1 border-2 border-dashed border-red-600 bg-red-50/90 rounded px-2 text-center">
+              <div class="flex items-center justify-center gap-1 text-red-700 font-black text-[11.5px] tracking-wider uppercase">
+                <svg class="h-4 w-4 shrink-0 text-red-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                <span>WAITING FOR APPROVAL</span>
+              </div>
+              <div class="text-[9px] text-gray-700 font-bold mt-0.5 tracking-tight">Pending Management Approval</div>
+              <div class="text-[8px] text-gray-500 italic mt-0.5">Stamp &amp; signature will appear after approval</div>
+            </div>
+
             <div class="w-full border-t-2 border-black pt-1 text-center">
               <span class="block text-xs font-bold uppercase tracking-wider text-black">Authorized Signatory</span>
               <span class="block text-[10px] font-medium text-gray-700">Managing Director</span>
@@ -884,13 +966,24 @@ import "../styles/global.css";
   <script is:inline>
     const STORAGE_KEY_ACCOUNTS = "nsts_accounts_records_v3";
     const AUTH_KEY = "nsts_workflow_auth";
+    const USER_KEY = "nsts_accounts_logged_in_user";
     const PASS_STORAGE_KEY = "nsts_workflow_admin_password";
     const DEFAULT_USER = "admin";
     const DEFAULT_PASS = "nsts2026";
+    const SURESH_USER = "suresh";
+    const SURESH_PASS = "suresh";
     const MASTER_RECOVERY_PIN = "0000";
 
     function getActivePassword() {
       return localStorage.getItem(PASS_STORAGE_KEY) || DEFAULT_PASS;
+    }
+
+    function getActiveUser() {
+      return (localStorage.getItem(USER_KEY) || "admin").toLowerCase();
+    }
+
+    function isRecordPending(r) {
+      return !!r && r.approvalStatus === "PENDING";
     }
 
     let records = [];
@@ -898,10 +991,12 @@ import "../styles/global.css";
     let selectedPaidTo = "ALL";
     let selectedCategory = "ALL";
     let selectedProject = "ALL";
+    let selectedApproval = "ALL";
     let searchQuery = "";
     let sortMode = "NEWEST";
     let pageSize = 100;
     let currentPage = 1;
+    let activeSlipRecordId = null;
 
     // Load Data: Try localStorage, then fallback to /data/cashbook_records.json
     async function loadData() {
@@ -1025,9 +1120,29 @@ import "../styles/global.css";
         selectedYear = "ALL";
       }
 
+      const pendingCount = records.filter(r => isRecordPending(r)).length;
+      let pendingTabHtml = "";
+      if (pendingCount > 0) {
+        const isPendingActive = selectedApproval === "PENDING";
+        const pendingClass = isPendingActive
+          ? "bg-amber-500 text-black font-extrabold shadow-md border border-amber-400"
+          : "bg-amber-500/15 text-amber-300 font-semibold hover:border-amber-400 hover:bg-amber-500/25 border border-amber-500/40 shadow-sm";
+        const pendingBadgeClass = isPendingActive ? "bg-black/30 text-black font-extrabold" : "bg-amber-500/30 text-amber-200 font-bold";
+        pendingTabHtml = `
+          <button
+            type="button"
+            class="pending-tab-toggle-btn inline-flex items-center gap-1.5 rounded-sm px-2.5 py-1 text-xs transition-all ${pendingClass}"
+            title="Filter vouchers waiting for management approval"
+          >
+            <span>⏳ Waiting Approval</span>
+            <span class="rounded-full px-1.5 py-0.2 text-[10px] ${pendingBadgeClass}">${pendingCount}</span>
+          </button>
+        `;
+      }
+
       container.innerHTML = tabs
         .map(tab => {
-          const isActive = String(selectedYear) === String(tab);
+          const isActive = String(selectedYear) === String(tab) && selectedApproval !== "PENDING";
           const count = allCounts[tab] || 0;
           const label = tab === "ALL" ? "All Years" : tab;
           const activeClass = isActive
@@ -1048,15 +1163,33 @@ import "../styles/global.css";
             </button>
           `;
         })
-        .join("");
+        .join("") + pendingTabHtml;
 
       container.querySelectorAll(".year-tab-btn").forEach(btn => {
         btn.addEventListener("click", () => {
           selectedYear = btn.dataset.year;
+          selectedApproval = "ALL";
+          const appSelect = document.getElementById("filter-approval");
+          if (appSelect) appSelect.value = "ALL";
           currentPage = 1;
           populateFilterDropdowns();
           renderYearTabs();
           render();
+        });
+      });
+
+      container.querySelectorAll(".pending-tab-toggle-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          if (selectedApproval === "PENDING") {
+            selectedApproval = "ALL";
+          } else {
+            selectedApproval = "PENDING";
+          }
+          const appSelect = document.getElementById("filter-approval");
+          if (appSelect) appSelect.value = selectedApproval;
+          currentPage = 1;
+          renderYearTabs();
+          renderTable();
         });
       });
     }
@@ -1120,6 +1253,13 @@ import "../styles/global.css";
       if (selectedYear !== "ALL") {
         const yNum = parseInt(selectedYear, 10);
         filtered = filtered.filter(r => parseInt(r.year, 10) === yNum);
+      }
+
+      // Approval Status filter
+      if (selectedApproval === "PENDING") {
+        filtered = filtered.filter(r => isRecordPending(r));
+      } else if (selectedApproval === "APPROVED") {
+        filtered = filtered.filter(r => !isRecordPending(r));
       }
 
       // Paid To filter
@@ -1226,7 +1366,25 @@ import "../styles/global.css";
 
       if (yearBadge) {
         const yText = selectedYear === "ALL" ? "All Years" : selectedYear;
-        yearBadge.textContent = `Viewing: ${yText} (${filtered.length.toLocaleString()} records • OMR ${filteredTotal.toLocaleString("en-US", { minimumFractionDigits: 3, maximumFractionDigits: 3 })})`;
+        const appText = selectedApproval === "PENDING" ? " • [Waiting Approval Only]" : (selectedApproval === "APPROVED" ? " • [Approved Only]" : "");
+        yearBadge.textContent = `Viewing: ${yText}${appText} (${filtered.length.toLocaleString()} records • OMR ${filteredTotal.toLocaleString("en-US", { minimumFractionDigits: 3, maximumFractionDigits: 3 })})`;
+      }
+
+      // Pending Approval Banner check
+      const pendingRecords = records.filter(r => isRecordPending(r));
+      const pendingBanner = document.getElementById("pending-approval-banner");
+      const pendingMsg = document.getElementById("pending-approval-msg");
+      if (pendingBanner) {
+        if (pendingRecords.length > 0) {
+          pendingBanner.classList.remove("hidden");
+          pendingBanner.classList.add("flex");
+          if (pendingMsg) {
+            pendingMsg.textContent = `${pendingRecords.length} voucher${pendingRecords.length > 1 ? 's' : ''} submitted by Suresh are waiting for management approval.`;
+          }
+        } else {
+          pendingBanner.classList.add("hidden");
+          pendingBanner.classList.remove("flex");
+        }
       }
     }
 
@@ -1267,9 +1425,11 @@ import "../styles/global.css";
       tbody.innerHTML = pagedRecords.map((r, idx) => {
         const amtStr = (r.amount || 0).toLocaleString("en-US", { minimumFractionDigits: 3, maximumFractionDigits: 3 });
         const catBadgeColor = getCategoryColor(r.category);
+        const isPending = isRecordPending(r);
+        const user = getActiveUser();
 
         return `
-          <tr class="transition-colors hover:bg-white/[0.03]">
+          <tr class="transition-colors hover:bg-white/[0.03] ${isPending ? 'bg-amber-500/[0.05]' : ''}">
             <td class="whitespace-nowrap py-2.5 pl-3 pr-1 text-white/90">
               <div class="font-medium">${escapeHtml(r.date || "—")}</div>
               <div class="text-[10px] text-amber-400 font-mono">${escapeHtml(String(r.year || ""))}</div>
@@ -1278,6 +1438,7 @@ import "../styles/global.css";
               <span class="inline-block rounded-xs px-2 py-0.5 text-[10px] font-semibold tracking-wider ${catBadgeColor}">
                 ${escapeHtml(r.category || "—")}
               </span>
+              ${isPending ? `<div class="mt-1"><span class="inline-flex items-center gap-1 rounded bg-amber-500/20 px-1.5 py-0.5 text-[9.5px] font-bold text-amber-300 border border-amber-500/30">⏳ Waiting Approval</span>${r.createdBy === "suresh" ? '<span class="text-[9px] text-white/40 block mt-0.5">by Suresh</span>' : ''}</div>` : ''}
             </td>
             <td class="px-2 py-2.5 font-medium text-white/95">
               <div class="max-w-[180px] truncate" title="${escapeHtml(r.paidTo || "")}">${escapeHtml(r.paidTo || "—")}</div>
@@ -1302,6 +1463,16 @@ import "../styles/global.css";
             </td>
             <td class="whitespace-nowrap py-2.5 pr-3 text-center">
               <div class="inline-flex items-center gap-1">
+                ${isPending && user === "admin" ? `
+                  <button
+                    type="button"
+                    class="approve-txn-btn rounded-xs border border-emerald-500/40 bg-emerald-500/20 px-1.5 py-0.5 text-[10.5px] font-bold text-emerald-300 transition-colors hover:border-emerald-400 hover:bg-emerald-500/35"
+                    data-id="${escapeHtml(r.id)}"
+                    title="Approve this Voucher"
+                  >
+                    Approve
+                  </button>
+                ` : ''}
                 <button
                   type="button"
                   class="slip-txn-btn rounded-xs border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 text-[10.5px] font-medium text-amber-300 transition-colors hover:border-amber-500/60 hover:bg-amber-500/25"
@@ -1331,6 +1502,13 @@ import "../styles/global.css";
           </tr>
         `;
       }).join("");
+
+      // Wire approve buttons
+      tbody.querySelectorAll(".approve-txn-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          approveVoucher(btn.dataset.id);
+        });
+      });
 
       // Wire slip buttons
       tbody.querySelectorAll(".slip-txn-btn").forEach(btn => {
@@ -1416,9 +1594,26 @@ import "../styles/global.css";
 
     // Modal Operations
     function openCreateModal() {
-      document.getElementById("modal-eyebrow").textContent = "New Cash Voucher";
-      document.getElementById("modal-title").textContent = "Add Expense Entry";
+      const user = getActiveUser();
+      const isSuresh = user === "suresh";
+
+      document.getElementById("modal-eyebrow").textContent = isSuresh ? "New Cash Voucher (Send for Approval)" : "New Cash Voucher";
+      document.getElementById("modal-title").textContent = isSuresh ? "Submit Expense Voucher" : "Add Expense Entry";
       document.getElementById("form-txn-id").value = "";
+
+      const submitBtn = document.getElementById("txn-modal-submit-btn");
+      if (submitBtn) {
+        submitBtn.textContent = isSuresh ? "Save & Send for Approval" : "Save Voucher";
+      }
+
+      const noticeEl = document.getElementById("txn-approval-notice");
+      if (noticeEl) {
+        if (isSuresh) {
+          noticeEl.classList.remove("hidden");
+        } else {
+          noticeEl.classList.add("hidden");
+        }
+      }
       
       const now = new Date();
       const dd = String(now.getDate()).padStart(2, '0');
@@ -1449,9 +1644,31 @@ import "../styles/global.css";
       const r = records.find(x => x.id === id);
       if (!r) return;
 
-      document.getElementById("modal-eyebrow").textContent = `Voucher ${r.docNo || r.id}`;
+      const user = getActiveUser();
+      const isPending = isRecordPending(r);
+
+      document.getElementById("modal-eyebrow").textContent = `Voucher ${r.docNo || r.id}` + (isPending ? " [Waiting Approval]" : "");
       document.getElementById("modal-title").textContent = "Edit Expense Entry";
       document.getElementById("form-txn-id").value = r.id;
+
+      const submitBtn = document.getElementById("txn-modal-submit-btn");
+      if (submitBtn) {
+        if (user === "suresh" && isPending) {
+          submitBtn.textContent = "Save & Send for Approval";
+        } else {
+          submitBtn.textContent = "Save Voucher";
+        }
+      }
+
+      const noticeEl = document.getElementById("txn-approval-notice");
+      if (noticeEl) {
+        if (isPending) {
+          noticeEl.classList.remove("hidden");
+        } else {
+          noticeEl.classList.add("hidden");
+        }
+      }
+
       document.getElementById("form-txn-date").value = r.date || "";
       document.getElementById("form-txn-year").value = r.year || new Date().getFullYear();
       document.getElementById("form-txn-amount").value = r.amount || 0;
@@ -1538,6 +1755,61 @@ import "../styles/global.css";
     function openVoucherSlipModal(id) {
       const r = records.find(x => x.id === id);
       if (!r) return;
+      activeSlipRecordId = id;
+
+      const user = getActiveUser();
+      const isPending = isRecordPending(r);
+
+      // Handle Stamp/Signature vs WAITING FOR APPROVAL box
+      const stampArea = document.getElementById("slip-stamp-signature-area");
+      const pendingBox = document.getElementById("slip-pending-approval-box");
+      const approveBtn = document.getElementById("slip-approve-btn");
+      const badgeEl = document.getElementById("slip-approval-badge");
+
+      if (isPending) {
+        // Pending approval: HIDE stamp and signature, SHOW prominent WAITING FOR APPROVAL
+        if (stampArea) {
+          stampArea.classList.add("hidden");
+          stampArea.classList.remove("flex");
+        }
+        if (pendingBox) {
+          pendingBox.classList.remove("hidden");
+          pendingBox.classList.add("flex");
+        }
+        if (badgeEl) {
+          badgeEl.classList.remove("hidden");
+          badgeEl.textContent = "⏳ WAITING APPROVAL";
+          badgeEl.className = "rounded bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider";
+        }
+        if (approveBtn) {
+          if (user === "admin") {
+            approveBtn.classList.remove("hidden");
+            approveBtn.classList.add("inline-flex");
+          } else {
+            approveBtn.classList.add("hidden");
+            approveBtn.classList.remove("inline-flex");
+          }
+        }
+      } else {
+        // Approved (or legacy pre-approved record): SHOW official stamp and signature
+        if (stampArea) {
+          stampArea.classList.remove("hidden");
+          stampArea.classList.add("flex");
+        }
+        if (pendingBox) {
+          pendingBox.classList.add("hidden");
+          pendingBox.classList.remove("flex");
+        }
+        if (badgeEl) {
+          badgeEl.classList.remove("hidden");
+          badgeEl.textContent = "✓ APPROVED";
+          badgeEl.className = "rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider";
+        }
+        if (approveBtn) {
+          approveBtn.classList.add("hidden");
+          approveBtn.classList.remove("inline-flex");
+        }
+      }
 
       const amtVal = r.amount || 0;
       const amtStr = amtVal.toLocaleString("en-US", { minimumFractionDigits: 3, maximumFractionDigits: 3 });
@@ -1593,6 +1865,26 @@ import "../styles/global.css";
       if (modal) {
         modal.classList.remove("hidden");
         modal.classList.add("flex");
+      }
+    }
+
+    function approveVoucher(id) {
+      const r = records.find(x => x.id === id);
+      if (!r) return;
+      if (!confirm(`Approve Voucher ${r.docNo || r.id}?\n\n• Payee: ${r.paidTo || "—"}\n• Amount: OMR ${(r.amount || 0).toFixed(3)}\n\nThis will officially approve the voucher and apply the company stamp & authorized signature.`)) {
+        return;
+      }
+      r.approvalStatus = "APPROVED";
+      r.approvedBy = "admin";
+      r.approvedAt = new Date().toISOString();
+      saveLocal();
+      pushToCloud();
+      populateFilterDropdowns();
+      renderYearTabs();
+      renderTable();
+      const modal = document.getElementById("voucher-slip-modal");
+      if (modal && !modal.classList.contains("hidden") && activeSlipRecordId === id) {
+        openVoucherSlipModal(id);
       }
     }
 
@@ -1713,6 +2005,7 @@ import "../styles/global.css";
           adminApp.classList.remove("hidden");
           adminApp.classList.add("flex");
         }
+        updateUserUI();
         loadData();
       } else {
         if (loginGate) loginGate.classList.remove("hidden");
@@ -1720,6 +2013,33 @@ import "../styles/global.css";
           adminApp.classList.add("hidden");
           adminApp.classList.remove("flex");
         }
+      }
+    }
+
+    function updateUserUI() {
+      const user = getActiveUser();
+      const dot = document.getElementById("user-avatar-dot");
+      const name = document.getElementById("user-display-name");
+      const badge = document.getElementById("user-role-badge");
+      const changePassBtn = document.getElementById("change-pass-btn");
+
+      if (user === "suresh") {
+        if (dot) dot.className = "h-2 w-2 rounded-full bg-blue-400";
+        if (name) name.textContent = "Suresh";
+        if (badge) {
+          badge.textContent = "Entry / Accountant";
+          badge.className = "rounded bg-blue-500/20 px-1 py-0.2 text-[9.5px] uppercase tracking-wider text-blue-300";
+        }
+        if (changePassBtn) changePassBtn.classList.add("hidden");
+      } else {
+        // Admin
+        if (dot) dot.className = "h-2 w-2 rounded-full bg-amber-400";
+        if (name) name.textContent = "Admin";
+        if (badge) {
+          badge.textContent = "Management";
+          badge.className = "rounded bg-amber-500/20 px-1 py-0.2 text-[9.5px] uppercase tracking-wider text-amber-300";
+        }
+        if (changePassBtn) changePassBtn.classList.remove("hidden");
       }
     }
 
@@ -1733,8 +2053,21 @@ import "../styles/global.css";
           e.preventDefault();
           const u = document.getElementById("username").value.trim().toLowerCase();
           const p = document.getElementById("password").value.trim();
+
+          let authenticated = false;
+          let userRole = "";
+
           if (u === DEFAULT_USER && p === getActivePassword()) {
+            authenticated = true;
+            userRole = "admin";
+          } else if (u === SURESH_USER && p === SURESH_PASS) {
+            authenticated = true;
+            userRole = "suresh";
+          }
+
+          if (authenticated) {
             localStorage.setItem(AUTH_KEY, "true");
+            localStorage.setItem(USER_KEY, userRole);
             if (loginError) loginError.classList.add("hidden");
             checkAuth();
           } else {
@@ -1748,6 +2081,7 @@ import "../styles/global.css";
       if (logoutBtn) {
         logoutBtn.addEventListener("click", () => {
           localStorage.removeItem(AUTH_KEY);
+          localStorage.removeItem(USER_KEY);
           checkAuth();
         });
       }
@@ -1880,6 +2214,39 @@ import "../styles/global.css";
         });
       }
 
+      // Approval Status filter
+      const filterApproval = document.getElementById("filter-approval");
+      if (filterApproval) {
+        filterApproval.addEventListener("change", (e) => {
+          selectedApproval = e.target.value;
+          currentPage = 1;
+          renderYearTabs();
+          renderTable();
+        });
+      }
+
+      // Review Pending Vouchers Banner Button
+      const viewPendingBtn = document.getElementById("view-pending-filter-btn");
+      if (viewPendingBtn) {
+        viewPendingBtn.addEventListener("click", () => {
+          selectedApproval = "PENDING";
+          if (filterApproval) filterApproval.value = "PENDING";
+          currentPage = 1;
+          renderYearTabs();
+          renderTable();
+        });
+      }
+
+      // Slip Approve Button (Inside Voucher Slip Modal)
+      const slipApproveBtn = document.getElementById("slip-approve-btn");
+      if (slipApproveBtn) {
+        slipApproveBtn.addEventListener("click", () => {
+          if (activeSlipRecordId) {
+            approveVoucher(activeSlipRecordId);
+          }
+        });
+      }
+
       // Sort Date
       const sortSelect = document.getElementById("sort-date");
       if (sortSelect) {
@@ -1982,12 +2349,20 @@ import "../styles/global.css";
           const vatNo = document.getElementById("form-txn-vatno").value.trim();
           const taxAmt = parseFloat(document.getElementById("form-txn-taxamt").value) || 0;
 
+          const user = getActiveUser();
+          const isSuresh = user === "suresh";
+
           if (id) {
             // Edit existing
             const targetIdx = records.findIndex(x => x.id === id);
             if (targetIdx !== -1) {
+              const prev = records[targetIdx];
+              let nextApprovalStatus = prev.approvalStatus;
+              if (isSuresh && prev.approvalStatus === "PENDING") {
+                nextApprovalStatus = "PENDING";
+              }
               records[targetIdx] = {
-                ...records[targetIdx],
+                ...prev,
                 date: dStr,
                 year: yr,
                 amount: Math.round(amt * 1000) / 1000,
@@ -1999,13 +2374,14 @@ import "../styles/global.css";
                 cashFrom,
                 taxInvNo: taxInv,
                 vatNo,
-                taxAmount: Math.round(taxAmt * 1000) / 1000
+                taxAmount: Math.round(taxAmt * 1000) / 1000,
+                approvalStatus: nextApprovalStatus
               };
             }
           } else {
             // Add new
             const newId = `rec_${yr}_${Date.now().toString().slice(-4)}`;
-            records.unshift({
+            const newRecord = {
               id: newId,
               year: yr,
               date: dStr,
@@ -2019,9 +2395,18 @@ import "../styles/global.css";
               taxInvNo: taxInv,
               vatNo,
               taxAmount: Math.round(taxAmt * 1000) / 1000,
-              cashFrom
-            });
+              cashFrom,
+              createdBy: user,
+              approvalStatus: isSuresh ? "PENDING" : "APPROVED",
+              createdAt: new Date().toISOString()
+            };
+            records.unshift(newRecord);
             selectedYear = String(yr);
+
+            if (isSuresh) {
+              // Confirmation for Suresh
+              alert("Voucher saved and submitted for management approval!\n\nThe official stamp and signature will be applied once approved by Admin.");
+            }
           }
 
           saveLocal();
